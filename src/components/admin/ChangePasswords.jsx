@@ -26,6 +26,7 @@ export default function ChangePassword() {
 
       const data = await res.json();
       alert(data.message);
+      window.location.href = "/login";
     } catch (err) {
       console.error(err);
       alert("Failed to change password");
