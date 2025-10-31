@@ -208,9 +208,7 @@ const AdminInbox = () => {
                       </div>
 
                       <div>
-                        <p className="font-semibold text-gray-100">
-                          {email.name}
-                        </p>
+                        <p className="font-semibold text-gray-100">{email.name}</p>
                         <p className="text-sm text-gray-400 truncate max-w-[300px]">
                           {email.customSubject || email.subject || "No Subject"}
                         </p>
@@ -253,9 +251,9 @@ const AdminInbox = () => {
                   {/* Expanded View */}
                   {isExpanded && (
                     <div className="bg-gray-800/60 px-8 pb-6 animate-fadeIn">
-                      <p className="text-gray-300 mt-2 border-t border-gray-700 pt-4 leading-relaxed">
+                      <div className="text-gray-300 mt-2 border-t border-gray-700 pt-4 leading-relaxed whitespace-pre-wrap break-words max-h-96 overflow-y-auto">
                         {email.message}
-                      </p>
+                      </div>
 
                       <div className="mt-4 flex gap-3">
                         <button
