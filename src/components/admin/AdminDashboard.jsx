@@ -26,7 +26,7 @@ const AdminDashboard = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    window.location.href = "/admin-login-9x7a5f";
+    window.location.href = "/login";
   };
 
   return (

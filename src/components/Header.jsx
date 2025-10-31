@@ -2,14 +2,13 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
 const Navbar = ({
-  textColor = "text-white", // default link text color
-  hoverColor = "text-yellow-400", // default link hover color
-  fixed = true, // fixed positioning
-  navLinksProp = null, // custom navigation links (optional)
+  textColor = "text-white",
+  hoverColor = "text-yellow-400",
+  fixed = true,
+  navLinksProp = null,
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // Default navigation links
   const defaultLinks = [
     { name: "Home", link: "/" },
     { name: "Our Project", link: "/ourProjects" },
@@ -20,7 +19,8 @@ const Navbar = ({
     { name: "About", link: "/about" },
     { name: "Contact", link: "/contact" },
   ];
-   const renderColoredTitle = (text) => {
+
+  const renderColoredTitle = (text) => {
     const colors = ["rgb(247, 244, 46)", "rgb(23, 207, 220)", "rgb(242, 30, 167)"];
     return text.split("").map((char, i) => (
       <span key={i} style={{ color: colors[i % colors.length] }}>
@@ -37,13 +37,18 @@ const Navbar = ({
         fixed ? "fixed" : "absolute"
       } top-0 left-0 w-full bg-black/60 flex justify-between items-center px-8 py-3 z-50 transition-all duration-300`}
     >
-      {/* Logo */}
+      {/* Logo Section */}
       <Link
         to="/"
-        className={`text-2xl font-bold flex items-center gap-1 transition-transform duration-300 hover:scale-105 ${textColor}`}
+        className={`flex items-center gap-2 text-2xl font-bold transition-transform duration-300 hover:scale-105 ${textColor}`}
       >
+        {/* ✅ Using logo from public folder */}
+        <img
+          src="/welcomeSlide/logo.avif"
+          alt="STEM Inspires Logo"
+          className="h-10 w-10 object-contain rounded-full"
+        />
         <span className="">{renderColoredTitle("STEM")}</span>
-        <span> </span>
         <span> </span>
         <span className="">{renderColoredTitle("Inspires")}</span>
       </Link>
@@ -69,9 +74,9 @@ const Navbar = ({
         className="lg:hidden flex flex-col gap-1 cursor-pointer z-50 mb-4"
         onClick={() => setMenuOpen(!menuOpen)}
       >
-        <span className={`w-6 h-0.5 bg-white transition-all duration-300`}></span>
-        <span className={`w-6 h-0.5 bg-white transition-all duration-300`}></span>
-        <span className={`w-6 h-0.5 bg-white transition-all duration-300`}></span>
+        <span className="w-6 h-0.5 bg-white transition-all duration-300"></span>
+        <span className="w-6 h-0.5 bg-white transition-all duration-300"></span>
+        <span className="w-6 h-0.5 bg-white transition-all duration-300"></span>
       </div>
 
       {/* Mobile Menu */}

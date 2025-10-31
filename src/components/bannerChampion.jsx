@@ -20,9 +20,13 @@ const Banner = () => {
 
       {/* Text overlay */}
       <div className="absolute bottom-12 left-1/2 -translate-x-1/2 bg-white/90 text-center p-8 rounded-xl shadow-lg max-w-4xl w-[90%] animate-fadeInUp">
-        <h3 className="text-3xl md:text-4xl mb-6 text-purple-800 font-orbitron uppercase">
+        <h3
+          className="text-3xl md:text-4xl mb-6 font-orbitron uppercase"
+          style={{ color: "rgb(23, 207, 220)" }}
+        >
           {bannerData.title}
         </h3>
+
         <p className="text-gray-700 text-base md:text-lg">
           {bannerData.description}
         </p>

@@ -1,8 +1,15 @@
 // src/components/Footer.jsx
 import React from "react";
 
-// Load backend URL from environment variables if needed
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+const colors = ["rgb(247, 244, 46)", "rgb(23, 207, 220)", "rgb(242, 30, 167)"];
+
+const renderColoredTitle = (text) => {
+  return text.split("").map((char, i) => (
+    <span key={i} style={{ color: colors[i % colors.length] }}>
+      {char}
+    </span>
+  ));
+};
 
 const footerData = {
   info: {
@@ -10,10 +17,10 @@ const footerData = {
     description:
       "Inspiring the next generation of innovators through hands-on STEM education.",
     socials: [
-      { icon: "S", href: "#", color: "bg-green-500" },
-      { icon: "T", href: "#", color: "bg-yellow-400" },
-      { icon: "E", href: "#", color: "bg-purple-500" },
-      { icon: "M", href: "#", color: "bg-blue-400" },
+      { icon: "S", href: "#" },
+      { icon: "T", href: "#" },
+      { icon: "E", href: "#" },
+      { icon: "M", href: "#" },
     ],
   },
   quickLinks: [
@@ -37,24 +44,29 @@ const footerData = {
 
 const Footer = () => {
   return (
-    <footer className="relative bg-gray-900 text-white py-16 px-6 md:px-20 overflow-hidden">
+    <footer className="relative bg-gray-900 text-white py-16 px-6 md:px-20 overflow-hidden hover:cursor-pointer">
       <div className="relative grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
         {/* Info */}
         <div>
-          <h3 className="text-xl font-bold mb-4">{footerData.info.title}</h3>
+          {/* ✅ “STEM Inspires” fully colorized */}
+          <h3 className="text-xl font-bold mb-4">
+            {renderColoredTitle(footerData.info.title)}
+          </h3>
           <p className="mb-4 text-gray-300">{footerData.info.description}</p>
+
+          {/* ✅ Colored circular social icons */}
           <div className="flex gap-4 mt-4">
             {footerData.info.socials.map((social, idx) => (
-              <a
+              <span
                 key={idx}
-                href={social.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`${social.color} w-10 h-10 flex items-center justify-center rounded-full text-white font-bold text-lg hover:scale-110 transition-transform`}
+                className={`w-10 h-10 flex items-center justify-center hover:cursor-pointer rounded-full text-black font-bold text-lg hover:scale-110 transition-transform`}
+                style={{
+                  backgroundColor: colors[idx % colors.length],
+                }}
                 aria-label={`Visit our ${social.icon} page`}
               >
                 {social.icon}
-              </a>
+              </span>
             ))}
           </div>
         </div>
