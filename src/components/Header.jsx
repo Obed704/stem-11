@@ -23,6 +23,8 @@ const Navbar = ({
     { name: "Contact", link: "/contact" },
   ];
 
+  const navLinks = navLinksProp || defaultLinks;
+
   const renderColoredTitle = (text) => {
     const colors = ["rgb(247, 244, 46)", "rgb(23, 207, 220)", "rgb(242, 30, 167)"];
     return text.split("").map((char, i) => (
@@ -32,7 +34,10 @@ const Navbar = ({
     ));
   };
 
-  const navLinks = navLinksProp || defaultLinks;
+  // ✅ Dynamic logo path with fallback for local dev
+  const logoSrc = FRONT_URL
+    ? `${FRONT_URL}/welcomeSlide/logo.avif`
+    : "/welcomeSlide/logo.avif";
 
   return (
     <nav
@@ -45,9 +50,8 @@ const Navbar = ({
         to="/"
         className={`flex items-center gap-2 text-2xl font-bold transition-transform duration-300 hover:scale-105 ${textColor}`}
       >
-        {/* ✅ Using logo from public folder dynamically with FRONT_URL */}
         <img
-          src={`${FRONT_URL}/welcomeSlide/logo.avif`}
+          src={logoSrc}
           alt="STEM Inspires Logo"
           className="h-10 w-10 object-contain rounded-full"
         />
