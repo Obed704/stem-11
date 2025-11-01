@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
+// ✅ Load front-end base URL from environment variables
+const FRONT_URL = import.meta.env.VITE_FRONT_URL;
+
 const Navbar = ({
   textColor = "text-white",
   hoverColor = "text-yellow-400",
@@ -42,15 +45,15 @@ const Navbar = ({
         to="/"
         className={`flex items-center gap-2 text-2xl font-bold transition-transform duration-300 hover:scale-105 ${textColor}`}
       >
-        {/* ✅ Using logo from public folder */}
+        {/* ✅ Using logo from public folder dynamically with FRONT_URL */}
         <img
-          src="/welcomeSlide/logo.avif"
+          src={`${FRONT_URL}/welcomeSlide/logo.avif`}
           alt="STEM Inspires Logo"
           className="h-10 w-10 object-contain rounded-full"
         />
-        <span className="">{renderColoredTitle("STEM")}</span>
+        <span>{renderColoredTitle("STEM")}</span>
         <span> </span>
-        <span className="">{renderColoredTitle("Inspires")}</span>
+        <span>{renderColoredTitle("Inspires")}</span>
       </Link>
 
       {/* Desktop Links */}
@@ -62,9 +65,7 @@ const Navbar = ({
             className={`relative group transition-colors duration-300 pb-2 ${textColor} hover:${hoverColor}`}
           >
             {name}
-            <span
-              className={`absolute bottom-0 left-0 w-0 h-[2px] bg-yellow-400 transition-all duration-300 group-hover:w-full`}
-            ></span>
+            <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-yellow-400 transition-all duration-300 group-hover:w-full"></span>
           </Link>
         ))}
       </div>
