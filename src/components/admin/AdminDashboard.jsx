@@ -21,7 +21,8 @@ const AdminDashboard = () => {
     { name: "Recruiting", path: "/admin-recruiting-process" },
     { name: "Project Slides", path: "/admin-project-slide" },
     { name: "Champions Gallery", path: "/admin-gallery" },
-    { name: "Testimonials / Comments", path: "/admin-testimonials" }
+    { name: "Testimonials / Comments", path: "/admin-testimonials" },
+    { name: "Our Commitment", path: "/admin-banner" }
   ];
 
   const handleLogout = () => {

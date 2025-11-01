@@ -27,6 +27,7 @@ import ChangePassword from "./components/admin/ChangePasswords.jsx";
 import { AuthProvider } from "./context/AuthContext.jsx";
 import PaymentSuccess from "./components/pages/PaymentsSuccess.jsx";
 import PaymentCancel from "./components/pages/PaymentCancel.jsx";
+import AdminBanner from "./components/admin/AdminBannerChamps.jsx";
 
 function App() {
   return (
@@ -64,6 +65,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <AdminDashboardEmails />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin-banner"
+            element={
+              <ProtectedRoute>
+                <AdminBanner />
               </ProtectedRoute>
             }
           />
