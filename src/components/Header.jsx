@@ -1,9 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
-// ✅ Load front-end base URL from environment variables
-const FRONT_URL = import.meta.env.VITE_FRONT_URL;
-
 const Navbar = ({
   textColor = "text-white",
   hoverColor = "text-yellow-400",
@@ -34,10 +31,8 @@ const Navbar = ({
     ));
   };
 
-  // ✅ Dynamic logo path with fallback for local dev
-  const logoSrc = FRONT_URL
-    ? `${FRONT_URL}/welcomeSlide/logo.avif`
-    : "/welcomeSlide/logo.avif";
+  // ✅ Use public folder path directly
+  const logoSrc = "/welcomeSlide/logo.avif";
 
   return (
     <nav
