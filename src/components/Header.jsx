@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
+// ✅ Backend URL from .env
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
 const Navbar = ({
   textColor = "text-white",
   hoverColor = "text-yellow-400",
@@ -31,8 +34,8 @@ const Navbar = ({
     ));
   };
 
-  // ✅ Use public folder path directly
-  const logoSrc = "/welcomeSlide/logo.avif";
+  // ✅ Load logo from backend
+  const logoSrc = `${BACKEND_URL}/welcomeSlide/logo.avif`;
 
   return (
     <nav
