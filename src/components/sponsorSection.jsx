@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL; // use .env
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const SponsorsSection = () => {
   const [sponsors, setSponsors] = useState([]);
@@ -11,7 +12,6 @@ const SponsorsSection = () => {
         const res = await fetch(`${BACKEND_URL}/api/sponsors`);
         const data = await res.json();
 
-        // Prepend BACKEND_URL to sponsor images
         const formatted = data.map((sponsor) => ({
           ...sponsor,
           img: `${BACKEND_URL}${sponsor.img}`,
@@ -28,15 +28,26 @@ const SponsorsSection = () => {
 
   return (
     <section className="p-16 px-4 md:px-12 max-w-7xl mx-auto bg-gray-200">
-      <h2 className="text-4xl font-bold text-center mb-12 text-gray-800">
+      <motion.h2
+        className="text-4xl font-bold text-center mb-12 text-gray-800"
+        initial={{ opacity: 0, y: -50 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        viewport={{ once: true }}
+      >
         🌟 Our Sponsors
-      </h2>
+      </motion.h2>
 
-      <div className="grid gap-2 grid-cols-3 md:grid-cols-7 md:px-16">
-        {sponsors.map((sponsor) => (
-          <div
+      <div className="grid gap-4 grid-cols-3 md:grid-cols-7 md:px-16">
+        {sponsors.map((sponsor, idx) => (
+          <motion.div
             key={sponsor._id}
-            className="relative rounded-xl overflow-hidden shadow-lg cursor-pointer max-w-x group"
+            className="relative rounded-xl overflow-hidden shadow-lg cursor-pointer group"
+            initial={{ opacity: 0, y: 30, scale: 0.95 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.6, delay: idx * 0.1 }}
+            viewport={{ once: true, amount: 0.3 }}
+            whileHover={{ scale: 1.05 }}
           >
             <img
               src={sponsor.img}
@@ -55,7 +66,7 @@ const SponsorsSection = () => {
                 See Partner
               </button>
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
     </section>

@@ -28,9 +28,12 @@ const FundTheirFuturePage = () => {
   const [loading, setLoading] = useState(true);
   const [selectedAmount, setSelectedAmount] = useState(null);
   const [customAmount, setCustomAmount] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [paymentType, setPaymentType] = useState("one-time");
-  const [processing, setProcessing] = useState(false);
+  const [processing1, setProcessing1] = useState(false);
+  const [processing2, setProcessing2] = useState(false);
 
   useEffect(() => {
     fetch(`${BACKEND_URL}/api/donation-images`)
@@ -65,7 +68,10 @@ const FundTheirFuturePage = () => {
   const handlePayment = async (provider) => {
     const amount = getAmount();
     if (!amount) return alert("Please select or enter a valid amount.");
-    setProcessing(true);
+    if (!name || !email) return alert("Please enter your name and email.");
+
+    if (provider === "stripe") setProcessing1(true);
+    if (provider === "paypal") setProcessing2(true);
 
     try {
       let endpoint = "";
@@ -78,7 +84,7 @@ const FundTheirFuturePage = () => {
       const res = await fetch(`${BACKEND_URL}${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount, message }),
+        body: JSON.stringify({ amount, message, name, email }),
       });
 
       const data = await res.json();
@@ -94,30 +100,183 @@ const FundTheirFuturePage = () => {
       console.error(`${provider} payment error:`, err);
       alert(`${provider} payment failed`);
     } finally {
-      setProcessing(false);
+      if (provider === "stripe") setProcessing1(false);
+      if (provider === "paypal") setProcessing2(false);
     }
   };
 
   if (loading)
     return (
       <div className="flex items-center justify-center min-h-screen text-lg text-gray-600">
-        Loading images...
+        Loading...
       </div>
     );
 
-  const renderDonationOptions = () =>
-    donationOptions.map((opt) => {
+  return (
+    <>
+      <style>{styles}</style>
+
+      <div className="bg-blue-500 w-full h-16"><Navbar bg="bg-black" /></div>
+      <ChatBolt />
+
+      {/* ✅ Banner Image (Just Below Header) */}
+      <div
+        className="w-[98%] h-28 sm:h-56 bg-center bg-cover mx-auto mt-4"
+        style={{
+          backgroundImage: "url('https://back-11-jtbr.onrender.com/welcomeSlide/table.jpg')",
+        }}
+      ></div>
+
+      <div className="bg-gray-50 font-sans min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
+        {/* Desktop layout */}
+        <div className="hidden md:flex items-center justify-center gap-8 w-full">
+          {/* Left scroll */}
+          <div className="relative w-44 h-[500px] overflow-hidden rounded-xl shadow-lg bg-white">
+            <div className="absolute animate-scroll-vertical space-y-4">
+              {leftImages.concat(leftImages).map((img, idx) => (
+                <img key={idx} src={img} alt="donation" className="rounded-xl shadow-md w-full object-cover" />
+              ))}
+            </div>
+          </div>
+
+          {/* Donation Form */}
+          <DonationForm
+            name={name}
+            email={email}
+            setName={setName}
+            setEmail={setEmail}
+            paymentType={paymentType}
+            setPaymentType={setPaymentType}
+            donationOptions={donationOptions}
+            selectedAmount={selectedAmount}
+            setSelectedAmount={setSelectedAmount}
+            customAmount={customAmount}
+            setCustomAmount={setCustomAmount}
+            message={message}
+            setMessage={setMessage}
+            handlePayment={handlePayment}
+            processing1={processing1}
+            processing2={processing2}
+          />
+
+          {/* Right scroll */}
+          <div className="relative w-44 h-[500px] overflow-hidden rounded-xl shadow-lg bg-white">
+            <div className="absolute animate-scroll-vertical space-y-4">
+              {rightImages.concat(rightImages).map((img, idx) => (
+                <img key={idx} src={img} alt="donation" className="rounded-xl shadow-md w-full object-cover" />
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile layout */}
+        <div className="flex flex-col md:hidden w-full items-center gap-6">
+          <div className="relative w-full h-40 overflow-hidden rounded-xl shadow-lg bg-white">
+            <div className="absolute flex animate-scroll-horizontal space-x-4">
+              {leftImages.concat(rightImages, leftImages).map((img, idx) => (
+                <img
+                  key={idx}
+                  src={img}
+                  alt="donation"
+                  className="w-40 h-40 object-cover rounded-lg shadow-md flex-shrink-0"
+                />
+              ))}
+            </div>
+          </div>
+
+          <DonationForm
+            name={name}
+            email={email}
+            setName={setName}
+            setEmail={setEmail}
+            paymentType={paymentType}
+            setPaymentType={setPaymentType}
+            donationOptions={donationOptions}
+            selectedAmount={selectedAmount}
+            setSelectedAmount={setSelectedAmount}
+            customAmount={customAmount}
+            setCustomAmount={setCustomAmount}
+            message={message}
+            setMessage={setMessage}
+            handlePayment={handlePayment}
+            processing1={processing1}
+            processing2={processing2}
+          />
+        </div>
+      </div>
+
+      <Footer />
+    </>
+  );
+};
+
+const DonationForm = ({
+  name,
+  email,
+  setName,
+  setEmail,
+  paymentType,
+  setPaymentType,
+  donationOptions,
+  selectedAmount,
+  setSelectedAmount,
+  customAmount,
+  setCustomAmount,
+  message,
+  setMessage,
+  handlePayment,
+  processing1,
+  processing2,
+}) => (
+  <div className="w-full max-w-md bg-white p-6 sm:p-8 rounded-xl shadow-2xl">
+    <h2 className="text-2xl font-bold mb-6 text-center text-blue-700">Donate</h2>
+
+    <input
+      type="text"
+      placeholder="Your Name"
+      value={name}
+      onChange={(e) => setName(e.target.value)}
+      className="w-full border border-gray-300 rounded-lg px-4 py-3 mb-3 focus:ring-blue-300"
+    />
+    <input
+      type="email"
+      placeholder="Your Email"
+      value={email}
+      onChange={(e) => setEmail(e.target.value)}
+      className="w-full border border-gray-300 rounded-lg px-4 py-3 mb-3 focus:ring-blue-300"
+    />
+
+    <div className="flex justify-center gap-3 mb-6">
+      <button
+        type="button"
+        onClick={() => setPaymentType("one-time")}
+        className={`px-4 py-2 rounded transition ${
+          paymentType === "one-time" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700"
+        }`}
+      >
+        One-Time
+      </button>
+      <button
+        type="button"
+        onClick={() => setPaymentType("monthly")}
+        className={`px-4 py-2 rounded transition ${
+          paymentType === "monthly" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700"
+        }`}
+      >
+        Monthly
+      </button>
+    </div>
+
+    {donationOptions.map((opt) => {
       const isSelected = selectedAmount === opt.value;
       return (
         <label
           key={opt.value}
-          className={`
-            flex items-center border border-blue-300 rounded-lg px-4 py-3 mb-3 cursor-pointer transition
-            ${isSelected
-              ? "bg-gradient-to-r from-yellow-300 via-cyan-400 to-pink-500 text-black shadow-lg opacity-100"
-              : "bg-white hover:bg-gray-50 opacity-80 hover:opacity-100"
-            }
-          `}
+          className={`flex items-center border border-blue-300 rounded-lg px-4 py-3 mb-3 cursor-pointer transition ${
+            isSelected
+              ? "bg-gradient-to-r from-yellow-300 via-cyan-400 to-pink-500 text-black shadow-lg"
+              : "bg-white hover:bg-gray-50"
+          }`}
           onClick={() => setSelectedAmount(opt.value)}
         >
           <input
@@ -131,183 +290,47 @@ const FundTheirFuturePage = () => {
           {opt.label}
         </label>
       );
-    });
+    })}
 
-  return (
-    <>
-      <style>{styles}</style>
+    {selectedAmount === "custom" && (
+      <input
+        type="number"
+        placeholder="Enter custom amount"
+        value={customAmount}
+        onChange={(e) => setCustomAmount(e.target.value)}
+        className="w-full border border-gray-300 rounded-lg px-4 py-3 mb-3 focus:ring-blue-300"
+      />
+    )}
 
-      <Navbar bg="bg-black" />
-      <ChatBolt />
+    <textarea
+      placeholder="Write a comment..."
+      value={message}
+      onChange={(e) => setMessage(e.target.value)}
+      className="w-full mt-2 border border-gray-300 rounded-lg px-4 py-3 focus:ring-blue-300"
+    />
 
-      <div className="bg-gray-50 font-sans min-h-screen flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        {/* Desktop view */}
-        <div className="hidden md:flex items-center justify-center gap-8 w-full">
-          {/* Left scroll */}
-          <div className="relative w-44 h-[500px] overflow-hidden rounded-xl shadow-lg bg-white">
-            <div className="absolute animate-scroll-vertical space-y-4">
-              {leftImages.concat(leftImages).map((img, idx) => (
-                <img key={idx} src={img} alt="donation" className="rounded-xl shadow-md w-full object-cover" />
-              ))}
-            </div>
-          </div>
+    <div className="flex flex-col gap-3 mt-6">
+      <button
+        onClick={() => handlePayment("stripe")}
+        disabled={processing1 || processing2}
+        className={`w-full font-bold py-3 rounded-lg transition ${
+          processing1 || processing2 ? "opacity-70 cursor-not-allowed" : ""
+        } bg-purple-600 hover:bg-purple-700 text-white`}
+      >
+        {processing1 ? "Processing..." : "Pay with Credit Card (Stripe)"}
+      </button>
 
-          {/* Donation Form */}
-          <div className="w-full max-w-md bg-white p-6 sm:p-8 rounded-xl shadow-2xl">
-            <h2 className="text-2xl font-bold mb-6 text-center text-blue-700">Choose amount</h2>
-
-            <div className="flex justify-center gap-3 mb-6">
-              <button
-                type="button"
-                onClick={() => setPaymentType("one-time")}
-                className={`px-4 py-2 rounded transition ${
-                  paymentType === "one-time" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700"
-                }`}
-              >
-                One-Time
-              </button>
-              <button
-                type="button"
-                onClick={() => setPaymentType("monthly")}
-                className={`px-4 py-2 rounded transition ${
-                  paymentType === "monthly" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700"
-                }`}
-              >
-                Monthly
-              </button>
-            </div>
-
-            {renderDonationOptions()}
-
-            {selectedAmount === "custom" && (
-              <input
-                type="number"
-                placeholder="Enter custom amount"
-                value={customAmount}
-                onChange={(e) => setCustomAmount(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 mb-3 focus:ring-blue-300 transition"
-              />
-            )}
-
-            <textarea
-              placeholder="Write a comment..."
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              className="w-full mt-2 border border-gray-300 rounded-lg px-4 py-3 focus:ring-blue-300"
-            />
-
-            <div className="flex flex-col gap-3 mt-6">
-              <button
-                onClick={() => handlePayment("stripe")}
-                disabled={processing}
-                className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-lg transition"
-              >
-                {processing ? "Processing..." : "Pay with Credit Card (Stripe)"}
-              </button>
-              <button
-                onClick={() => handlePayment("paypal")}
-                disabled={processing}
-                className="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 rounded-lg transition"
-              >
-                {processing ? "Processing..." : "Pay with PayPal"}
-              </button>
-            </div>
-          </div>
-
-          {/* Right scroll */}
-          <div className="relative w-44 h-[500px] overflow-hidden rounded-xl shadow-lg bg-white">
-            <div className="absolute animate-scroll-vertical space-y-4">
-              {rightImages.concat(rightImages).map((img, idx) => (
-                <img key={idx} src={img} alt="donation" className="rounded-xl shadow-md w-full object-cover" />
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile view */}
-        <div className="flex flex-col items-center gap-6 w-full md:hidden mt-6">
-          <div className="relative h-36 w-full overflow-hidden rounded-xl shadow-lg bg-white">
-            <div className="absolute flex animate-scroll-horizontal space-x-4">
-              {leftImages.concat(leftImages).map((img, idx) => (
-                <img key={idx} src={img} alt="donation" className="h-36 w-auto rounded-xl shadow-md object-cover" />
-              ))}
-            </div>
-          </div>
-
-          <div className="w-full max-w-md bg-white p-6 sm:p-8 rounded-xl shadow-2xl">
-            <h2 className="text-2xl font-bold mb-6 text-center text-blue-700">Choose amount</h2>
-
-            <div className="flex justify-center gap-3 mb-6">
-              <button
-                type="button"
-                onClick={() => setPaymentType("one-time")}
-                className={`px-4 py-2 rounded transition ${
-                  paymentType === "one-time" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700"
-                }`}
-              >
-                One-Time
-              </button>
-              <button
-                type="button"
-                onClick={() => setPaymentType("monthly")}
-                className={`px-4 py-2 rounded transition ${
-                  paymentType === "monthly" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700"
-                }`}
-              >
-                Monthly
-              </button>
-            </div>
-
-            {renderDonationOptions()}
-
-            {selectedAmount === "custom" && (
-              <input
-                type="number"
-                placeholder="Enter custom amount"
-                value={customAmount}
-                onChange={(e) => setCustomAmount(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 mb-3 focus:ring-blue-300 transition"
-              />
-            )}
-
-            <textarea
-              placeholder="Write a comment..."
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              className="w-full mt-2 border border-gray-300 rounded-lg px-4 py-3 focus:ring-blue-300"
-            />
-
-            <div className="flex flex-col gap-3 mt-6">
-              <button
-                onClick={() => handlePayment("stripe")}
-                disabled={processing}
-                className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-lg transition"
-              >
-                {processing ? "Processing..." : "Pay with Credit Card (Stripe)"}
-              </button>
-              <button
-                onClick={() => handlePayment("paypal")}
-                disabled={processing}
-                className="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 rounded-lg transition"
-              >
-                {processing ? "Processing..." : "Pay with PayPal"}
-              </button>
-            </div>
-          </div>
-
-          <div className="relative h-36 w-full overflow-hidden rounded-xl shadow-lg bg-white">
-            <div className="absolute flex animate-scroll-horizontal space-x-4">
-              {rightImages.concat(rightImages).map((img, idx) => (
-                <img key={idx} src={img} alt="donation" className="h-36 w-auto rounded-xl shadow-md object-cover" />
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <Footer />
-    </>
-  );
-};
+      <button
+        onClick={() => handlePayment("paypal")}
+        disabled={processing1 || processing2}
+        className={`w-full font-bold py-3 rounded-lg transition ${
+          processing1 || processing2 ? "opacity-70 cursor-not-allowed" : ""
+        } bg-yellow-500 hover:bg-yellow-600 text-white`}
+      >
+        {processing2 ? "Processing..." : "Pay with PayPal"}
+      </button>
+    </div>
+  </div>
+);
 
 export default FundTheirFuturePage;

@@ -22,7 +22,8 @@ const AdminDashboard = () => {
     { name: "Project Slides", path: "/admin-project-slide" },
     { name: "Champions Gallery", path: "/admin-gallery" },
     { name: "Testimonials / Comments", path: "/admin-testimonials" },
-    { name: "Our Commitment", path: "/admin-banner" }
+    { name: "Our Commitment", path: "/admin-banner" },
+    { name: "payments", path: "/admin-payments" },
   ];
 
   const handleLogout = () => {

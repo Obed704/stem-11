@@ -1,21 +1,25 @@
-// frontend/src/components/TestimonialsCards.jsx
+// TestimonialsCards.jsx
 import React, { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
+import { motion } from "framer-motion";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 
-// Use environment variable for backend URL
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const TestimonialCard = ({ t }) => (
-  <div
+  <motion.div
+    whileHover={{ scale: 1.03, boxShadow: `0 8px 20px ${t.borderColor}77` }}
+    initial={{ opacity: 0, y: 30 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.8 }}
+    viewport={{ once: true }}
     className="p-8 rounded-3xl bg-blue-950"
     style={{
       border: `3px solid ${t.borderColor}`,
       boxShadow: `0 4px 12px ${t.borderColor}33`,
-      transition: "transform 0.3s ease, box-shadow 0.3s ease",
     }}
   >
     <p
@@ -41,7 +45,7 @@ const TestimonialCard = ({ t }) => (
       {t.name}
     </h3>
     <p style={{ color: t.textColor, opacity: 0.9 }}>{t.role}</p>
-  </div>
+  </motion.div>
 );
 
 const TestimonialsCards = () => {
@@ -84,13 +88,19 @@ const TestimonialsCards = () => {
 
   return (
     <section className="py-16 bg-blue-900 flex flex-col items-center">
-      <h2 className="text-4xl md:text-5xl font-bold text-white mb-12 text-center">
+      <motion.h2
+        className="text-4xl md:text-5xl font-bold text-white mb-12 text-center"
+        initial={{ opacity: 0, y: -50 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        viewport={{ once: true }}
+      >
         What People Say About STEM Inspires
-      </h2>
+      </motion.h2>
 
       {/* Desktop grid */}
       <div className="hidden lg:grid grid-cols-3 gap-8 w-full max-w-6xl px-6">
-        {testimonials.map((t) => (
+        {testimonials.map((t, idx) => (
           <TestimonialCard key={t._id} t={t} />
         ))}
       </div>

@@ -28,6 +28,7 @@ import { AuthProvider } from "./context/AuthContext.jsx";
 import PaymentSuccess from "./components/pages/PaymentsSuccess.jsx";
 import PaymentCancel from "./components/pages/PaymentCancel.jsx";
 import AdminBanner from "./components/admin/AdminBannerChamps.jsx";
+import AdminPayments from "./components/admin/PaymentsAdmin.jsx";
 
 function App() {
   return (
@@ -57,6 +58,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin-payments"
+            element={
+              <ProtectedRoute>
+                <AdminPayments />
               </ProtectedRoute>
             }
           />

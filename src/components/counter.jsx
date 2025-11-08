@@ -1,5 +1,6 @@
 // StatsSection.jsx
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
+import { motion, useInView } from "framer-motion";
 
 // Data for stats
 const statsData = [
@@ -10,63 +11,56 @@ const statsData = [
 
 const StatsSection = () => {
   const [counts, setCounts] = useState(statsData.map(() => 0));
-  const statRefs = useRef([]);
+  const sectionRef = useRef(null);
+  const inView = useInView(sectionRef, { once: true, margin: "-50px" });
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries, obs) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const index = statRefs.current.indexOf(entry.target);
-            if (index === -1) return;
+    if (!inView) return;
 
-            const target = statsData[index].target;
-            const speed = 20;
-            let count = 0;
-            const increment = Math.ceil(target / 100);
+    statsData.forEach((stat, idx) => {
+      const duration = 1500; // milliseconds
+      const startTime = performance.now();
 
-            const countUp = () => {
-              count += increment;
-              if (count > target) count = target;
+      const animate = (currentTime) => {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const value = Math.floor(progress * stat.target);
 
-              setCounts((prev) => {
-                const newCounts = [...prev];
-                newCounts[index] = count;
-                return newCounts;
-              });
-
-              if (count < target) {
-                setTimeout(countUp, speed);
-              }
-            };
-
-            countUp();
-            entry.target.classList.remove("opacity-0", "translate-y-6");
-            entry.target.classList.add("opacity-100", "translate-y-0");
-            obs.unobserve(entry.target);
-          }
+        setCounts((prev) => {
+          const newCounts = [...prev];
+          newCounts[idx] = value;
+          return newCounts;
         });
-      },
-      { threshold: 1 }
-    );
 
-    statRefs.current.forEach((el) => el && observer.observe(el));
-  }, []);
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        }
+      };
+
+      requestAnimationFrame(animate);
+    });
+  }, [inView]);
 
   return (
-    <section id="stats" className="py-16 bg-yellow-300 text-black font-sans">
+    <section
+      id="stats"
+      ref={sectionRef}
+      className="py-16 bg-yellow-300 text-black font-sans"
+    >
       <div className="max-w-5xl mx-auto px-6 grid grid-cols-1 sm:grid-cols-3 text-center gap-10">
         {statsData.map((stat, idx) => (
-          <div
+          <motion.div
             key={stat.id}
-            ref={(el) => (statRefs.current[idx] = el)}
-            className="opacity-0 translate-y-6 transition duration-700 ease-out stat-item"
+            initial={{ opacity: 0, y: 30 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.8, delay: idx * 0.2 }}
+            className="stat-item"
           >
-            <h3 className={`text-5xl font-extrabold counter ${stat.color}`}>
+            <h3 className={`text-5xl font-extrabold ${stat.color}`}>
               {counts[idx]}{stat.plus && counts[idx] === stat.target ? "+" : stat.plus ? "+" : ""}
             </h3>
             <p className="mt-2 text-lg font-medium">{stat.label}</p>
-          </div>
+          </motion.div>
         ))}
       </div>
     </section>
