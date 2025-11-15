@@ -7,41 +7,51 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 const ChampionsSection = () => {
   const [champions, setChampions] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const displayLimit = 3;
 
   // Fetch champions from API
+  const fetchChampions = async () => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/champions`);
+      if (!res.ok) throw new Error("Failed to fetch champions");
+      const data = await res.json();
+
+      // Sort champions by year descending, then by creation time (_id)
+      const sortedData = data
+        .slice()
+        .sort((a, b) => {
+          const yearA = a.year || 0;
+          const yearB = b.year || 0;
+          if (yearB !== yearA) return yearB - yearA; // sort by year descending
+          // fallback to _id descending if year is same or missing
+          return b._id.localeCompare(a._id);
+        });
+
+      const formattedData = sortedData.map((champion) => ({
+        id: champion._id,
+        name: champion.title,
+        description: champion.description,
+        image: champion.image,
+        to: "/champions",
+      }));
+
+      setChampions(formattedData);
+    } catch (err) {
+      console.error("Error fetching champions:", err);
+    }
+  };
+
+  // Initial fetch
   useEffect(() => {
-    const fetchChampions = async () => {
-      try {
-        const res = await fetch(`${BACKEND_URL}/api/champions`);
-        if (!res.ok) throw new Error("Failed to fetch champions");
-
-        const data = await res.json();
-
-        const formattedData = data.map((champion) => ({
-          id: champion._id,
-          name: champion.title,
-          description: champion.description,
-          image: champion.image,
-          to: "/champions",
-        }));
-
-        setChampions(formattedData);
-      } catch (err) {
-        console.error("Error fetching champions:", err);
-      }
-    };
-
     fetchChampions();
   }, []);
 
-  const displayLimit = 3;
   const hasMore = champions.length > displayLimit;
   const displayedChampions = champions.slice(0, displayLimit);
 
   return (
     <section id="champions" className="py-16 bg-blue-100 overflow-hidden">
       <div className="max-w-7xl mx-auto px-6">
-        {/* Section Title with scroll animation */}
         <motion.h2
           className="text-4xl font-bold text-center text-blue-800 mb-12"
           initial={{ opacity: 0, y: -50 }}
@@ -52,7 +62,6 @@ const ChampionsSection = () => {
           Champions in recent years
         </motion.h2>
 
-        {/* Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
           {displayedChampions.map((champion, index) => (
             <motion.div
@@ -86,7 +95,6 @@ const ChampionsSection = () => {
           ))}
         </div>
 
-        {/* "View More" button with fade-in */}
         {hasMore && (
           <motion.div
             className="mt-8 text-center"
@@ -104,7 +112,6 @@ const ChampionsSection = () => {
           </motion.div>
         )}
 
-        {/* Modal for extra champions */}
         <AnimatePresence>
           {showModal && (
             <motion.div

@@ -15,6 +15,21 @@ const AdminInbox = () => {
   const [selectedEmails, setSelectedEmails] = useState(new Set());
   const [sortBy, setSortBy] = useState("newest");
 
+  const handleDeleteEmail = async (emailId) => {
+  if (!window.confirm("Are you sure you want to delete this email?")) return;
+
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/emails/${emailId}`, {
+      method: "DELETE",
+    });
+    if (!res.ok) throw new Error("Delete failed");
+    fetchEmails(); // refresh list
+  } catch (err) {
+    console.error("Failed to delete email:", err);
+    alert("Failed to delete email.");
+  }
+};
+
   const fetchEmails = async () => {
     try {
       setLoading(true);
@@ -197,6 +212,7 @@ const AdminInbox = () => {
                     className="flex justify-between items-center px-6 py-4 cursor-pointer"
                     onClick={() => setExpandedId(isExpanded ? null : email._id)}
                   >
+                    
                     <div className="flex items-center gap-4">
                       <div
                         className="w-10 h-10 rounded-full flex items-center justify-center text-black font-bold"
@@ -245,6 +261,22 @@ const AdminInbox = () => {
                           d="M19 9l-7 7-7-7"
                         />
                       </svg>
+                      <div className="mt-4 flex gap-3">
+  <button
+    onClick={() => handleReply(email)}
+    className="px-4 py-2 rounded-lg bg-pink-600 hover:bg-pink-700 text-white transition-all"
+  >
+    Reply
+  </button>
+
+  <button
+    onClick={() => handleDeleteEmail(email._id)}
+    className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white transition-all"
+  >
+    Delete
+  </button>
+</div>
+
                     </div>
                   </div>
 

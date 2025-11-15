@@ -24,6 +24,8 @@ const AdminDashboard = () => {
     { name: "Testimonials / Comments", path: "/admin-testimonials" },
     { name: "Our Commitment", path: "/admin-banner" },
     { name: "payments", path: "/admin-payments" },
+    { name: "Change map and fll statement", path: "/fll-map" },
+    { name: "First Tech Challenge", path: "/admin-ftc" },
   ];
 
   const handleLogout = () => {

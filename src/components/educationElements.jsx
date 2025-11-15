@@ -1,7 +1,7 @@
 // frontend/src/components/EducationElements.jsx
 import React, { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 
-// Load backend URL from environment variable
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const EducationElements = () => {
@@ -44,9 +44,21 @@ const EducationElements = () => {
     );
   }
 
+  // Animation variants
+  const fadeUp = {
+    hidden: { opacity: 0, y: 50 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
+  };
+
   return (
     <section className="bg-gray-300 py-20 px-6 md:px-16">
-      <div className="max-w-6xl mx-auto text-center mb-16">
+      <motion.div
+        className="max-w-6xl mx-auto text-center mb-16"
+        variants={fadeUp}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.3 }}
+      >
         <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 uppercase tracking-tight">
           Elements of Education
         </h2>
@@ -54,13 +66,18 @@ const EducationElements = () => {
           There are three key parts we focus on to equip and educate our program
           participants for the best chances of commitment and success.
         </p>
-      </div>
+      </motion.div>
 
       <div className="grid gap-12 md:grid-cols-3 max-w-6xl mx-auto">
-        {elements.map(({ _id, title, description, img, alt, borderColor }) => (
-          <div
+        {elements.map(({ _id, title, description, img, alt, borderColor }, index) => (
+          <motion.div
             key={_id}
             className="bg-gray-300 rounded-xl shadow-lg p-8 text-center hover:shadow-2xl transition"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ delay: index * 0.2 }}
           >
             <img
               src={`${BACKEND_URL}${img}`}
@@ -71,18 +88,24 @@ const EducationElements = () => {
               {title}
             </h3>
             <p className="text-gray-600 leading-relaxed">{description}</p>
-          </div>
+          </motion.div>
         ))}
       </div>
 
-      <div className="mt-16 text-center">
+      <motion.div
+        className="mt-16 text-center"
+        variants={fadeUp}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.3 }}
+      >
         <a
           href="contact.html"
           className="inline-block px-8 py-4 bg-blue-600 text-white text-lg font-medium rounded-full shadow-md hover:bg-blue-700 transition duration-300"
         >
           Take It to Your School
         </a>
-      </div>
+      </motion.div>
     </section>
   );
 };

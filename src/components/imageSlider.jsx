@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Thumbs, Autoplay } from "swiper/modules";
+import { motion } from "framer-motion";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/thumbs";
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL; // use .env
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const ThumbnailCarouselFullScreen = ({
   apiUrl = `${BACKEND_URL}/api/project-slides`,
-  mainHeight = "100vh",
-  thumbHeight = 80,
+  mainHeight = "60vh", // Reduced height
+  thumbHeight = 70,
 }) => {
   const [thumbsSwiper, setThumbsSwiper] = useState(null);
   const [images, setImages] = useState([]);
@@ -21,7 +22,6 @@ const ThumbnailCarouselFullScreen = ({
         const res = await fetch(apiUrl);
         const data = await res.json();
 
-        // Prepend BACKEND_URL to image paths
         const formattedData = data.map((img) => ({
           ...img,
           src: `${BACKEND_URL}${img.src}`,
@@ -39,6 +39,12 @@ const ThumbnailCarouselFullScreen = ({
   if (images.length === 0)
     return <div className="p-6 text-center text-gray-500">No images to display.</div>;
 
+  // Animation variants
+  const fadeInSlide = {
+    hidden: { opacity: 0, scale: 0.95 },
+    visible: { opacity: 1, scale: 1, transition: { duration: 0.8, ease: "easeOut" } },
+  };
+
   return (
     <div className="w-full relative">
       {/* Main Carousel */}
@@ -54,19 +60,25 @@ const ThumbnailCarouselFullScreen = ({
       >
         {images.map((img) => (
           <SwiperSlide key={img._id}>
-            <div className="relative w-full h-full">
+            <motion.div
+              className="relative w-full h-full"
+              variants={fadeInSlide}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.5 }}
+            >
               <img
                 src={img.src}
                 alt={img.alt}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover rounded-xl shadow-lg"
                 loading="lazy"
               />
               {img.caption && (
-                <p className="absolute bottom-4 md:bottom-20 left-1/2 -translate-x-1/2 text-white text-sm md:text-lg bg-black bg-opacity-50 px-4 py-2 rounded max-w-[90%] text-center">
-                  {img.caption}
-                </p>
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black bg-opacity-50 px-4 py-2 rounded max-w-[90%] text-center mb-16">
+                  <p className="text-white text-sm md:text-base">{img.caption}</p>
+                </div>
               )}
-            </div>
+            </motion.div>
           </SwiperSlide>
         ))}
       </Swiper>
@@ -76,25 +88,29 @@ const ThumbnailCarouselFullScreen = ({
         <Swiper
           onSwiper={setThumbsSwiper}
           spaceBetween={8}
-          slidesPerView={Math.min(images.length, 8)}
+          slidesPerView={Math.min(images.length, 6)}
           freeMode={true}
           watchSlidesProgress
           navigation
           breakpoints={{
-            640: { slidesPerView: Math.min(images.length, 4) },
-            768: { slidesPerView: Math.min(images.length, 6) },
-            1024: { slidesPerView: Math.min(images.length, 8) },
+            640: { slidesPerView: Math.min(images.length, 3) },
+            768: { slidesPerView: Math.min(images.length, 5) },
+            1024: { slidesPerView: Math.min(images.length, 6) },
           }}
           modules={[Thumbs, Navigation]}
           className="max-w-6xl mx-auto"
         >
           {images.map((img) => (
             <SwiperSlide key={img._id} style={{ height: thumbHeight }}>
-              <img
+              <motion.img
                 src={img.src}
                 alt={img.alt}
                 className="w-full h-full object-cover rounded-lg border-2 border-transparent hover:border-blue-500 transition cursor-pointer"
                 loading="lazy"
+                variants={fadeInSlide}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.5 }}
               />
             </SwiperSlide>
           ))}

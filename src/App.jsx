@@ -29,6 +29,8 @@ import PaymentSuccess from "./components/pages/PaymentsSuccess.jsx";
 import PaymentCancel from "./components/pages/PaymentCancel.jsx";
 import AdminBanner from "./components/admin/AdminBannerChamps.jsx";
 import AdminPayments from "./components/admin/PaymentsAdmin.jsx";
+import FllAdmin from "./components/admin/AdminMap.jsx";
+import AdminFtc from "./components/admin/Adminftc.jsx";
 
 function App() {
   return (
@@ -58,6 +60,22 @@ function App() {
             element={
               <ProtectedRoute>
                 <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin-ftc"
+            element={
+              <ProtectedRoute>
+                <AdminFtc />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/fll-map"
+            element={
+              <ProtectedRoute>
+                <FllAdmin />
               </ProtectedRoute>
             }
           />

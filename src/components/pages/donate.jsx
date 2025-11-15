@@ -131,7 +131,7 @@ const FundTheirFuturePage = () => {
         {/* Desktop layout */}
         <div className="hidden md:flex items-center justify-center gap-8 w-full">
           {/* Left scroll */}
-          <div className="relative w-44 h-[500px] overflow-hidden rounded-xl shadow-lg bg-white">
+          <div className="relative w-44 h-[600px] overflow-hidden rounded-xl shadow-lg bg-white">
             <div className="absolute animate-scroll-vertical space-y-4">
               {leftImages.concat(leftImages).map((img, idx) => (
                 <img key={idx} src={img} alt="donation" className="rounded-xl shadow-md w-full object-cover" />
@@ -160,7 +160,7 @@ const FundTheirFuturePage = () => {
           />
 
           {/* Right scroll */}
-          <div className="relative w-44 h-[500px] overflow-hidden rounded-xl shadow-lg bg-white">
+          <div className="relative w-44 h-[600px] overflow-hidden rounded-xl shadow-lg bg-white">
             <div className="absolute animate-scroll-vertical space-y-4">
               {rightImages.concat(rightImages).map((img, idx) => (
                 <img key={idx} src={img} alt="donation" className="rounded-xl shadow-md w-full object-cover" />

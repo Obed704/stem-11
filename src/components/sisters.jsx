@@ -1,10 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL; // use .env
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const SistersCard = () => {
   const [sisters, setSisters] = useState([]);
+  const sectionRef = useRef(null);
 
+  // Register ScrollTrigger once
+  useEffect(() => {
+    gsap.registerPlugin(ScrollTrigger);
+  }, []);
+
+  // Fetch first two team members from DB
   useEffect(() => {
     const fetchSisters = async () => {
       try {
@@ -13,7 +22,8 @@ const SistersCard = () => {
 
         // Take only the first two members
         const firstTwo = data.slice(0, 2);
-        // Prepend BACKEND_URL to image paths
+
+        // Prepend backend URL to images
         const formatted = firstTwo.map((sister) => ({
           ...sister,
           image: `${BACKEND_URL}${sister.image}`,
@@ -28,8 +38,54 @@ const SistersCard = () => {
     fetchSisters();
   }, []);
 
+  // GSAP Scroll Animations
+  useEffect(() => {
+    if (sisters.length > 0 && sectionRef.current) {
+      const ctx = gsap.context(() => {
+        // Animate the section container
+        gsap.fromTo(
+          sectionRef.current,
+          { opacity: 0, y: 80 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 1.2,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: "top 85%",
+              toggleActions: "play none none reverse",
+            },
+          }
+        );
+
+        // Animate the images with stagger
+        gsap.fromTo(
+          ".sister-image",
+          { scale: 0.5, opacity: 0 },
+          {
+            scale: 1,
+            opacity: 1,
+            duration: 0.8,
+            ease: "back.out(1.7)",
+            stagger: 0.2,
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: "top 80%",
+            },
+          }
+        );
+      }, sectionRef);
+
+      return () => ctx.revert();
+    }
+  }, [sisters]);
+
   return (
-    <section className="sisters-card max-w-5xl mx-auto my-32 p-10 bg-white rounded-2xl shadow-lg border border-gray-200">
+    <section
+      ref={sectionRef}
+      className="sisters-card max-w-5xl mx-auto my-32 p-10 bg-white rounded-2xl shadow-lg border border-gray-200"
+    >
       {/* Main container */}
       <div className="flex flex-col items-center gap-4">
         {/* Images row */}
@@ -37,7 +93,7 @@ const SistersCard = () => {
           {sisters.map((sister, index) => (
             <div
               key={index}
-              className="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden shadow-md hover:scale-105 transition-transform duration-300"
+              className="sister-image w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden shadow-md hover:scale-105 transition-transform duration-300"
             >
               <img
                 src={sister.image}
@@ -49,7 +105,7 @@ const SistersCard = () => {
         </div>
 
         {/* Header */}
-        <h2 className="text-3xl md:text-4xl font-bold text-blue-700 text-center mt-4 lg:mt-0">
+        <h2 className="text-3xl md:text-4xl font-bold text-blue-700 text-center mt-4 lg:mt-0 capitalize">
           sisters in stem
         </h2>
       </div>
