@@ -20,11 +20,17 @@ const TeamSection = () => {
         const res = await fetch(`${BACKEND_URL}/api/team`);
         const data = await res.json();
 
-        // Prepend backend URL to images
-        const formatted = data.map((member) => ({
-          ...member,
-          image: `${BACKEND_URL}${member.image}`,
-        }));
+        // Prepend backend URL + SORT founders first
+        const formatted = data
+          .map((member) => ({
+            ...member,
+            image: `${BACKEND_URL}${member.image}`,
+          }))
+          .sort((a, b) => {
+            const aFounder = a.role?.toLowerCase().includes("founder");
+            const bFounder = b.role?.toLowerCase().includes("founder");
+            return aFounder === bFounder ? 0 : aFounder ? -1 : 1;
+          });
 
         setTeam(formatted);
       } catch (err) {

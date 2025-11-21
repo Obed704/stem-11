@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import ChampionCard from "./championsCard.jsx"; // filename must match
+import ChampionCard from "./championsCard.jsx"; // keep the same import
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const ChampionsSection = () => {
@@ -44,9 +44,15 @@ const ChampionsSection = () => {
   return (
     <>
       <GradientBanner />
-      {champions.map((champion) => (
-        <ChampionCard key={champion._id} champion={champion} />
-      ))}
+      <div className="max-w-6xl mx-auto py-16 space-y-16">
+        {champions.map((champion, index) => (
+          <ChampionCard
+            key={champion._id}
+            champion={champion}
+            reverse={index % 2 !== 0} // reverse layout for even-indexed cards
+          />
+        ))}
+      </div>
     </>
   );
 };

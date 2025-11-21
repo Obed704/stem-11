@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
+import NavigationButtons from "./Button";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -186,6 +187,7 @@ export default function AdminDashboard() {
   // ------------------ RENDER ------------------
   return (
     <div className="p-6 bg-gray-900 min-h-screen text-gray-100">
+      <NavigationButtons/>
       <h1 className="text-3xl font-bold text-center mb-6">Admin Dashboard</h1>
 
       {/* Tabs */}

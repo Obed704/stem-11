@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import NavigationButtons from "./Button";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 const colors = ["#1e3a8a", "#16a34a", "#9333ea"]; // Dark gradient palette
@@ -84,6 +85,7 @@ const TeamMemberDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 p-10 text-gray-100">
+      <NavigationButtons/>
       <h1 className="text-4xl font-extrabold text-center text-blue-400 mb-10 drop-shadow-lg">
         Team Member Dashboard
       </h1>

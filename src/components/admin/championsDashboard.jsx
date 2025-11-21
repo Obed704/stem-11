@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import Navbar from "../Header.jsx";
-import Footer from "../Footer.jsx";
+import NavigationButtons from "./Button";
+
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 const colors = ["#F7F42E", "#17CFDC", "#F21EA7"]; // Color palette
@@ -89,7 +89,7 @@ export default function ChampionDashboard() {
 
   return (
     <>
-      <Navbar bg="bg-black" />
+      <NavigationButtons/>
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white p-10">
         <h1 className="text-4xl font-extrabold text-center mb-10 bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 via-cyan-400 to-pink-500 animate-gradient mt-6">
           Champion Dashboard

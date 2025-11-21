@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
+import NavigationButtons from "./Button";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL; // <-- use .env
 const API_URL = `${BACKEND_URL}/api/mission-vision`;
@@ -83,6 +84,7 @@ export default function MissionVisionDashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 p-8 text-white">
+      <NavigationButtons/>
       <h1 className="text-4xl font-bold text-center mb-10 tracking-tight">
         Mission & Vision Dashboard
       </h1>

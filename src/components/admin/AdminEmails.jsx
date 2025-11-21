@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import Navbar from "../Header.jsx";
-import Footer from "../Footer.jsx";
+import NavigationButtons from "./Button";
+
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 const colors = ["rgb(247, 244, 46)", "rgb(23, 207, 220)", "rgb(242, 30, 167)"]; // palette
@@ -117,7 +117,6 @@ const AdminInbox = () => {
   if (loading) {
     return (
       <>
-        <Navbar bg="bg-black" />
         <section className="min-h-screen flex items-center justify-center bg-black text-white">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-pink-500 mx-auto"></div>
@@ -130,7 +129,8 @@ const AdminInbox = () => {
 
   return (
     <>
-      <Navbar bg="bg-black" />
+
+        <NavigationButtons/>
 
       <section className="min-h-screen pt-28 px-6 bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white">
         <div className="max-w-7xl mx-auto">
@@ -304,7 +304,7 @@ const AdminInbox = () => {
         </div>
       </section>
 
-      <Footer />
+
 
       <style>
         {`

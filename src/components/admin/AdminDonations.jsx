@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import NavigationButtons from "./Button";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -30,6 +31,7 @@ const AdminDonations = () => {
           background: `linear-gradient(160deg, ${colors[0]}, ${colors[1]}, ${colors[2]})`,
         }}
       >
+        <NavigationButtons/>
         <div
           className="animate-spin rounded-full h-12 w-12 border-b-4"
           style={{ borderColor: colors[1] }}

@@ -22,25 +22,45 @@ const styles = `
 }
 `;
 
-const FundTheirFuturePage = () => {
+// Helper validators
+const isPositiveNumber = (v) => {
+  if (v === null || v === undefined) return false;
+  const n = Number(v);
+  return Number.isFinite(n) && n > 0;
+};
+
+const MAX_AMOUNT = 99999999; // safe guard (dollars) to avoid backend/Stripe limits
+
+export default function FundTheirFuturePage() {
   const [leftImages, setLeftImages] = useState([]);
   const [rightImages, setRightImages] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedAmount, setSelectedAmount] = useState(null);
+
+  const [selectedAmount, setSelectedAmount] = useState(null); // number or 'custom'
   const [customAmount, setCustomAmount] = useState("");
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [paymentType, setPaymentType] = useState("one-time");
-  const [processing1, setProcessing1] = useState(false);
-  const [processing2, setProcessing2] = useState(false);
+
+  const [processing, setProcessing] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     fetch(`${BACKEND_URL}/api/donation-images`)
       .then((res) => res.json())
       .then((data) => {
-        setLeftImages(data.filter((i) => i.side === "left").map((i) => `${BACKEND_URL}${i.image}`));
-        setRightImages(data.filter((i) => i.side === "right").map((i) => `${BACKEND_URL}${i.image}`));
+        setLeftImages(
+          data
+            .filter((i) => i.side === "left")
+            .map((i) => `${BACKEND_URL}${i.image}`)
+        );
+        setRightImages(
+          data
+            .filter((i) => i.side === "right")
+            .map((i) => `${BACKEND_URL}${i.image}`)
+        );
         setLoading(false);
       })
       .catch((err) => {
@@ -48,6 +68,11 @@ const FundTheirFuturePage = () => {
         setLoading(false);
       });
   }, []);
+
+  // Clear custom input when user picks a preset amount
+  useEffect(() => {
+    if (selectedAmount !== "custom") setCustomAmount("");
+  }, [selectedAmount]);
 
   const donationOptions = [
     { value: 10, label: "$10 - 1-time transport" },
@@ -59,49 +84,99 @@ const FundTheirFuturePage = () => {
 
   const getAmount = () => {
     if (selectedAmount === "custom") {
-      const num = Number(customAmount);
-      return isFinite(num) && num > 0 ? num : null;
+      const raw = String(customAmount).trim();
+      if (!raw) return null;
+      const num = Number(raw);
+      if (!isPositiveNumber(num)) return null;
+      if (num > MAX_AMOUNT) return null;
+      return Math.round(num * 100) / 100; // normalize to 2dp
     }
-    return selectedAmount;
+    return selectedAmount; // null or number
+  };
+
+  const isFormValid = () => {
+    const amount = getAmount();
+    return (
+      isPositiveNumber(amount) &&
+      name.trim().length > 0 &&
+      email.trim().length > 0 &&
+      // simple email pattern check
+      /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())
+    );
   };
 
   const handlePayment = async (provider) => {
+    setError("");
     const amount = getAmount();
-    if (!amount) return alert("Please select or enter a valid amount.");
-    if (!name || !email) return alert("Please enter your name and email.");
 
-    if (provider === "stripe") setProcessing1(true);
-    if (provider === "paypal") setProcessing2(true);
+    if (!amount) {
+      setError(
+        selectedAmount === "custom"
+          ? "Please enter a valid custom amount between 0.01 and 99,999,999."
+          : "Please select a donation amount."
+      );
+      return;
+    }
+
+    if (!name.trim() || !email.trim()) {
+      setError("Please enter your name and a valid email address.");
+      return;
+    }
+
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
+    setProcessing(true);
 
     try {
+      // Decide endpoint depending on provider + subscription vs one-time
       let endpoint = "";
       if (provider === "paypal") endpoint = "/api/payments/paypal";
       else if (provider === "stripe")
-        endpoint = paymentType === "monthly"
-          ? "/api/payments/stripe/subscription"
-          : "/api/payments/stripe";
+        endpoint = paymentType === "monthly" ? "/api/payments/stripe/subscription" : "/api/payments/stripe";
 
+      // Send amount in dollars as a number (backend should convert to cents or use price ids)
       const res = await fetch(`${BACKEND_URL}${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount, message, name, email }),
+        body: JSON.stringify({ amount, message, name, email, paymentType }),
       });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        const serverMsg = (body && body.error) || (body && body.message) || res.statusText;
+        throw new Error(`Server responded with ${res.status}: ${serverMsg}`);
+      }
 
       const data = await res.json();
 
-      if (provider === "paypal" && data.id) {
-        window.location.href = `https://www.sandbox.paypal.com/checkoutnow?token=${data.id}`;
-      } else if (provider === "stripe" && data.url) {
-        window.location.href = data.url;
-      } else {
-        alert(`${provider} initialization failed`);
+      if (provider === "paypal") {
+        if (data && data.id) {
+          // If you test in sandbox, this URL is correct.
+          window.location.href = `https://www.sandbox.paypal.com/checkoutnow?token=${data.id}`;
+        } else if (data && data.approvalUrl) {
+          // alternate naming
+          window.location.href = data.approvalUrl;
+        } else {
+          throw new Error("PayPal initialization failed: invalid response from server.");
+        }
+      } else if (provider === "stripe") {
+        if (data && data.url) {
+          window.location.href = data.url;
+        } else if (data && data.sessionId) {
+          // If your backend returns a sessionId instead of url
+          window.location.href = `${BACKEND_URL}/stripe-checkout?sessionId=${data.sessionId}`;
+        } else {
+          throw new Error("Stripe initialization failed: invalid response from server.");
+        }
       }
     } catch (err) {
       console.error(`${provider} payment error:`, err);
-      alert(`${provider} payment failed`);
+      setError(err.message || "Payment failed. Please try again.");
     } finally {
-      if (provider === "stripe") setProcessing1(false);
-      if (provider === "paypal") setProcessing2(false);
+      setProcessing(false);
     }
   };
 
@@ -116,19 +191,19 @@ const FundTheirFuturePage = () => {
     <>
       <style>{styles}</style>
 
-      <div className="bg-blue-500 w-full h-16"><Navbar bg="bg-black" /></div>
+      <div className="bg-blue-500 w-full h-16">
+        <Navbar bg="bg-black" />
+      </div>
+
       <ChatBolt />
 
-      {/* ✅ Banner Image (Just Below Header) */}
+      {/* Banner */}
       <div
         className="w-[98%] h-28 sm:h-56 bg-center bg-cover mx-auto mt-4"
-        style={{
-          backgroundImage: "url('https://back-11-jtbr.onrender.com/welcomeSlide/table.jpg')",
-        }}
-      ></div>
+        style={{ backgroundImage: "url('https://back-11-jtbr.onrender.com/welcomeSlide/table.jpg')" }}
+      />
 
-      <div className="bg-gray-50 font-sans min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
-        {/* Desktop layout */}
+      <main className="bg-gray-50 font-sans min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-8">
         <div className="hidden md:flex items-center justify-center gap-8 w-full">
           {/* Left scroll */}
           <div className="relative w-44 h-[600px] overflow-hidden rounded-xl shadow-lg bg-white">
@@ -139,7 +214,6 @@ const FundTheirFuturePage = () => {
             </div>
           </div>
 
-          {/* Donation Form */}
           <DonationForm
             name={name}
             email={email}
@@ -155,8 +229,9 @@ const FundTheirFuturePage = () => {
             message={message}
             setMessage={setMessage}
             handlePayment={handlePayment}
-            processing1={processing1}
-            processing2={processing2}
+            processing={processing}
+            error={error}
+            isFormValid={isFormValid}
           />
 
           {/* Right scroll */}
@@ -199,18 +274,19 @@ const FundTheirFuturePage = () => {
             message={message}
             setMessage={setMessage}
             handlePayment={handlePayment}
-            processing1={processing1}
-            processing2={processing2}
+            processing={processing}
+            error={error}
+            isFormValid={isFormValid}
           />
         </div>
-      </div>
+      </main>
 
       <Footer />
     </>
   );
-};
+}
 
-const DonationForm = ({
+function DonationForm({
   name,
   email,
   setName,
@@ -225,112 +301,133 @@ const DonationForm = ({
   message,
   setMessage,
   handlePayment,
-  processing1,
-  processing2,
-}) => (
-  <div className="w-full max-w-md bg-white p-6 sm:p-8 rounded-xl shadow-2xl">
-    <h2 className="text-2xl font-bold mb-6 text-center text-blue-700">Donate</h2>
+  processing,
+  error,
+  isFormValid,
+}) {
+  return (
+    <div className="w-full max-w-md bg-white p-6 sm:p-8 rounded-xl shadow-2xl">
+      <h2 className="text-2xl font-bold mb-6 text-center text-blue-700">Donate</h2>
 
-    <input
-      type="text"
-      placeholder="Your Name"
-      value={name}
-      onChange={(e) => setName(e.target.value)}
-      className="w-full border border-gray-300 rounded-lg px-4 py-3 mb-3 focus:ring-blue-300"
-    />
-    <input
-      type="email"
-      placeholder="Your Email"
-      value={email}
-      onChange={(e) => setEmail(e.target.value)}
-      className="w-full border border-gray-300 rounded-lg px-4 py-3 mb-3 focus:ring-blue-300"
-    />
-
-    <div className="flex justify-center gap-3 mb-6">
-      <button
-        type="button"
-        onClick={() => setPaymentType("one-time")}
-        className={`px-4 py-2 rounded transition ${
-          paymentType === "one-time" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700"
-        }`}
-      >
-        One-Time
-      </button>
-      <button
-        type="button"
-        onClick={() => setPaymentType("monthly")}
-        className={`px-4 py-2 rounded transition ${
-          paymentType === "monthly" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700"
-        }`}
-      >
-        Monthly
-      </button>
-    </div>
-
-    {donationOptions.map((opt) => {
-      const isSelected = selectedAmount === opt.value;
-      return (
-        <label
-          key={opt.value}
-          className={`flex items-center border border-blue-300 rounded-lg px-4 py-3 mb-3 cursor-pointer transition ${
-            isSelected
-              ? "bg-gradient-to-r from-yellow-300 via-cyan-400 to-pink-500 text-black shadow-lg"
-              : "bg-white hover:bg-gray-50"
-          }`}
-          onClick={() => setSelectedAmount(opt.value)}
-        >
-          <input
-            type="radio"
-            name="amount"
-            value={opt.value}
-            checked={isSelected}
-            onChange={() => setSelectedAmount(opt.value)}
-            className="mr-3 accent-blue-600"
-          />
-          {opt.label}
-        </label>
-      );
-    })}
-
-    {selectedAmount === "custom" && (
+      <label className="sr-only">Your Name</label>
       <input
-        type="number"
-        placeholder="Enter custom amount"
-        value={customAmount}
-        onChange={(e) => setCustomAmount(e.target.value)}
+        type="text"
+        placeholder="Your Name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
         className="w-full border border-gray-300 rounded-lg px-4 py-3 mb-3 focus:ring-blue-300"
       />
-    )}
 
-    <textarea
-      placeholder="Write a comment..."
-      value={message}
-      onChange={(e) => setMessage(e.target.value)}
-      className="w-full mt-2 border border-gray-300 rounded-lg px-4 py-3 focus:ring-blue-300"
-    />
+      <label className="sr-only">Your Email</label>
+      <input
+        type="email"
+        placeholder="Your Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        className="w-full border border-gray-300 rounded-lg px-4 py-3 mb-3 focus:ring-blue-300"
+      />
 
-    <div className="flex flex-col gap-3 mt-6">
-      <button
-        onClick={() => handlePayment("stripe")}
-        disabled={processing1 || processing2}
-        className={`w-full font-bold py-3 rounded-lg transition ${
-          processing1 || processing2 ? "opacity-70 cursor-not-allowed" : ""
-        } bg-purple-600 hover:bg-purple-700 text-white`}
-      >
-        {processing1 ? "Processing..." : "Pay with Credit Card (Stripe)"}
-      </button>
+      <div className="flex justify-center gap-3 mb-6">
+        <button
+          type="button"
+          onClick={() => setPaymentType("one-time")}
+          className={`px-4 py-2 rounded transition ${
+            paymentType === "one-time" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700"
+          }`}
+        >
+          One-Time
+        </button>
+        <button
+          type="button"
+          onClick={() => setPaymentType("monthly")}
+          className={`px-4 py-2 rounded transition ${
+            paymentType === "monthly" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700"
+          }`}
+        >
+          Monthly
+        </button>
+      </div>
 
-      <button
-        onClick={() => handlePayment("paypal")}
-        disabled={processing1 || processing2}
-        className={`w-full font-bold py-3 rounded-lg transition ${
-          processing1 || processing2 ? "opacity-70 cursor-not-allowed" : ""
-        } bg-yellow-500 hover:bg-yellow-600 text-white`}
-      >
-        {processing2 ? "Processing..." : "Pay with PayPal"}
-      </button>
+      {donationOptions.map((opt) => {
+        const isSelected = selectedAmount === opt.value;
+        return (
+          <label
+            key={opt.value}
+            className={`flex items-center border border-blue-300 rounded-lg px-4 py-3 mb-3 cursor-pointer transition ${
+              isSelected
+                ? "bg-gradient-to-r from-yellow-300 via-cyan-400 to-pink-500 text-black shadow-lg"
+                : "bg-white hover:bg-gray-50"
+            }`}
+            onClick={() => setSelectedAmount(opt.value)}
+          >
+            <input
+              type="radio"
+              name="amount"
+              value={opt.value}
+              checked={isSelected}
+              onChange={() => setSelectedAmount(opt.value)}
+              className="mr-3 accent-blue-600"
+            />
+            {opt.label}
+          </label>
+        );
+      })}
+
+      {selectedAmount === "custom" && (
+        <div className="mb-3">
+          <input
+            type="number"
+            inputMode="decimal"
+            min="0"
+            step="0.01"
+            placeholder="Enter custom amount (e.g. 25.00)"
+            value={customAmount}
+            onChange={(e) => setCustomAmount(e.target.value)}
+            className={`w-full border rounded-lg px-4 py-3 focus:ring-blue-300 mb-1 ${
+              !customAmount ? "border-red-400" : "border-gray-300"
+            }`}
+          />
+          {!customAmount && (
+            <p className="text-red-500 text-sm mt-1">Please enter a valid amount.</p>
+          )}
+          {customAmount && Number(customAmount) > MAX_AMOUNT && (
+            <p className="text-red-500 text-sm mt-1">Amount exceeds maximum allowed.</p>
+          )}
+        </div>
+      )}
+
+      <textarea
+        placeholder="Write a comment..."
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        className="w-full mt-2 border border-gray-300 rounded-lg px-4 py-3 focus:ring-blue-300"
+      />
+
+      {error && <p className="text-red-600 text-sm mt-3">{error}</p>}
+
+      <div className="flex flex-col gap-3 mt-6">
+        <button
+          onClick={() => handlePayment("stripe")}
+          disabled={processing}
+          className={`w-full font-bold py-3 rounded-lg transition ${
+            processing ? "opacity-70 cursor-not-allowed" : ""
+          } bg-purple-600 hover:bg-purple-700 text-white`}
+          aria-disabled={processing}
+        >
+          {processing ? "Processing..." : "Pay with Credit Card (Stripe)"}
+        </button>
+
+        <button
+          onClick={() => handlePayment("paypal")}
+          disabled={processing}
+          className={`w-full font-bold py-3 rounded-lg transition ${
+            processing ? "opacity-70 cursor-not-allowed" : ""
+          } bg-yellow-500 hover:bg-yellow-600 text-white`}
+          aria-disabled={processing}
+        >
+          {processing ? "Processing..." : "Pay with PayPal"}
+        </button>
+      </div>
     </div>
-  </div>
-);
-
-export default FundTheirFuturePage;
+  );
+}

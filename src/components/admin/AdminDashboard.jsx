@@ -1,5 +1,6 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
+import NavigationButtons from "./Button";
 
 const AdminDashboard = () => {
   const colors = [
@@ -16,14 +17,14 @@ const AdminDashboard = () => {
     { name: "Sponsors", path: "/admin-sponsors" },
     { name: "Team", path: "/admin-team" },
     { name: "Resources", path: "/admin-resources" },
-    { name: "Donations", path: "/admin-donation" },
+    { name: "Donation Page Images", path: "/admin-donation" },
     { name: "Education", path: "/admin-education" },
     { name: "Recruiting", path: "/admin-recruiting-process" },
     { name: "Project Slides", path: "/admin-project-slide" },
     { name: "Champions Gallery", path: "/admin-gallery" },
     { name: "Testimonials / Comments", path: "/admin-testimonials" },
     { name: "Our Commitment", path: "/admin-banner" },
-    { name: "payments", path: "/admin-payments" },
+    { name: "Payments and Donations", path: "/admin-payments" },
     { name: "Change map and fll statement", path: "/fll-map" },
     { name: "First Tech Challenge", path: "/admin-ftc" },
   ];
@@ -35,6 +36,7 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black p-8">
+      <NavigationButtons/>
       <div className="max-w-6xl mx-auto bg-gray-900/70 backdrop-blur-md rounded-2xl shadow-2xl p-6 border border-gray-800">
         {/* Header */}
         <div className="flex justify-between items-center mb-8 border-b border-gray-700 pb-4">

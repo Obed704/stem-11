@@ -1,5 +1,6 @@
 import { useState, useContext } from "react";
 import { AuthContext } from "../../context/AuthContext.jsx";
+import NavigationButtons from "./Button";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL; // <-- use .env
 
@@ -37,6 +38,7 @@ export default function ChangePassword() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 px-4">
+      <NavigationButtons/>
       <div className="w-full max-w-md bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl p-8 transition-all duration-300 hover:scale-[1.01]">
         <h2 className="text-2xl font-semibold text-center text-white mb-6">
           Change Password

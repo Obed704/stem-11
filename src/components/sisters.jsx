@@ -5,7 +5,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const SistersCard = () => {
-  const [sisters, setSisters] = useState([]);
+  const [founders, setFounders] = useState([]);
   const sectionRef = useRef(null);
 
   // Register ScrollTrigger once
@@ -13,36 +13,36 @@ const SistersCard = () => {
     gsap.registerPlugin(ScrollTrigger);
   }, []);
 
-  // Fetch first two team members from DB
+  // Fetch founders from DB
   useEffect(() => {
-    const fetchSisters = async () => {
+    const fetchFounders = async () => {
       try {
         const res = await fetch(`${BACKEND_URL}/api/team`);
         const data = await res.json();
 
-        // Take only the first two members
-        const firstTwo = data.slice(0, 2);
+        // Filter founders only
+        const foundersOnly = data
+          .filter((member) => member.role === "Founder")
+          .slice(0, 2) // just in case more than 2 founders exist
+          .map((founder) => ({
+            ...founder,
+            image: `${BACKEND_URL}${founder.image}`,
+          }));
 
-        // Prepend backend URL to images
-        const formatted = firstTwo.map((sister) => ({
-          ...sister,
-          image: `${BACKEND_URL}${sister.image}`,
-        }));
-
-        setSisters(formatted);
+        setFounders(foundersOnly);
       } catch (err) {
-        console.error("Error fetching sisters:", err);
+        console.error("Error fetching founders:", err);
       }
     };
 
-    fetchSisters();
+    fetchFounders();
   }, []);
 
   // GSAP Scroll Animations
   useEffect(() => {
-    if (sisters.length > 0 && sectionRef.current) {
+    if (founders.length > 0 && sectionRef.current) {
       const ctx = gsap.context(() => {
-        // Animate the section container
+        // Animate section container
         gsap.fromTo(
           sectionRef.current,
           { opacity: 0, y: 80 },
@@ -59,7 +59,7 @@ const SistersCard = () => {
           }
         );
 
-        // Animate the images with stagger
+        // Animate images with stagger
         gsap.fromTo(
           ".sister-image",
           { scale: 0.5, opacity: 0 },
@@ -79,7 +79,7 @@ const SistersCard = () => {
 
       return () => ctx.revert();
     }
-  }, [sisters]);
+  }, [founders]);
 
   return (
     <section
@@ -90,14 +90,14 @@ const SistersCard = () => {
       <div className="flex flex-col items-center gap-4">
         {/* Images row */}
         <div className="flex flex-row gap-4">
-          {sisters.map((sister, index) => (
+          {founders.map((founder, index) => (
             <div
               key={index}
               className="sister-image w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden shadow-md hover:scale-105 transition-transform duration-300"
             >
               <img
-                src={sister.image}
-                alt={sister.name}
+                src={founder.image}
+                alt={founder.name}
                 className="w-full h-full object-cover rounded-full"
               />
             </div>
@@ -106,7 +106,7 @@ const SistersCard = () => {
 
         {/* Header */}
         <h2 className="text-3xl md:text-4xl font-bold text-blue-700 text-center mt-4 lg:mt-0 capitalize">
-          sisters in stem
+          sisters in STEM
         </h2>
       </div>
 

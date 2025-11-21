@@ -4,7 +4,7 @@ import { getResponse } from "../utils/intents.js";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
-// 🎨 Color palette
+// Color palette
 const colors = [
   "rgb(247, 244, 46)",
   "rgb(23, 207, 220)",
@@ -25,11 +25,15 @@ export default function AdvancedChatBolt() {
           },
         ];
   });
+
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [listening, setListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(true);
+
   const messagesEndRef = useRef(null);
+  const recognitionRef = useRef(null);
 
   const quickQuestions = [
     "What is STEM Inspires?",
@@ -44,12 +48,12 @@ export default function AdvancedChatBolt() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
 
-  // Persist chat
+  // Save chat
   useEffect(() => {
     localStorage.setItem("stemChatHistory", JSON.stringify(messages));
   }, [messages]);
 
-  // 🎙 Voice recognition
+  // Start listening (Speech Recognition)
   const startListening = () => {
     const SpeechRecognition =
       window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -58,11 +62,14 @@ export default function AdvancedChatBolt() {
       return;
     }
 
-    const recognition = new SpeechRecognition();
+    recognitionRef.current = new SpeechRecognition();
+    const recognition = recognitionRef.current;
+
     recognition.lang = "en-US";
     recognition.interimResults = false;
     recognition.start();
     setListening(true);
+
     new Audio("/start-beep.mp3").play().catch(() => {});
 
     recognition.onresult = (e) => {
@@ -71,13 +78,30 @@ export default function AdvancedChatBolt() {
     };
 
     recognition.onerror = () => setListening(false);
+
     recognition.onend = () => {
       setListening(false);
       new Audio("/end-beep.mp3").play().catch(() => {});
     };
   };
 
-  // 💬 Message sending
+  // Stop listening
+  const stopListening = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      setListening(false);
+    }
+  };
+
+  // Stop text-to-speech
+  const stopSpeaking = () => {
+    if ("speechSynthesis" in window) {
+      speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
+  };
+
+  // Sending messages
   const handleSend = async (text = input) => {
     if (!text.trim()) return;
     setShowSuggestions(false);
@@ -109,21 +133,28 @@ export default function AdvancedChatBolt() {
     }
 
     const delay = Math.min(1800, 400 + botReply.length * 25);
+
     setTimeout(() => {
       setIsTyping(false);
+
       const botMsg = {
         from: "bot",
         text: botReply,
         time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       };
+
       setMessages((prev) => [...prev, botMsg]);
       setShowSuggestions(true);
 
-      // 🗣 Optional TTS
+      // Text-to-Speech
       if ("speechSynthesis" in window) {
         const utterance = new SpeechSynthesisUtterance(botReply);
         utterance.rate = 1;
         utterance.pitch = 1;
+
+        utterance.onstart = () => setIsSpeaking(true);
+        utterance.onend = () => setIsSpeaking(false);
+
         speechSynthesis.speak(utterance);
       }
     }, delay);
@@ -196,17 +227,25 @@ export default function AdvancedChatBolt() {
 
               {/* Messages */}
               <div className="flex-1 overflow-y-auto p-5 space-y-5 bg-gradient-to-b from-gray-50/60 to-white dark:from-gray-800/40 dark:to-gray-900">
+
                 {messages.map((msg, i) => (
                   <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
                     className={`flex items-start gap-3 ${msg.from === "user" ? "flex-row-reverse" : ""}`}>
-                    
+
                     <div className={`w-9 h-9 flex items-center justify-center rounded-full text-white font-bold shadow ${
                       msg.from === "bot" ? "bg-gradient-to-br from-[rgb(23,207,220)] to-[rgb(242,30,167)]" : "bg-gradient-to-br from-gray-700 to-gray-900"
                     }`}>
                       {msg.from === "bot" ? "S" : "U"}
                     </div>
-                    <div className={`max-w-xs px-4 py-3 rounded-2xl text-sm shadow-sm ${msg.from === "bot" ? "bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700" : "text-white"}`}
-                         style={msg.from === "user" ? { background: `linear-gradient(135deg, ${colors[2]}, ${colors[1]})` } : {}}>
+
+                    <div className={`max-w-xs px-4 py-3 rounded-2xl text-sm shadow-sm ${msg.from === "bot"
+                        ? "bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700"
+                        : "text-white"
+                      }`}
+                      style={msg.from === "user"
+                        ? { background: `linear-gradient(135deg, ${colors[2]}, ${colors[1]})` }
+                        : {}
+                      }>
                       <p>{msg.text}</p>
                       <span className="block text-[10px] text-gray-400 mt-1">{msg.time}</span>
                     </div>
@@ -215,9 +254,13 @@ export default function AdvancedChatBolt() {
 
                 {isTyping && (
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full flex items-center justify-center text-white" style={{ background: `linear-gradient(135deg, ${colors[0]}, ${colors[2]})` }}>S</div>
+                    <div className="w-9 h-9 rounded-full flex items-center justify-center text-white"
+                      style={{ background: `linear-gradient(135deg, ${colors[0]}, ${colors[2]})` }}>
+                      S
+                    </div>
+
                     <div className="bg-white dark:bg-gray-800 px-4 py-3 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
-                      <motion.div className="flex space-x-2" animate={{ opacity: [0.3,1,0.3] }} transition={{ repeat: Infinity, duration: 1.2 }}>
+                      <motion.div className="flex space-x-2" animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1.2 }}>
                         <div className="w-2 h-2 bg-[rgb(247,244,46)] rounded-full" />
                         <div className="w-2 h-2 bg-[rgb(23,207,220)] rounded-full" />
                         <div className="w-2 h-2 bg-[rgb(242,30,167)] rounded-full" />
@@ -230,6 +273,7 @@ export default function AdvancedChatBolt() {
                 {showSuggestions && (
                   <div className="text-center mt-6">
                     <p className="text-xs text-gray-500 mb-3">Try asking one of these:</p>
+
                     <div className="flex flex-wrap gap-2 justify-center">
                       {quickQuestions.map((q, i) => (
                         <motion.button key={i} whileHover={{ scale: 1.05 }} onClick={() => handleSend(q)}
@@ -238,11 +282,44 @@ export default function AdvancedChatBolt() {
                         </motion.button>
                       ))}
                     </div>
-                    <div className="mt-4">
-                      <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }} onClick={startListening}
-                        className={`px-5 py-2 rounded-full text-sm font-semibold shadow-md transition ${listening ? "bg-gradient-to-r from-[rgb(242,30,167)] to-[rgb(247,244,46)] text-gray-900" : "bg-gradient-to-r from-[rgb(23,207,220)] to-[rgb(247,244,46)] text-gray-900"}`}>
-                        {listening ? "🎙 Listening..." : "🎤 Speak a Question"}
-                      </motion.button>
+
+                    {/* Voice Controls */}
+                    <div className="mt-4 flex flex-col items-center gap-2">
+
+                      {!listening ? (
+                        <motion.button
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={startListening}
+                          className="px-5 py-2 rounded-full text-sm font-semibold shadow-md 
+                                     bg-gradient-to-r from-[rgb(23,207,220)] to-[rgb(247,244,46)] text-gray-900"
+                        >
+                          🎤 Speak a Question
+                        </motion.button>
+                      ) : (
+                        <motion.button
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={stopListening}
+                          className="px-5 py-2 rounded-full text-sm font-semibold shadow-md 
+                                     bg-red-500 text-white"
+                        >
+                          ⛔ Stop Listening
+                        </motion.button>
+                      )}
+
+                      {isSpeaking && (
+                        <motion.button
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={stopSpeaking}
+                          className="px-5 py-2 rounded-full text-sm font-semibold shadow-md 
+                                     bg-red-600 text-white"
+                        >
+                          🔇 Stop Reading
+                        </motion.button>
+                      )}
+
                     </div>
                   </div>
                 )}
@@ -253,14 +330,27 @@ export default function AdvancedChatBolt() {
               {/* Input */}
               <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-900/80">
                 <form onSubmit={(e) => { e.preventDefault(); handleSend(); }} className="flex gap-3">
-                  <input type="text" value={input} onChange={(e) => setInput(e.target.value)}
+                  <input
+                    type="text"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
                     placeholder="Ask about FLL, donations, or our programs..."
                     className="flex-1 px-4 py-3 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-[rgb(23,207,220)] text-sm"
                   />
-                  <button type="submit" className="p-3 rounded-xl text-white font-bold shadow-md" style={{ background: `linear-gradient(135deg, ${colors[1]}, ${colors[2]})` }}>➤</button>
+                  <button type="submit"
+                    className="p-3 rounded-xl text-white font-bold shadow-md"
+                    style={{ background: `linear-gradient(135deg, ${colors[1]}, ${colors[2]})` }}
+                  >
+                    ➤
+                  </button>
                 </form>
-                <button onClick={resetChat} className="mt-3 text-xs text-gray-500 hover:text-[rgb(242,30,167)] underline w-full text-center">Clear chat</button>
+
+                <button onClick={resetChat}
+                  className="mt-3 text-xs text-gray-500 hover:text-[rgb(242,30,167)] underline w-full text-center">
+                  Clear chat
+                </button>
               </div>
+
             </div>
           </motion.div>
         )}

@@ -14,6 +14,7 @@ import {
   DollarSign,
   BarChart3,
 } from "lucide-react";
+import NavigationButtons from "./Button";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 const colors = ["#1e3a8a", "#16a34a", "#9333ea"]; // Dark gradient palette
@@ -98,6 +99,7 @@ const AdminDonations = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 text-white">
       {/* Header */}
+      <NavigationButtons/>
       <div className="px-4 py-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">

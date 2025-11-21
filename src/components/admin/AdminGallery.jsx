@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+import NavigationButtons from "./Button";
+
 
 const GalleryAdmin = () => {
   const [images, setImages] = useState([]);
@@ -98,6 +100,7 @@ const GalleryAdmin = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-6">
+      <NavigationButtons/>
       <h1 className="text-3xl font-bold mb-6 text-center text-blue-400">Champions Gallery</h1>
 
       {/* Add new image */}

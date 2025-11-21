@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import NavigationButtons from "./Button";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL; // use .env
 
@@ -88,6 +89,7 @@ const EducationDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 p-8 text-gray-100">
+      <NavigationButtons/>
       <h1 className="text-4xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-500 to-pink-500 mb-10">
         Education Admin Dashboard
       </h1>

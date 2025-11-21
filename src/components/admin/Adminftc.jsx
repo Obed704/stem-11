@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import Navbar from "../Header.jsx";
-import Footer from "../Footer.jsx";
+import NavigationButtons from "./Button";
+
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -92,7 +92,7 @@ export default function AdminFtc() {
   /* ------------------------------------------------------------------ */
   return (
     <>
-      <Navbar bg="bg-black" />
+      <NavigationButtons />
 
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white p-4 sm:p-6 md:p-10 pt-20">
 
@@ -319,7 +319,6 @@ export default function AdminFtc() {
         `}</style>
       </div>
 
-      <Footer />
     </>
   );
 }

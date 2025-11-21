@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import Navbar from "../Header.jsx";
-import Footer from "../Footer.jsx";
+import NavigationButtons from "./Button";
+
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 const colors = ["rgb(247, 244, 46)", "rgb(23, 207, 220)", "rgb(242, 30, 167)"]; // Color palette
@@ -121,7 +121,7 @@ const SponsorDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 p-10 text-white">
-      <Navbar bg="bg-black" />
+      <NavigationButtons />
       <h1 className="text-4xl font-extrabold text-center mb-10 bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 via-cyan-400 to-pink-500 animate-gradient mt-6">
         Sponsor Dashboard
       </h1>
@@ -249,7 +249,6 @@ const SponsorDashboard = () => {
 </div>
 
 
-      <Footer />
     </div>
   );
 };

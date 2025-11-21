@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import NavigationButtons from "./Button";
 
 const AdminBanner = () => {
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -45,6 +46,7 @@ const AdminBanner = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-950 flex justify-center items-start py-12 px-4">
+      <NavigationButtons/>
       <div className="bg-gradient-to-tr from-gray-800 via-gray-900 to-gray-800 shadow-2xl rounded-2xl p-8 max-w-3xl w-full text-white">
         <h2 className="text-3xl font-orbitron mb-6 text-center text-cyan-400">
           Admin: Edit Banner

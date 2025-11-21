@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import NavigationButtons from "./Button";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -103,6 +104,7 @@ const ProjectSlidesAdmin = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#312e81] text-gray-100 p-6">
+      <NavigationButtons/>
       <h1 className="text-3xl md:text-4xl font-bold text-center mb-10 bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">
         Project Slides Admin
       </h1>

@@ -1,6 +1,8 @@
 // frontend/src/admin/AdminDonation.jsx
 import { useEffect, useState } from "react";
 import axios from "axios";
+import NavigationButtons from "./Button";
+
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL; // use .env
 
@@ -56,6 +58,7 @@ export default function AdminDonation() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 p-6 text-gray-100">
+      <NavigationButtons/>
       <div className="max-w-6xl mx-auto bg-gray-900 bg-opacity-80 backdrop-blur-md rounded-2xl shadow-xl p-8">
         <h1 className="text-3xl md:text-4xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-500 to-pink-500 mb-8">
           Donation Images Admin

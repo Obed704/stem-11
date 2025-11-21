@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import NavigationButtons from "./Button";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -54,12 +55,13 @@ const FllAdmin = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-6 md:p-12">
+      <NavigationButtons />
       <h1 className="text-4xl font-bold mb-10 text-center md:text-left">FLL Admin Dashboard</h1>
 
       {/* Form */}
       <form
         onSubmit={handleSubmit}
-        className="bg-gray-800 p-8 md:p-10 rounded-3xl shadow-lg mb-12 space-y-6"
+        className="bg-gray-800 p-8 md:p-10 rounded-3xl shadow-lg mb-12 space-y-6 max-w-3xl mx-auto"
       >
         {["title", "description", "logo", "mapUrl"].map((field) => (
           <div key={field}>
@@ -105,9 +107,22 @@ const FllAdmin = () => {
           >
             <div className="flex-1">
               <h2 className="font-bold text-xl md:text-2xl mb-2">{fll.title}</h2>
-              <p className="text-gray-300">{fll.description}</p>
+              <p className="text-gray-300 mb-4">{fll.description}</p>
+
+              {/* Map Preview */}
+              {fll.mapUrl && (
+                <div className="w-full h-64 md:h-48 rounded-2xl overflow-hidden border border-gray-600">
+                  <iframe
+                    src={fll.mapUrl}
+                    title={fll.title}
+                    className="w-full h-full"
+                    frameBorder="0"
+                    allowFullScreen
+                  ></iframe>
+                </div>
+              )}
             </div>
-            <div className="flex gap-3 md:gap-2">
+            <div className="flex gap-3 md:gap-2 mt-4 md:mt-0">
               <button
                 onClick={() => handleEdit(fll)}
                 className="px-4 py-2 bg-blue-600 rounded-2xl hover:bg-blue-700 transition font-medium"

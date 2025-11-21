@@ -1,6 +1,7 @@
 // frontend/src/admin/TestimonialsAdmin.jsx
 import React, { useEffect, useState } from "react";
-import Navbar from "../Header";
+import NavigationButtons from "./Button";
+
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -104,7 +105,7 @@ const TestimonialsAdmin = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0a0a0a] via-[#12111a] to-[#1c1a25] text-gray-200">
-      <Navbar bg="black" />
+      <NavigationButtons />
 
       <div className="max-w-6xl mx-auto px-6 py-12">
         <h1 className="text-3xl md:text-4xl font-bold text-center bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent mb-10">

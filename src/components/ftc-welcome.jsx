@@ -77,7 +77,7 @@ export default function FTCLanding() {
             custom={2}
             variants={fadeUp}
             onClick={() =>
-              (window.location.href = "/contact?subject=Joining%20The%20Challenge")
+              (window.location.href = "/contact?subject=Joining%20FTC%20Challenge")
             }
             className="bg-cyan-500 hover:bg-cyan-600 text-white font-semibold px-8 py-4 text-lg rounded-full shadow-xl transition-all duration-300 transform hover:scale-105"
             whileHover={{ scale: 1.05 }}
@@ -203,7 +203,7 @@ export default function FTCLanding() {
 
           <motion.button
             onClick={() =>
-              (window.location.href = "/contact?subject=Take%20It%20To%20Your%20School")
+              (window.location.href = "/contact?subject=Taking%20FTC%20To%20Your%20School")
             }
             className="bg-cyan-500 hover:bg-cyan-600 text-white font-semibold px-8 py-4 text-lg rounded-full shadow-xl transition-all duration-300 transform hover:scale-105"
             variants={fadeUp}
