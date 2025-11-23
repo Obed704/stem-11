@@ -53,7 +53,7 @@ export default function AdvancedChatBolt() {
     localStorage.setItem("stemChatHistory", JSON.stringify(messages));
   }, [messages]);
 
-  // Start listening (Speech Recognition)
+  // Start listening
   const startListening = () => {
     const SpeechRecognition =
       window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -101,7 +101,7 @@ export default function AdvancedChatBolt() {
     }
   };
 
-  // Sending messages
+  // Send messages
   const handleSend = async (text = input) => {
     if (!text.trim()) return;
     setShowSuggestions(false);
@@ -146,15 +146,13 @@ export default function AdvancedChatBolt() {
       setMessages((prev) => [...prev, botMsg]);
       setShowSuggestions(true);
 
-      // Text-to-Speech
+      // Text-to-speech
       if ("speechSynthesis" in window) {
         const utterance = new SpeechSynthesisUtterance(botReply);
         utterance.rate = 1;
         utterance.pitch = 1;
-
         utterance.onstart = () => setIsSpeaking(true);
         utterance.onend = () => setIsSpeaking(false);
-
         speechSynthesis.speak(utterance);
       }
     }, delay);
@@ -208,9 +206,9 @@ export default function AdvancedChatBolt() {
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 40 }}
-            className="fixed inset-0 md:bottom-24 md:right-6 md:inset-auto flex justify-center md:justify-end items-end md:items-end z-50 p-0 md:p-4"
+            className="fixed inset-0 md:bottom-24 md:right-6 md:left-auto flex justify-center md:justify-end items-end z-50 p-0 md:p-4"
           >
-            <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-t-3xl md:rounded-3xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 flex flex-col w-full h-full max-h-full md:w-full md:max-w-md md:h-[620px] overflow-hidden">
+            <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-t-3xl md:rounded-3xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 flex flex-col w-full h-full md:w-full md:max-w-md md:h-[500px] overflow-hidden">
               
               {/* Header */}
               <div className="p-5 flex justify-between items-center"
@@ -227,17 +225,14 @@ export default function AdvancedChatBolt() {
 
               {/* Messages */}
               <div className="flex-1 overflow-y-auto p-5 space-y-5 bg-gradient-to-b from-gray-50/60 to-white dark:from-gray-800/40 dark:to-gray-900">
-
                 {messages.map((msg, i) => (
                   <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
                     className={`flex items-start gap-3 ${msg.from === "user" ? "flex-row-reverse" : ""}`}>
-
                     <div className={`w-9 h-9 flex items-center justify-center rounded-full text-white font-bold shadow ${
                       msg.from === "bot" ? "bg-gradient-to-br from-[rgb(23,207,220)] to-[rgb(242,30,167)]" : "bg-gradient-to-br from-gray-700 to-gray-900"
                     }`}>
                       {msg.from === "bot" ? "S" : "U"}
                     </div>
-
                     <div className={`max-w-xs px-4 py-3 rounded-2xl text-sm shadow-sm ${msg.from === "bot"
                         ? "bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700"
                         : "text-white"
@@ -258,7 +253,6 @@ export default function AdvancedChatBolt() {
                       style={{ background: `linear-gradient(135deg, ${colors[0]}, ${colors[2]})` }}>
                       S
                     </div>
-
                     <div className="bg-white dark:bg-gray-800 px-4 py-3 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
                       <motion.div className="flex space-x-2" animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1.2 }}>
                         <div className="w-2 h-2 bg-[rgb(247,244,46)] rounded-full" />
@@ -273,7 +267,6 @@ export default function AdvancedChatBolt() {
                 {showSuggestions && (
                   <div className="text-center mt-6">
                     <p className="text-xs text-gray-500 mb-3">Try asking one of these:</p>
-
                     <div className="flex flex-wrap gap-2 justify-center">
                       {quickQuestions.map((q, i) => (
                         <motion.button key={i} whileHover={{ scale: 1.05 }} onClick={() => handleSend(q)}
@@ -285,7 +278,6 @@ export default function AdvancedChatBolt() {
 
                     {/* Voice Controls */}
                     <div className="mt-4 flex flex-col items-center gap-2">
-
                       {!listening ? (
                         <motion.button
                           whileHover={{ scale: 1.1 }}
@@ -319,7 +311,6 @@ export default function AdvancedChatBolt() {
                           🔇 Stop Reading
                         </motion.button>
                       )}
-
                     </div>
                   </div>
                 )}
