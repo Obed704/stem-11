@@ -100,7 +100,7 @@ const EducationElements = () => {
         viewport={{ once: true, amount: 0.3 }}
       >
         <a
-          href="contact.html"
+          href="/contact?subject=Take fll to my school"
           className="inline-block px-8 py-4 bg-blue-600 text-white text-lg font-medium rounded-full shadow-md hover:bg-blue-700 transition duration-300"
         >
           Take It to Your School

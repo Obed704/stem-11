@@ -1,13 +1,172 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
+import { motion } from "framer-motion";
+import { gsap } from "gsap";
 import Navbar from "../Header.jsx";
 import Footer from "../Footer.jsx";
 import ChatBolt from "../ChatBolt.jsx";
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "";
 
-const ContactUs = () => {
+/* -----------------------------
+   FloatingInput Component
+   ------------------------------*/
+export const FloatingInput = ({
+  id,
+  label,
+  type = "text",
+  value,
+  onChange,
+  required = false,
+  autoComplete = "",
+}) => {
+  const inputRef = useRef(null);
+  const labelRef = useRef(null);
+
+  useEffect(() => {
+    const hasValue = Boolean(value && value.toString().trim().length);
+    gsap.to(labelRef.current, {
+      y: hasValue ? -22 : 0,
+      scale: hasValue ? 0.85 : 1,
+      color: hasValue ? "#8b5cf6" : "#cbd5e1",
+      duration: 0.18,
+      ease: "power1.out",
+    });
+  }, [value]);
+
+  const handleFocus = () => {
+    gsap.to(labelRef.current, { y: -22, scale: 0.85, color: "#8b5cf6", duration: 0.18 });
+  };
+
+  const handleBlur = () => {
+    const hasValue = Boolean(inputRef.current.value && inputRef.current.value.trim().length);
+    if (!hasValue) {
+      gsap.to(labelRef.current, { y: 0, scale: 1, color: "#cbd5e1", duration: 0.18 });
+    }
+  };
+
+  return (
+    <div className="relative w-full">
+      <input
+        ref={inputRef}
+        id={id}
+        type={type}
+        value={value}
+        onChange={onChange}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        placeholder=" "
+        required={required}
+        autoComplete={autoComplete}
+        className="w-full px-4 py-4 bg-transparent text-white border-2 border-gray-600 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-600 outline-none transition"
+      />
+      <label
+        ref={labelRef}
+        htmlFor={id}
+        className="absolute left-4 top-4 text-gray-300 pointer-events-none origin-left select-none"
+      >
+        {label} {required ? "*" : ""}
+      </label>
+    </div>
+  );
+};
+
+/* -----------------------------
+   FloatingTextarea Component
+   ------------------------------*/
+export const FloatingTextarea = ({ id, label, value, onChange, rows = 6 }) => {
+  const taRef = useRef(null);
+  const labelRef = useRef(null);
+
+  useEffect(() => {
+    const hasValue = Boolean(value && value.toString().trim().length);
+    gsap.to(labelRef.current, {
+      y: hasValue ? -22 : 0,
+      scale: hasValue ? 0.85 : 1,
+      color: hasValue ? "#8b5cf6" : "#cbd5e1",
+      duration: 0.18,
+    });
+  }, [value]);
+
+  const handleFocus = () => gsap.to(labelRef.current, { y: -22, scale: 0.85, color: "#8b5cf6", duration: 0.18 });
+  const handleBlur = () => {
+    const hasValue = Boolean(taRef.current.value && taRef.current.value.trim().length);
+    if (!hasValue) gsap.to(labelRef.current, { y: 0, scale: 1, color: "#cbd5e1", duration: 0.18 });
+  };
+
+  return (
+    <div className="relative w-full h-full">
+      <textarea
+        ref={taRef}
+        id={id}
+        rows={rows}
+        value={value}
+        onChange={onChange}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        placeholder=" "
+        className="w-full px-4 py-4 bg-transparent text-white border-2 border-gray-600 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-600 outline-none transition resize-none h-40"
+      />
+      <label ref={labelRef} htmlFor={id} className="absolute left-4 top-4 text-gray-300 pointer-events-none select-none">
+        {label}
+      </label>
+    </div>
+  );
+};
+
+/* -----------------------------
+   FloatingSelect Component
+   ------------------------------*/
+export const FloatingSelect = ({ id, label, value, onChange, options = [] }) => {
+  const labelRef = useRef(null);
+
+  useEffect(() => {
+    const hasValue = Boolean(value && value.toString().trim().length);
+    gsap.to(labelRef.current, { y: hasValue ? -22 : 0, scale: hasValue ? 0.85 : 1, color: hasValue ? "#8b5cf6" : "#cbd5e1", duration: 0.18 });
+  }, [value]);
+
+  return (
+    <div className="relative w-full">
+      <select
+        id={id}
+        value={value}
+        onChange={onChange}
+        className="w-full px-4 py-3 bg-transparent text-gray-200 border-2 border-gray-600 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-600 outline-none transition appearance-none"
+      >
+        <option value="" className="bg-gray-800 text-gray-500">Choose a subject</option>
+        {options.map((opt) => (
+          <option key={opt} value={opt}  className="bg-gray-800 text-gray-200">
+            {opt}
+          </option>
+        ))}
+      </select>
+      <label ref={labelRef} htmlFor={id} className="absolute left-4 top-4 text-gray-300 pointer-events-none select-none">
+        {label}
+      </label>
+      <div className="absolute right-3 top-4 pointer-events-none text-white"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+  <path strokeLinecap="round" strokeLinejoin="round" d="m9 12.75 3 3m0 0 3-3m-3 3v-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+</svg>
+</div>
+    </div>
+  );
+};
+
+/* -----------------------------
+   ContactForm Component
+   ------------------------------*/
+const SUBJECT_OPTIONS = [
+  "Donating Money",
+  "Used Pieces for FTC",
+  "Used Pieces for FLL",
+  "Sharing Skills",
+  "Helping Hand",
+  "Take It To Your School",
+];
+
+export const ContactForm = ({ backendUrl = BACKEND_URL }) => {
   const location = useLocation();
+  const formRef = useRef(null);
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -16,196 +175,166 @@ const ContactUs = () => {
     message: "",
   });
 
+  const [errors, setErrors] = useState({});
   const [presetSubject, setPresetSubject] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  // Pre-fill subject from query
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const selected = params.get("subject");
     if (selected) {
-      setFormData((prev) => ({ ...prev, customSubject: selected }));
+      setFormData((p) => ({ ...p, customSubject: selected }));
       setPresetSubject(selected);
     }
   }, [location.search]);
 
   const handleChange = (e) => {
     const { id, value } = e.target;
-
-    // Only one subject allowed: either dropdown or custom subject
     if (id === "subject") {
-      setFormData((prev) => ({ ...prev, subject: value, customSubject: "" }));
+      setFormData((p) => ({ ...p, subject: value, customSubject: "" }));
     } else if (id === "customSubject") {
-      setFormData((prev) => ({ ...prev, customSubject: value, subject: "" }));
+      setFormData((p) => ({ ...p, customSubject: value, subject: "" }));
     } else {
-      setFormData((prev) => ({ ...prev, [id]: value }));
+      setFormData((p) => ({ ...p, [id]: value }));
     }
+    setErrors((prev) => ({ ...prev, [id]: undefined }));
+  };
+
+  const validate = () => {
+    const e = {};
+    if ((formData.name || "").trim().length < 3) e.name = "Name must be at least 3 characters.";
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test((formData.email || "").trim())) e.email = "Please enter a valid email.";
+    const finalSubject = (formData.customSubject || formData.subject || "").trim();
+    if (!finalSubject || finalSubject.length < 2) e.subject = "Please provide a subject.";
+    if ((formData.message || "").trim().length < 10) e.message = "Message must be at least 10 characters.";
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  };
+
+  const shakeErrors = () => {
+    const tl = gsap.timeline();
+    tl.to(formRef.current, { x: -8, duration: 0.06 })
+      .to(formRef.current, { x: 8, duration: 0.06 })
+      .to(formRef.current, { x: -6, duration: 0.06 })
+      .to(formRef.current, { x: 6, duration: 0.06 })
+      .to(formRef.current, { x: 0, duration: 0.06 });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const finalSubject = formData.customSubject || formData.subject;
-
-    if (!finalSubject) {
-      alert("Please select or type a subject before sending.");
+    if (!validate()) {
+      shakeErrors();
       return;
     }
-
+    setSubmitting(true);
+    const finalSubject = formData.customSubject || formData.subject;
     try {
-      const res = await fetch(`${BACKEND_URL}/api/emails`, {
+      const res = await fetch(`${backendUrl}/api/emails`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...formData, subject: finalSubject }),
       });
-
       if (!res.ok) throw new Error("Server error");
-
-      alert("Thank you! We'll get back to you within 24 hours.");
+      await gsap.fromTo(formRef.current, { scale: 1 }, { scale: 0.98, duration: 0.08, yoyo: true, repeat: 1 });
+      alert("Thank you — message sent. We'll reply within 24 hours.");
       setFormData({ name: "", email: "", subject: "", customSubject: "", message: "" });
+      setErrors({});
       setPresetSubject("");
     } catch (err) {
       console.error(err);
-      alert("Something went wrong. Please try again.");
+      alert("Something went wrong. Please try again later.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
+    <form ref={formRef} onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="space-y-6">
+        <FloatingInput id="name" label="Full name" value={formData.name} onChange={handleChange} required autoComplete="name" />
+        {errors.name && <p className="text-red-400 text-sm">{errors.name}</p>}
+
+        <FloatingInput id="email" label="Email address" type="email" value={formData.email} onChange={handleChange} required autoComplete="email" />
+        {errors.email && <p className="text-red-400 text-sm">{errors.email}</p>}
+
+        {!presetSubject ? (
+          <>
+            {/* Corrected: remove extra placeholder */}
+            <FloatingInput
+              id="customSubject"
+              label="Custom subject (optional)"
+              value={formData.customSubject}
+              onChange={handleChange}
+            />
+
+            <FloatingSelect id="subject"  value={formData.subject} onChange={handleChange} options={SUBJECT_OPTIONS} />
+          </>
+        ) : (
+          <div className="text-white px-4 py-3 bg-black/30 border border-gray-600 rounded-lg">Preset: {presetSubject}</div>
+        )}
+
+        {errors.subject && <p className="text-red-400 text-sm">{errors.subject}</p>}
+      </div>
+
+      <div className="flex flex-col justify-between">
+        <FloatingTextarea id="message" label="Your message" value={formData.message} onChange={handleChange} rows={8} />
+        {errors.message && <p className="text-red-400 text-sm">{errors.message}</p>}
+
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          type="submit"
+          disabled={submitting}
+          className="mt-4 w-full bg-gradient-to-r from-pink-500 via-indigo-600 to-purple-600 text-white font-semibold py-4 rounded-xl shadow-xl disabled:opacity-60"
+        >
+          {submitting ? "Sending..." : "Send Message"}
+        </motion.button>
+      </div>
+    </form>
+  );
+};
+
+/* -----------------------------
+   ContactPage - full page
+   ------------------------------*/
+const ContactPage = () => {
+  return (
     <>
       <Navbar />
-
-      <section
-        className="min-h-screen flex items-center justify-center p-4 pt-32 relative"
+      <motion.section
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.45 }}
+        className="min-h-screen flex items-center justify-center p-6 pt-32 relative"
         style={{
           background: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(${BACKEND_URL}/contact/contact-bg.jpg) center/cover no-repeat`,
         }}
       >
-        <div className="relative w-full max-w-4xl">
-          <div className="bg-gradient-to-tr from-purple-900/50 via-indigo-900/50 to-black/90 shadow-2xl rounded-2xl overflow-hidden border border-white/20">
-            <div className="p-10 md:p-12">
-              <div className="text-center mb-10">
-                <h2 className="text-4xl font-bold text-white mb-2">Contact Us</h2>
-                <p className="text-gray-300 text-lg">We'd love to hear from you. Let's connect!</p>
-              </div>
-
-              <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* Left Column */}
-                <div className="space-y-6">
-                  {/* Name */}
-                  <div className="relative">
-                    <input
-                      type="text"
-                      id="name"
-                      required
-                      value={formData.name}
-                      onChange={handleChange}
-                      className="peer bg-transparent w-full px-4 py-4 rounded-lg border-2 border-gray-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 text-white transition placeholder-transparent"
-                      placeholder="Name"
-                    />
-                    <label
-                      htmlFor="name"
-                      className="absolute left-4 -top-3 text-gray-200 text-xs transition-all peer-focus:-top-3 peer-focus:text-xs peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400"
-                    >
-                      Name *
-                    </label>
-                  </div>
-
-                  {/* Email */}
-                  <div className="relative">
-                    <input
-                      type="email"
-                      id="email"
-                      required
-                      value={formData.email}
-                      onChange={handleChange}
-                      className="peer bg-transparent w-full px-4 py-4 rounded-lg border-2 border-gray-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 text-white transition placeholder-transparent"
-                      placeholder="Email"
-                    />
-                    <label
-                      htmlFor="email"
-                      className="absolute left-4 -top-3 text-gray-200 text-xs transition-all peer-focus:-top-3 peer-focus:text-xs peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400"
-                    >
-                      Email *
-                    </label>
-                  </div>
-
-                  {/* Subject */}
-                  <div className="space-y-2">
-                    {presetSubject ? (
-                      <div className="text-white px-4 py-3 bg-black/30 border-2 border-gray-500 rounded-lg animate-fadeIn">
-                        Subject: {presetSubject}
-                      </div>
-                    ) : (
-                      <>
-                        <input
-                          type="text"
-                          id="customSubject"
-                          placeholder="Type your own subject"
-                          value={formData.customSubject}
-                          onChange={handleChange}
-                          className="text-white bg-transparent w-full px-4 py-3 rounded-lg border-2 border-gray-400 focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition placeholder-gray-400 animate-fadeIn"
-                        />
-
-                        <select
-                          id="subject"
-                          value={formData.subject}
-                          onChange={handleChange}
-                          className="text-gray-400 bg-transparent w-full px-4 py-3 rounded-lg border-2 border-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition animate-fadeIn"
-                        >
-                          <option value="">Or select from list</option>
-                          <option value="Donating Money">Donating Money</option>
-                          <option value="Used Pieces for FTC">Used Pieces for FTC</option>
-                          <option value="Used Pieces for FLL">Used Pieces for FLL</option>
-                          <option value="Sharing Skills">Sharing Skills</option>
-                          <option value="Helping Hand">Helping Hand</option>
-                          <option value="Take It To Your School">Take It To Your School</option>
-                        </select>
-                      </>
-                    )}
-                  </div>
-                </div>
-
-                {/* Right Column */}
-                <div className="flex flex-col justify-between space-y-6">
-                  <div className="relative flex-1">
-                    <textarea
-                      id="message"
-                      rows="8"
-                      placeholder="Message"
-                      value={formData.message}
-                      onChange={handleChange}
-                      className="peer bg-transparent w-full px-4 py-4 rounded-lg border-2 border-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white transition h-full resize-none placeholder-transparent animate-fadeIn"
-                    />
-                    <label
-                      htmlFor="message"
-                      className="absolute left-4 -top-3 text-gray-200 text-xs transition-all peer-focus:-top-3 peer-focus:text-xs peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400"
-                    >
-                      Message
-                    </label>
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="w-full bg-gradient-to-r from-pink-500 via-indigo-600 to-purple-600 text-white font-semibold py-4 rounded-xl shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 animate-fadeIn"
-                  >
-                    Send Message
-                  </button>
-                </div>
-              </form>
+        <motion.div
+          initial={{ y: 30, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ type: "spring", stiffness: 60 }}
+          className="w-full max-w-4xl"
+        >
+          <div className="bg-gradient-to-tr from-purple-900/50 via-indigo-900/40 to-black/90 shadow-2xl rounded-2xl overflow-hidden border border-white/10 p-8 md:p-12">
+            <div className="text-center mb-8">
+              <h1 className="text-4xl font-bold text-white">Contact Us</h1>
+              <p className="text-gray-300 mt-2">We'd love to hear from you — questions, partnerships, or volunteering.</p>
             </div>
 
-            <div className="bg-black/70 text-center px-8 py-4 border-t border-white/20">
-              <p className="text-gray-400 text-sm">
-                We'll get back to you within 24 hours. For urgent inquiries, email us at
-                <a
-                  className="text-blue-400 underline ml-1"
-                  href="mailto:amelia@steminspires.tech"
-                >
-                  amelia@steminspires.tech
-                </a>
-              </p>
-            </div>
+            <ContactForm />
+
           </div>
-        </div>
-      </section>
+
+          <div className="bg-black/70 text-center px-6 py-4 border-t border-white/10 mt-4 rounded-b-2xl">
+            <p className="text-gray-400 text-sm">
+              We reply within 24 hours. For urgent matters email:
+              <a className="text-blue-400 underline ml-1" href="mailto:amelia@steminspires.tech">amelia@steminspires.tech</a>
+            </p>
+          </div>
+        </motion.div>
+      </motion.section>
 
       <ChatBolt />
       <Footer />
@@ -213,4 +342,4 @@ const ContactUs = () => {
   );
 };
 
-export default ContactUs;
+export default ContactPage;
