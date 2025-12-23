@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 const FloatingNavigationButtons = () => {
   const navigate = useNavigate();
   const [gradientPos, setGradientPos] = useState(0);
+  const [visible, setVisible] = useState(true); // New state to toggle visibility
 
   // Animate gradient
   useEffect(() => {
@@ -47,25 +48,46 @@ const FloatingNavigationButtons = () => {
         display: "flex",
         flexDirection: "column",
         gap: "10px",
-        zIndex: 9999, // make sure it floats above all content
+        zIndex: 9999,
       }}
     >
+      {/* Toggle Button */}
       <div
-        style={gradientStyle}
-        onClick={() => navigate("/")}
-        onMouseEnter={handleHover}
-        onMouseLeave={handleLeave}
+        onClick={() => setVisible((prev) => !prev)}
+        style={{
+          background: "rgba(0,0,0,0.6)",
+          color: "white",
+          padding: "8px 12px",
+          borderRadius: "8px",
+          textAlign: "center",
+          cursor: "pointer",
+          fontWeight: "600",
+        }}
       >
-        Home
+        {visible ? "Hide Buttons" : "Show Buttons"}
       </div>
-      <div
-        style={gradientStyle}
-        onClick={() => navigate("/admin-dashboard")}
-        onMouseEnter={handleHover}
-        onMouseLeave={handleLeave}
-      >
-        Admin Dashboard
-      </div>
+
+      {/* Floating Buttons */}
+      {visible && (
+        <>
+          <div
+            style={gradientStyle}
+            onClick={() => navigate("/")}
+            onMouseEnter={handleHover}
+            onMouseLeave={handleLeave}
+          >
+            Home
+          </div>
+          <div
+            style={gradientStyle}
+            onClick={() => navigate("/admin-dashboard")}
+            onMouseEnter={handleHover}
+            onMouseLeave={handleLeave}
+          >
+            Admin Dashboard
+          </div>
+        </>
+      )}
     </div>
   );
 };
