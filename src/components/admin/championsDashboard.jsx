@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import NavigationButtons from "./Button";
 
-
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function ChampionDashboard() {
@@ -28,8 +27,8 @@ export default function ChampionDashboard() {
     try {
       const res = await axios.get(`${BACKEND_URL}/api/champions`);
       setChampions(res.data);
-    } catch (error) {
-      console.error("Error fetching champions:", error);
+    } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -37,11 +36,9 @@ export default function ChampionDashboard() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const data = new FormData();
-    Object.entries(formData).forEach(([key, value]) =>
-      data.append(key, value)
-    );
+
+    Object.entries(formData).forEach(([k, v]) => data.append(k, v));
     if (file) data.append("image", file);
 
     try {
@@ -50,41 +47,29 @@ export default function ChampionDashboard() {
       } else {
         await axios.post(`${BACKEND_URL}/api/champions`, data);
       }
-
       resetForm();
       fetchChampions();
-    } catch (error) {
-      console.error("Error submitting form:", error);
+    } catch (err) {
+      console.error(err);
     }
+  };
+
+  const handleEdit = (c) => {
+    setFormData({
+      title: c.title || "",
+      season: c.season || "",
+      description: c.description || "",
+      roadToVictory: c.roadToVictory || "",
+      alt: c.alt || "",
+      showHeader: c.showHeader ?? true,
+    });
+    setEditingId(c._id);
+    setPreview(c.image ? `${BACKEND_URL}${c.image}` : null);
   };
 
   const handleDelete = async (id) => {
-    try {
-      await axios.delete(`${BACKEND_URL}/api/champions/${id}`);
-      fetchChampions();
-    } catch (error) {
-      console.error("Error deleting champion:", error);
-    }
-  };
-
-  // ✅ FIXED: Do NOT dump MongoDB object into form state
-  const handleEdit = (champ) => {
-    setFormData({
-      title: champ.title || "",
-      season: champ.season || "",
-      description: champ.description || "",
-      roadToVictory: champ.roadToVictory || "",
-      alt: champ.alt || "",
-      showHeader: champ.showHeader ?? true,
-    });
-    setEditingId(champ._id);
-    setPreview(champ.image ? `${BACKEND_URL}${champ.image}` : null);
-  };
-
-  const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0];
-    setFile(selectedFile);
-    setPreview(selectedFile ? URL.createObjectURL(selectedFile) : null);
+    await axios.delete(`${BACKEND_URL}/api/champions/${id}`);
+    fetchChampions();
   };
 
   const resetForm = () => {
@@ -113,91 +98,92 @@ export default function ChampionDashboard() {
     <>
       <NavigationButtons />
 
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white p-10">
-        <h1 className="text-4xl font-extrabold text-center mb-10 bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 via-cyan-400 to-pink-500 animate-gradient mt-6">
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white px-4 py-6 sm:p-10">
+        <h1 className="text-2xl sm:text-4xl font-extrabold text-center mb-6 sm:mb-10 bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 via-cyan-400 to-pink-500">
           Champion Dashboard
         </h1>
 
         {/* FORM */}
         <form
           onSubmit={handleSubmit}
-          className="bg-gray-800/80 p-8 rounded-2xl shadow-2xl max-w-4xl mx-auto mb-16"
+          className="bg-gray-800/80 p-4 sm:p-8 rounded-2xl shadow-2xl max-w-4xl mx-auto mb-12"
         >
-          <h2 className="text-2xl font-semibold mb-6">
+          <h2 className="text-xl sm:text-2xl font-semibold mb-6">
             {editingId ? "Edit Champion" : "Add New Champion"}
           </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <input
-              type="text"
+              className="input"
               placeholder="Title"
               value={formData.title}
               onChange={(e) =>
                 setFormData({ ...formData, title: e.target.value })
               }
-              className="input"
               required
             />
 
             <input
-              type="text"
+              className="input"
               placeholder="Season"
               value={formData.season}
               onChange={(e) =>
                 setFormData({ ...formData, season: e.target.value })
               }
-              className="input"
               required
             />
 
             <textarea
+              className="input sm:col-span-2"
               placeholder="Description"
               value={formData.description}
               onChange={(e) =>
                 setFormData({ ...formData, description: e.target.value })
               }
-              className="input md:col-span-2"
               required
             />
 
             <textarea
+              className="input sm:col-span-2"
               placeholder="Road To Victory"
               value={formData.roadToVictory}
               onChange={(e) =>
                 setFormData({ ...formData, roadToVictory: e.target.value })
               }
-              className="input md:col-span-2"
               required
             />
 
             <input
-              type="text"
-              placeholder="Alt Text"
+              className="input"
+              placeholder="Alt text"
               value={formData.alt}
               onChange={(e) =>
                 setFormData({ ...formData, alt: e.target.value })
               }
-              className="input"
             />
 
-            <label className="flex flex-col items-center justify-center border-2 border-dashed border-cyan-400 rounded-xl cursor-pointer hover:bg-gray-700">
-              <p className="text-cyan-400 font-semibold mt-4">
-                Upload Champion Image
-              </p>
+            <label className="flex flex-col items-center justify-center border-2 border-dashed border-cyan-400 rounded-xl p-6 cursor-pointer hover:bg-gray-700">
+              <span className="text-cyan-400 font-semibold">
+                Upload Image
+              </span>
               <input
                 type="file"
                 hidden
-                onChange={handleFileChange}
                 accept="image/*"
+                onChange={(e) => {
+                  const f = e.target.files[0];
+                  setFile(f);
+                  setPreview(f ? URL.createObjectURL(f) : null);
+                }}
               />
             </label>
 
             {preview && (
-              <div className="md:col-span-2 flex justify-center">
+              <div className="sm:col-span-2 flex justify-center">
                 <img
                   src={preview}
                   alt="Preview"
-                  className="w-48 h-32 object-cover rounded-lg"
+                  className="w-full max-w-xs h-40 object-cover rounded-lg"
                 />
               </div>
             )}
@@ -208,11 +194,41 @@ export default function ChampionDashboard() {
           </button>
         </form>
 
-        {/* TABLE */}
-        <div className="max-w-6xl mx-auto bg-gray-900/80 p-8 rounded-2xl shadow-2xl">
-          <h2 className="text-2xl font-semibold mb-6">Champions List</h2>
+        {/* MOBILE CARDS */}
+        <div className="grid gap-4 sm:hidden">
+          {champions.map((c) => (
+            <div key={c._id} className="bg-gray-900 p-4 rounded-xl shadow">
+              {c.image && (
+                <img
+                  src={`${BACKEND_URL}${c.image}`}
+                  alt={c.alt}
+                  className="w-full h-40 object-cover rounded mb-3"
+                />
+              )}
+              <h3 className="font-bold">{c.title}</h3>
+              <p className="text-gray-400">{c.season}</p>
 
-          <table className="w-full">
+              <div className="flex gap-2 mt-3">
+                <button
+                  onClick={() => handleEdit(c)}
+                  className="flex-1 bg-yellow-400 text-black py-1 rounded"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(c._id)}
+                  className="flex-1 bg-red-600 py-1 rounded"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* DESKTOP TABLE */}
+        <div className="hidden sm:block max-w-6xl mx-auto bg-gray-900/80 p-6 rounded-2xl shadow-2xl overflow-x-auto">
+          <table className="w-full min-w-[600px]">
             <thead className="bg-gray-800">
               <tr>
                 <th className="p-3 text-left">Image</th>
@@ -236,35 +252,27 @@ export default function ChampionDashboard() {
                   <td className="p-3">{c.title}</td>
                   <td className="p-3">{c.season}</td>
                   <td className="p-3 text-center">
-                    <button
-                      onClick={() => handleEdit(c)}
-                      className="mr-2 px-3 py-1 bg-yellow-400 text-black rounded"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(c._id)}
-                      className="px-3 py-1 bg-red-600 rounded"
-                    >
-                      Delete
-                    </button>
+                    <div className="flex justify-center gap-2">
+                      <button
+                        onClick={() => handleEdit(c)}
+                        className="px-3 py-1 bg-yellow-400 text-black rounded"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(c._id)}
+                        className="px-3 py-1 bg-red-600 rounded"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
-
-              {champions.length === 0 && (
-                <tr>
-                  <td colSpan="4" className="text-center text-gray-400 py-6">
-                    No champions found.
-                  </td>
-                </tr>
-              )}
             </tbody>
           </table>
         </div>
       </div>
-
-      
     </>
   );
-}
+        }
