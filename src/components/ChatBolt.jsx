@@ -212,7 +212,7 @@ export default function AdvancedChatBolt() {
               
               {/* Header */}
               <div className="p-5 flex justify-between items-center"
-                   style={{ background: `linear-gradient(135deg, ${colors[0]}, ${colors[1]}, ${colors[2]})` }}>
+                   style={{ background: ` ${colors[1]}` }}>
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-white/30 rounded-full flex items-center justify-center text-2xl">🤖</div>
                   <div>
@@ -229,7 +229,7 @@ export default function AdvancedChatBolt() {
                   <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
                     className={`flex items-start gap-3 ${msg.from === "user" ? "flex-row-reverse" : ""}`}>
                     <div className={`w-9 h-9 flex items-center justify-center rounded-full text-white font-bold shadow ${
-                      msg.from === "bot" ? "bg-gradient-to-br from-[rgb(23,207,220)] to-[rgb(242,30,167)]" : "bg-gradient-to-br from-gray-700 to-gray-900"
+                      msg.from === "bot" ? "bg-gradient-to-br from-[rgb(23,207,220)] to-[rgb(23,207,220,0.5)]" : "bg-gradient-to-br from-gray-700 to-gray-900"
                     }`}>
                       {msg.from === "bot" ? "S" : "U"}
                     </div>
@@ -238,7 +238,7 @@ export default function AdvancedChatBolt() {
                         : "text-white"
                       }`}
                       style={msg.from === "user"
-                        ? { background: `linear-gradient(135deg, ${colors[2]}, ${colors[1]})` }
+                        ? { background: ` ${colors[1]}` }
                         : {}
                       }>
                       <p>{msg.text}</p>
@@ -270,7 +270,7 @@ export default function AdvancedChatBolt() {
                     <div className="flex flex-wrap gap-2 justify-center">
                       {quickQuestions.map((q, i) => (
                         <motion.button key={i} whileHover={{ scale: 1.05 }} onClick={() => handleSend(q)}
-                          className="px-4 py-2 bg-gradient-to-r from-[rgb(247,244,46)] via-[rgb(23,207,220)] to-[rgb(242,30,167)] text-gray-900 font-medium rounded-full text-xs shadow hover:shadow-lg transition-all">
+                          className="px-4 py-2 bg-gradient-to-r from-[rgb(23,207,220)] via-[rgb(242,30,167)] to-[rgb(23,207,220)] text-gray-900 font-medium rounded-full text-xs shadow hover:shadow-lg transition-all">
                           {q}
                         </motion.button>
                       ))}
@@ -284,7 +284,7 @@ export default function AdvancedChatBolt() {
                           whileTap={{ scale: 0.95 }}
                           onClick={startListening}
                           className="px-5 py-2 rounded-full text-sm font-semibold shadow-md 
-                                     bg-gradient-to-r from-[rgb(23,207,220)] to-[rgb(247,244,46)] text-gray-900"
+                                     bg-gradient-to-r from-[rgb(23,207,220)] to-[rgb(23,207,220,0.1)] text-gray-900"
                         >
                           🎤 Speak a Question
                         </motion.button>

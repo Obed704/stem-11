@@ -103,7 +103,8 @@ export default function FTCLanding() {
             viewport={{ once: true }}
           >
             <motion.h2
-              className="text-3xl sm:text-4xl font-bold mb-5 text-cyan-600"
+              className="text-3xl sm:text-4xl font-bold mb-5"
+              style={{ color: "rgb(242, 30, 167)" }}
               custom={0}
               variants={fadeUp}
             >
@@ -153,7 +154,8 @@ export default function FTCLanding() {
       >
         <div className="max-w-7xl mx-auto px-6 text-center">
           <motion.h2
-            className="text-3xl sm:text-4xl font-bold mb-12 text-cyan-600"
+            className="text-3xl sm:text-4xl font-bold mb-12"
+            style={{ color: "rgb(23, 207, 220)" }}
             variants={fadeUp}
             custom={0}
           >

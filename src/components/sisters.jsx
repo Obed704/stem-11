@@ -14,16 +14,25 @@ const SistersCard = () => {
   }, []);
 
   // Fetch founders from DB
+  // Fetch founders from DB
   useEffect(() => {
     const fetchFounders = async () => {
       try {
         const res = await fetch(`${BACKEND_URL}/api/team`);
         const data = await res.json();
 
-        // Filter founders only
         const foundersOnly = data
-          .filter((member) => member.role === "Founder")
-          .slice(0, 2) // just in case more than 2 founders exist
+          .filter(
+            (member) =>
+              member.role === "Founder" &&
+              (member.name === "Amelia Wyler" || member.name === "Vienna Wyler")
+          )
+          // Force Amelia first
+          .sort((a, b) => {
+            if (a.name === "Amelia Wyler") return -1;
+            if (b.name === "Amelia Wyler") return 1;
+            return 0;
+          })
           .map((founder) => ({
             ...founder,
             image: `${BACKEND_URL}${founder.image}`,
@@ -105,19 +114,26 @@ const SistersCard = () => {
         </div>
 
         {/* Header */}
-        <h2 className="text-3xl md:text-4xl font-bold text-blue-700 text-center mt-4 lg:mt-0 capitalize">
+        <h2
+          className="text-3xl md:text-4xl font-bold text-center mt-4 lg:mt-0 capitalize"
+          style={{ color: "rgb(242, 30, 167)" }}
+        >
           sisters in STEM
         </h2>
       </div>
 
       {/* Description */}
       <p className="text-gray-700 text-base md:text-lg leading-relaxed text-justify max-w-3xl mx-auto mt-8">
-        <strong>Amelia and Vienna</strong> started STEM Inspires when we moved
-        to <strong>Rwanda in 2022</strong> after visiting Kigali often in our
-        childhood. Having been involved with FIRST since primary school, we have
-        first-hand experience with not just the method and quality of
-        engineering education, but also the competitive fun FIRST offers.{" "}
-        <strong>
+        <strong style={{ color: "rgb(23, 207, 220)" }}>
+          Amelia and Vienna
+        </strong>{" "}
+        started STEM Inspires when we moved to{" "}
+        <strong style={{ color: "rgb(23, 207, 220)" }}>Rwanda in 2022</strong>{" "}
+        after visiting Kigali often in our childhood. Having been involved with
+        FIRST since primary school, we have first-hand experience with not just
+        the method and quality of engineering education, but also the
+        competitive fun FIRST offers.{" "}
+        <strong style={{ color: "rgb(23, 207, 220)" }}>
           Together, we're inspiring students to embrace the challenge, power,
           and FUN of STEM.
         </strong>

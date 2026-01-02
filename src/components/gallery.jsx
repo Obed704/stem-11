@@ -38,7 +38,7 @@ const Gallery = () => {
       className="p-6 md:p-10 w-full flex flex-col items-center justify-center bg-gray-50"
     >
       {/* Heading */}
-      <h2 className="text-3xl md:mb-16 md:text-4xl font-serif font-semibold text-sky-800 text-center mb-3 tracking-wide">
+      <h2 className="text-3xl md:mb-16 md:text-4xl font-serif font-semibold text-center mb-3 tracking-wide" style={{ color: "rgb(242, 30, 167)" }}>
         Champions Gallery
       </h2>
 

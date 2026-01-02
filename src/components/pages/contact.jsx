@@ -8,6 +8,9 @@ import ChatBolt from "../ChatBolt.jsx";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "";
 
+// STEM Colors
+const STEM_COLORS = ['rgb(247, 244, 46)', 'rgb(23, 207, 220)', 'rgb(242, 30, 167)'];
+
 /* -----------------------------
    FloatingInput Component
    ------------------------------*/
@@ -28,14 +31,14 @@ export const FloatingInput = ({
     gsap.to(labelRef.current, {
       y: hasValue ? -22 : 0,
       scale: hasValue ? 0.85 : 1,
-      color: hasValue ? "#8b5cf6" : "#cbd5e1",
+      color: hasValue ? STEM_COLORS[1] : "#cbd5e1",
       duration: 0.18,
       ease: "power1.out",
     });
   }, [value]);
 
   const handleFocus = () => {
-    gsap.to(labelRef.current, { y: -22, scale: 0.85, color: "#8b5cf6", duration: 0.18 });
+    gsap.to(labelRef.current, { y: -22, scale: 0.85, color: STEM_COLORS[1], duration: 0.18 });
   };
 
   const handleBlur = () => {
@@ -58,7 +61,7 @@ export const FloatingInput = ({
         placeholder=" "
         required={required}
         autoComplete={autoComplete}
-        className="w-full px-4 py-4 bg-transparent text-white border-2 border-gray-600 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-600 outline-none transition"
+        className="w-full px-4 py-4 bg-black/30 text-white border-2 border-gray-600 rounded-lg focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/30 outline-none transition"
       />
       <label
         ref={labelRef}
@@ -83,12 +86,12 @@ export const FloatingTextarea = ({ id, label, value, onChange, rows = 6 }) => {
     gsap.to(labelRef.current, {
       y: hasValue ? -22 : 0,
       scale: hasValue ? 0.85 : 1,
-      color: hasValue ? "#8b5cf6" : "#cbd5e1",
+      color: hasValue ? STEM_COLORS[1] : "#cbd5e1",
       duration: 0.18,
     });
   }, [value]);
 
-  const handleFocus = () => gsap.to(labelRef.current, { y: -22, scale: 0.85, color: "#8b5cf6", duration: 0.18 });
+  const handleFocus = () => gsap.to(labelRef.current, { y: -22, scale: 0.85, color: STEM_COLORS[1], duration: 0.18 });
   const handleBlur = () => {
     const hasValue = Boolean(taRef.current.value && taRef.current.value.trim().length);
     if (!hasValue) gsap.to(labelRef.current, { y: 0, scale: 1, color: "#cbd5e1", duration: 0.18 });
@@ -105,7 +108,7 @@ export const FloatingTextarea = ({ id, label, value, onChange, rows = 6 }) => {
         onFocus={handleFocus}
         onBlur={handleBlur}
         placeholder=" "
-        className="w-full px-4 py-4 bg-transparent text-white border-2 border-gray-600 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-600 outline-none transition resize-none h-40"
+        className="w-full px-4 py-4 bg-black/30 text-white border-2 border-gray-600 rounded-lg focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/30 outline-none transition resize-none h-40"
       />
       <label ref={labelRef} htmlFor={id} className="absolute left-4 top-4 text-gray-300 pointer-events-none select-none">
         {label}
@@ -122,7 +125,7 @@ export const FloatingSelect = ({ id, label, value, onChange, options = [] }) => 
 
   useEffect(() => {
     const hasValue = Boolean(value && value.toString().trim().length);
-    gsap.to(labelRef.current, { y: hasValue ? -22 : 0, scale: hasValue ? 0.85 : 1, color: hasValue ? "#8b5cf6" : "#cbd5e1", duration: 0.18 });
+    gsap.to(labelRef.current, { y: hasValue ? -22 : 0, scale: hasValue ? 0.85 : 1, color: hasValue ? STEM_COLORS[1] : "#cbd5e1", duration: 0.18 });
   }, [value]);
 
   return (
@@ -131,7 +134,7 @@ export const FloatingSelect = ({ id, label, value, onChange, options = [] }) => 
         id={id}
         value={value}
         onChange={onChange}
-        className="w-full px-4 py-3 bg-transparent text-gray-200 border-2 border-gray-600 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-600 outline-none transition appearance-none"
+        className="w-full px-4 py-3 bg-black/30 text-gray-200 border-2 border-gray-600 rounded-lg focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/30 outline-none transition appearance-none"
       >
         <option value="" className="bg-gray-800 text-gray-500">Choose a subject</option>
         {options.map((opt) => (
@@ -143,10 +146,11 @@ export const FloatingSelect = ({ id, label, value, onChange, options = [] }) => 
       <label ref={labelRef} htmlFor={id} className="absolute left-4 top-4 text-gray-300 pointer-events-none select-none">
         {label}
       </label>
-      <div className="absolute right-3 top-4 pointer-events-none text-white"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-  <path strokeLinecap="round" strokeLinejoin="round" d="m9 12.75 3 3m0 0 3-3m-3 3v-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-</svg>
-</div>
+      <div className="absolute right-3 top-4 pointer-events-none text-white">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+          <path strokeLinecap="round" strokeLinejoin="round" d="m9 12.75 3 3m0 0 3-3m-3 3v-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+        </svg>
+      </div>
     </div>
   );
 };
@@ -260,7 +264,6 @@ export const ContactForm = ({ backendUrl = BACKEND_URL }) => {
 
         {!presetSubject ? (
           <>
-            {/* Corrected: remove extra placeholder */}
             <FloatingInput
               id="customSubject"
               label="Custom subject (optional)"
@@ -286,7 +289,10 @@ export const ContactForm = ({ backendUrl = BACKEND_URL }) => {
           whileTap={{ scale: 0.98 }}
           type="submit"
           disabled={submitting}
-          className="mt-4 w-full bg-gradient-to-r from-pink-500 via-indigo-600 to-purple-600 text-white font-semibold py-4 rounded-xl shadow-xl disabled:opacity-60"
+          className="mt-4 w-full bg-gradient-to-r from-cyan-500 via-cyan-600 to-cyan-700 text-black font-bold py-4 rounded-lg shadow-lg disabled:opacity-60 hover:shadow-cyan-500/30 hover:shadow-xl transition-shadow"
+          style={{
+            backgroundColor: ` ${STEM_COLORS[1]}`,
+          }}
         >
           {submitting ? "Sending..." : "Send Message"}
         </motion.button>
@@ -303,13 +309,13 @@ const ContactPage = () => {
     <>
       <Navbar />
       <motion.section
+      style={{
+          background: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(${BACKEND_URL}/contact/contact-bg.jpg) center/cover no-repeat`,
+        }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.45 }}
-        className="min-h-screen flex items-center justify-center p-6 pt-32 relative"
-        style={{
-          background: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(${BACKEND_URL}/contact/contact-bg.jpg) center/cover no-repeat`,
-        }}
+        className="min-h-screen flex items-center justify-center p-6 pt-32 relative bg-black"
       >
         <motion.div
           initial={{ y: 30, opacity: 0 }}
@@ -317,20 +323,31 @@ const ContactPage = () => {
           transition={{ type: "spring", stiffness: 60 }}
           className="w-full max-w-4xl"
         >
-          <div className="bg-gradient-to-tr from-purple-900/50 via-indigo-900/40 to-black/90 shadow-2xl rounded-2xl overflow-hidden border border-white/10 p-8 md:p-12">
+          <div className="bg-black/50 shadow-2xl rounded-2xl overflow-hidden border border-gray-800 p-8 md:p-12">
             <div className="text-center mb-8">
-              <h1 className="text-4xl font-bold text-white">Contact Us</h1>
-              <p className="text-gray-300 mt-2">We'd love to hear from you — questions, partnerships, or volunteering.</p>
+              <motion.h1 
+                className="text-5xl font-bold mb-4"
+                style={{ color: "rgb(23, 207, 220)" }}
+              >
+                Contact Us
+              </motion.h1>
+              <p className="text-gray-300 mt-2 text-lg">We'd love to hear from you — questions, partnerships, or volunteering.</p>
             </div>
 
             <ContactForm />
 
           </div>
 
-          <div className="bg-black/70 text-center px-6 py-4 border-t border-white/10 mt-4 rounded-b-2xl">
+          <div className="bg-black/70 text-center px-6 py-4 border-t border-gray-800 mt-4 rounded-b-2xl">
             <p className="text-gray-400 text-sm">
               We reply within 24 hours. For urgent matters email:
-              <a className="text-blue-400 underline ml-1" href="mailto:amelia@steminspires.tech">amelia@steminspires.tech</a>
+              <a 
+                className="ml-1 font-medium hover:underline transition"
+                style={{ color: STEM_COLORS[1] }}
+                href="mailto:amelia@steminspires.tech"
+              >
+                amelia@steminspires.tech
+              </a>
             </p>
           </div>
         </motion.div>

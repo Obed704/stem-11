@@ -7,11 +7,14 @@ const ChampionsSection = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const GradientBanner = () => (
-    <div className="bg-gradient-to-r from-blue-500 via-blue-900 to-blue-600 py-10 text-center shadow-md">
-      <h1 className="text-4xl font-extrabold text-white tracking-wide">Champions</h1>
-    </div>
-  );
+const GradientBanner = () => (
+  <div className="bg-gradient-to-r from-[rgb(23,207,220)] via-[rgb(23,207,220,0.5)] to-[rgb(23,207,220)] py-10 text-center shadow-md">
+    <h1 className="text-4xl font-extrabold text-black tracking-wide">
+      Champions
+    </h1>
+  </div>
+);
+
 
   useEffect(() => {
     const fetchChampions = async () => {

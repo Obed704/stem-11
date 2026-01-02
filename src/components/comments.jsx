@@ -87,7 +87,10 @@ const TestimonialsCards = () => {
   }
 
   return (
-    <section className="py-16 bg-blue-900 flex flex-col items-center">
+    <section
+      className="py-16 flex flex-col items-center"
+      style={{ backgroundColor: "rgb(23, 207, 220)" }}
+    >
       <motion.h2
         className="text-4xl md:text-5xl font-bold text-white mb-12 text-center"
         initial={{ opacity: 0, y: -50 }}
@@ -100,49 +103,48 @@ const TestimonialsCards = () => {
 
       {/* Desktop grid */}
       {/* Desktop: if 3 or more → horizontal slider; if less → grid */}
-{testimonials.length >= 3 ? (
-  <div className="hidden lg:block w-full max-w-6xl px-6 relative">
-    {/* Custom Navigation Buttons */}
-    <div 
-      className="swiper-button-prev bg-white/60 text-black w-20 h-20 rounded-full 
+      {testimonials.length >= 3 ? (
+        <div className="hidden lg:block w-full max-w-6xl px-6 relative">
+          {/* Custom Navigation Buttons */}
+          <div
+            className="swiper-button-prev bg-white/60 text-black w-20 h-20 rounded-full 
                  flex items-center justify-center backdrop-blur-md 
                  absolute top-1/2 left-0 -translate-y-1/2 -translate-x-6 
                  hover:bg-white/40 transition"
-    ></div>
+          ></div>
 
-    <div 
-      className="swiper-button-next bg-white/60 text-black w-20 h-16 rounded-full 
+          <div
+            className="swiper-button-next bg-white/60 text-black w-20 h-16 rounded-full 
                  flex items-center justify-center backdrop-blur-md 
                  absolute top-1/2 right-2 -translate-y-1/2 translate-x-6
                  hover:bg-white/40 transition"
-    ></div>
+          ></div>
 
-    <Swiper
-      modules={[Navigation, Pagination]}
-      spaceBetween={24}
-      slidesPerView={3}
-      navigation={{
-        nextEl: ".swiper-button-next",
-        prevEl: ".swiper-button-prev",
-      }}
-      pagination={{ clickable: true }}
-      className="pb-12"
-    >
-      {testimonials.map((t) => (
-        <SwiperSlide key={t._id}>
-          <TestimonialCard t={t} />
-        </SwiperSlide>
-      ))}
-    </Swiper>
-  </div>
-) : (
-  <div className="hidden lg:grid grid-cols-3 gap-8 w-full max-w-6xl px-6">
-    {testimonials.map((t) => (
-      <TestimonialCard key={t._id} t={t} />
-    ))}
-  </div>
-)}
-
+          <Swiper
+            modules={[Navigation, Pagination]}
+            spaceBetween={24}
+            slidesPerView={3}
+            navigation={{
+              nextEl: ".swiper-button-next",
+              prevEl: ".swiper-button-prev",
+            }}
+            pagination={{ clickable: true }}
+            className="pb-12"
+          >
+            {testimonials.map((t) => (
+              <SwiperSlide key={t._id}>
+                <TestimonialCard t={t} />
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </div>
+      ) : (
+        <div className="hidden lg:grid grid-cols-3 gap-8 w-full max-w-6xl px-6">
+          {testimonials.map((t) => (
+            <TestimonialCard key={t._id} t={t} />
+          ))}
+        </div>
+      )}
 
       {/* Swiper on mobile/tablet */}
       <div className="w-full max-w-2xl px-6 lg:hidden">

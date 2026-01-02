@@ -101,7 +101,8 @@ const EducationElements = () => {
       >
         <a
           href="/contact?subject=Take fll to my school"
-          className="inline-block px-8 py-4 bg-blue-600 text-white text-lg font-medium rounded-full shadow-md hover:bg-blue-700 transition duration-300"
+          className="inline-block px-8 py-4 text-white text-lg font-medium rounded-full shadow-md hover:bg-blue-700 transition duration-300"
+          style={{ backgroundColor: "rgb(23, 207, 220)" }}
         >
           Take It to Your School
         </a>

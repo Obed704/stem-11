@@ -307,7 +307,7 @@ function DonationForm({
 }) {
   return (
     <div className="w-full max-w-md bg-white p-6 sm:p-8 rounded-xl shadow-2xl">
-      <h2 className="text-2xl font-bold mb-6 text-center text-blue-700">Donate</h2>
+      <h2 className="text-2xl font-bold mb-6 text-center"style={{ color: "rgb(242, 30, 167)" }}>Donate</h2>
 
       <label className="sr-only">Your Name</label>
       <input
@@ -355,7 +355,7 @@ function DonationForm({
             key={opt.value}
             className={`flex items-center border border-blue-300 rounded-lg px-4 py-3 mb-3 cursor-pointer transition ${
               isSelected
-                ? "bg-gradient-to-r from-yellow-300 via-cyan-400 to-pink-500 text-black shadow-lg"
+                ? "bg-gradient-to-r from-yellow-200 via-cyan-200 to-pink-300 text-black shadow-lg"
                 : "bg-white hover:bg-gray-50"
             }`}
             onClick={() => setSelectedAmount(opt.value)}
@@ -366,7 +366,7 @@ function DonationForm({
               value={opt.value}
               checked={isSelected}
               onChange={() => setSelectedAmount(opt.value)}
-              className="mr-3 accent-blue-600"
+              className="mr-3 accent-pink-600"
             />
             {opt.label}
           </label>
@@ -411,7 +411,8 @@ function DonationForm({
           disabled={processing}
           className={`w-full font-bold py-3 rounded-lg transition ${
             processing ? "opacity-70 cursor-not-allowed" : ""
-          } bg-purple-600 hover:bg-purple-700 text-white`}
+          }  hover:bg-purple-700 text-white`}
+          style={{ backgroundColor: "rgb(23, 207, 220)" ,color: "rgba(219, 249, 154, 1)"}}
           aria-disabled={processing}
         >
           {processing ? "Processing..." : "Pay with Credit Card (Stripe)"}
@@ -422,7 +423,9 @@ function DonationForm({
           disabled={processing}
           className={`w-full font-bold py-3 rounded-lg transition ${
             processing ? "opacity-70 cursor-not-allowed" : ""
-          } bg-yellow-500 hover:bg-yellow-600 text-white`}
+          } hover:bg-yellow-600`}
+        
+          style={{ backgroundColor: "rgb(247, 244, 46)" ,color: "rgba(23, 205, 219, 1)" }}
           aria-disabled={processing}
         >
           {processing ? "Processing..." : "Pay with PayPal"}

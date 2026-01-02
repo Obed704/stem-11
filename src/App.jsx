@@ -31,6 +31,11 @@ import AdminBanner from "./components/admin/AdminBannerChamps.jsx";
 import AdminPayments from "./components/admin/PaymentsAdmin.jsx";
 import FllAdmin from "./components/admin/AdminMap.jsx";
 import AdminFtc from "./components/admin/Adminftc.jsx";
+import AdminNavbar from "./components/admin/AdminNavbar.jsx";
+import AdminHero from "./components/admin/AdminHero.jsx";
+import AdminStats from "./components/admin/adminStarts.jsx";
+import AdminGetInvolved from "./components/admin/adminGetInvolved.jsx";
+import AdminSupport from "./components/admin/adminSupport.jsx";
 
 function App() {
   return (
@@ -60,6 +65,46 @@ function App() {
             element={
               <ProtectedRoute>
                 <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin-support"
+            element={
+              <ProtectedRoute>
+                <AdminSupport/>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin-getInvolved"
+            element={
+              <ProtectedRoute>
+                <AdminGetInvolved />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin-starts"
+            element={
+              <ProtectedRoute>
+                <AdminStats />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/welcome-settings"
+            element={
+              <ProtectedRoute>
+                <AdminHero />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/header-settings"
+            element={
+              <ProtectedRoute>
+                <AdminNavbar />
               </ProtectedRoute>
             }
           />

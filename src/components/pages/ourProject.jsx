@@ -7,7 +7,7 @@ import ThumbnailCarousel from "../imageSlider";
 import ChatBolt from "../ChatBolt";
 function App() {
   return (
-    <div className="bg-blue-800">
+    <div style={{ backgroundColor: "rgb(23, 207, 220)" }}>
       <Navbar  />
       <Fll />
       <RecruitingProcess/>

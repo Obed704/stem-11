@@ -3,6 +3,15 @@ import { motion } from "framer-motion";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
+// Example Stem Inspires gradient colors
+const stemGradients = [
+  "from-[#17CFDC] via-[#23A6D5] to-[#1E3C72]", // blue-teal
+  "from-[#FF6B6B] via-[#FFD93D] to-[#FF9F1C]", // orange-red-yellow
+  "from-[#6A11CB] via-[#2575FC] to-[#6A11CB]", // purple-blue
+  "from-[#43CEA2] via-[#185A9D] to-[#43CEA2]", // green-blue
+  "from-[#F7971E] via-[#FFD200] to-[#F7971E]", // yellow-orange
+];
+
 const SponsorsSection = () => {
   const [sponsors, setSponsors] = useState([]);
 
@@ -12,9 +21,11 @@ const SponsorsSection = () => {
         const res = await fetch(`${BACKEND_URL}/api/sponsors`);
         const data = await res.json();
 
-        const formatted = data.map((sponsor) => ({
+        // Assign Stem Inspires gradients cyclically
+        const formatted = data.map((sponsor, idx) => ({
           ...sponsor,
           img: `${BACKEND_URL}${sponsor.img}`,
+          gradient: stemGradients[idx % stemGradients.length],
         }));
 
         setSponsors(formatted);
@@ -56,15 +67,15 @@ const SponsorsSection = () => {
             />
 
             <div
-              className={`absolute inset-0 bg-gradient-to-br ${sponsor.gradient} text-white md:p-6 flex flex-col justify-center items-center space-y-2 rounded-xl opacity-0 group-hover:opacity-100 transition duration-300`}
+              className={`absolute inset-0 bg-gradient-to-br ${sponsor.gradient} text-white p-6 flex flex-col justify-center items-center text-center space-y-2 rounded-xl opacity-0 group-hover:opacity-100 transition duration-300`}
             >
-              <h3 className="text-lg font-semibold">{sponsor.name}</h3>
-              <p className="text-xs opacity-90">{sponsor.description}</p>
-              <button
-                className={`mt-2 px-4 py-1 bg-white font-semibold rounded-full text-xs ${sponsor.btnColor} transition duration-300`}
+              <h3 className="text-lg font-semibold break-words">{sponsor.name}</h3>
+              <p className="text-xs opacity-90 break-words">{sponsor.description}</p>
+              {/* <button
+                className={`mt-2 px-4 py-1 bg-white font-semibold rounded-full text-xs text-gray-800 hover:text-gray-700 transition duration-300`}
               >
                 See Partner
-              </button>
+              </button> */}
             </div>
           </motion.div>
         ))}

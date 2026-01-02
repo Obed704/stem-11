@@ -53,7 +53,8 @@ const ChampionsSection = () => {
     <section id="champions" className="py-16 bg-blue-100 overflow-hidden">
       <div className="max-w-7xl mx-auto px-6">
         <motion.h2
-          className="text-4xl font-bold text-center text-blue-800 mb-12"
+          className="text-4xl font-bold text-center mb-12"
+          style={{ color: "rgb(242, 30, 167)" }}
           initial={{ opacity: 0, y: -50 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
@@ -83,7 +84,8 @@ const ChampionsSection = () => {
                 loading="lazy"
               />
               <div className="p-6">
-                <h3 className="text-xl font-semibold text-blue-700 mb-2">
+                <h3 className="text-xl font-semibold mb-2"
+                style={{ color: "rgb(23, 207, 220)" }} >
                   {champion.name}
                 </h3>
                 <p className="text-gray-600 mb-4">{champion.description}</p>

@@ -16,11 +16,27 @@ const TeamSection = () => {
 
         const data = await res.json();
 
-        // Normalize image URLs
-        const formatted = data.map((member) => ({
-          ...member,
-          image: member.image ? `${BACKEND_URL}${member.image}` : "",
-        }));
+        // Normalize image URLs and sort founders/advisors first
+        const formatted = data
+          .map((member) => ({
+            ...member,
+            image: member.image ? `${BACKEND_URL}${member.image}` : "",
+          }))
+          .sort((a, b) => {
+            // Make Amelia Wyler first
+            if (a.name === "Amelia Wyler") return -1;
+            if (b.name === "Amelia Wyler") return 1;
+
+            // Then founders/advisors
+            const priorityRoles = ["founder", "advisor"];
+            const aPriority = priorityRoles.includes(a.role.toLowerCase())
+              ? -1
+              : 0;
+            const bPriority = priorityRoles.includes(b.role.toLowerCase())
+              ? -1
+              : 0;
+            return aPriority - bPriority;
+          });
 
         setTeamMembers(formatted);
       } catch (err) {
@@ -43,14 +59,15 @@ const TeamSection = () => {
 
   return (
     <section className="max-w-6xl mx-auto px-6 py-20 bg-gray-100">
-      <h2 className="text-3xl font-bold text-center text-primary mb-12">
+      <h2
+        className="text-3xl font-bold text-center mb-12"
+        style={{ color: "rgb(23, 207, 220)" }}
+      >
         Our Team
       </h2>
 
       {teamMembers.length === 0 ? (
-        <p className="text-center text-gray-500">
-          No team members available.
-        </p>
+        <p className="text-center text-gray-500">No team members available.</p>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {teamMembers.map((member) => (

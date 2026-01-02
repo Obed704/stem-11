@@ -32,7 +32,8 @@ const GetInvolved = () => {
         transition={{ duration: 0.8 }}
         viewport={{ once: true }}
       >
-        <h1 className="text-4xl md:text-5xl font-extrabold text-blue-900 mb-4">
+        <h1 className="text-4xl md:text-5xl font-extrabold mb-4"
+        style={{ color: "rgb(242, 30, 167)" }}>
           Support
         </h1>
         <h2 className="text-blue-800 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">

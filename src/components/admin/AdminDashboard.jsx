@@ -27,6 +27,11 @@ const AdminDashboard = () => {
     { name: "Payments and Donations", path: "/admin-payments" },
     { name: "Change map and fll statement", path: "/fll-map" },
     { name: "First Tech Challenge", path: "/admin-ftc" },
+    { name: "Header settings", path: "/header-settings" },
+    { name: "Welcome settings", path: "/welcome-settings" },
+    { name: "Teams Registered", path: "/admin-starts" },
+    { name: "Get involved ", path: "/admin-getInvolved" },
+    { name: "support component ", path: "/admin-support" },
   ];
 
   const handleLogout = () => {

@@ -35,7 +35,7 @@ const MainContent = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
         <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-red-600"></div>
-        <p className="mt-4 text-gray-600">Loading FIRST LEGO League info...</p>
+        <p className="mt-4" style={{ color: "rgb(23, 207, 220)" }}>Loading FIRST LEGO League info...</p>
       </div>
     );
   }
@@ -92,10 +92,10 @@ const MainContent = () => {
             <p className="text-lg leading-relaxed text-black">
               {fll.description}
             </p>
-            <p className="text-xl font-semibold text-black">
+            <p className="text-xl font-semibold">
               We are bringing this to central Africa!
             </p>
-            <p className="text-lg font-medium text-black">
+            <p className="text-lg font-medium" style={{ color: "rgb(23, 207, 220)" }}>
               Check out the schools we are connecting:
             </p>
           </motion.div>
@@ -112,7 +112,8 @@ const MainContent = () => {
   >
     <div className="text-center space-y-8 w-full md:rounded-3xl md:overflow-hidden">
       <motion.h2
-        className="text-3xl md:text-4xl font-bold text-gray-800"
+        className="text-3xl md:text-4xl font-bold"
+        style={{ color: "rgb(242, 30, 167)" }}
         variants={fadeUp}
         initial="hidden"
         whileInView="visible"

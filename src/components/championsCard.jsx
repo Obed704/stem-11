@@ -19,12 +19,12 @@ const ChampionCard = ({ champion, reverse }) => {
 
       {/* Text Content */}
       <div className="w-full md:w-1/2 flex flex-col justify-center md:pl-8 md:pr-8">
-        <h2 className="text-xl md:text-2xl font-semibold text-gray-800 mb-2">
+        <h2 className="text-xl md:text-2xl font-semibold mb-2" style={{ color: "rgb(23, 207, 220)" }}>
           {champion.title}
         </h2>
 
         {champion.season && (
-          <p className="text-indigo-500 font-medium italic mb-4">
+          <p className=" font-medium italic mb-4" style={{ color: "rgb(242, 30, 167)" }}>
             Season: {champion.season}
           </p>
         )}
