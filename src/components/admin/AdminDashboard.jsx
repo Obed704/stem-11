@@ -32,6 +32,8 @@ const AdminDashboard = () => {
     { name: "Teams Registered", path: "/admin-starts" },
     { name: "Get involved ", path: "/admin-getInvolved" },
     { name: "support component ", path: "/admin-support" },
+    { name: "Admin FTC ", path: "/admin-ftc-settings" },
+    { name: "Admin Sisters ", path: "/admin-sisters" },
   ];
 
   const handleLogout = () => {

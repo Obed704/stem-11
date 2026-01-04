@@ -36,6 +36,8 @@ import AdminHero from "./components/admin/AdminHero.jsx";
 import AdminStats from "./components/admin/adminStarts.jsx";
 import AdminGetInvolved from "./components/admin/adminGetInvolved.jsx";
 import AdminSupport from "./components/admin/adminSupport.jsx";
+import FTCLandingAdmin from "./components/admin/adminFTCsection.jsx";
+import AdminSistersCards from "./components/AdminSisterCard.jsx";
 
 function App() {
   return (
@@ -65,6 +67,22 @@ function App() {
             element={
               <ProtectedRoute>
                 <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin-sisters"
+            element={
+              <ProtectedRoute>
+                <AdminSistersCards />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin-ftc-settings"
+            element={
+              <ProtectedRoute>
+                <FTCLandingAdmin />
               </ProtectedRoute>
             }
           />
