@@ -108,7 +108,8 @@ export default function FTCLandingAdmin() {
                   hero: { ...content.hero, ctaText: v },
                 })
               }
-            />
+            />  
+            
 
             {/* <Input
               label="CTA Link"
@@ -299,3 +300,4 @@ const ImageUpload = ({ label, current, onChange }) => (
     />
   </div>
 );
+// ----------------  ----------------

@@ -10,6 +10,8 @@ const AdminStatsWithPreview = () => {
   const [saving, setSaving] = useState(false);
 
   // ---------------- FETCH STATS SETTINGS ----------------
+
+  // ---------------- FETCH STATS SETTINGS ----------------
   useEffect(() => {
     const fetchSettings = async () => {
       try {
