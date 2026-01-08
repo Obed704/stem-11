@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-const API = `${import.meta.env.VITE_API_URL}/api/slides`;
+const API = `${import.meta.env.VITE_BACKEND_URL}/api/slides`;
 
 export default function SlidesAdmin() {
   const [slides, setSlides] = useState([]);
