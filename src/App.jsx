@@ -38,6 +38,7 @@ import AdminGetInvolved from "./components/admin/adminGetInvolved.jsx";
 import AdminSupport from "./components/admin/adminSupport.jsx";
 import FTCLandingAdmin from "./components/admin/adminFTCsection.jsx";
 import AdminSistersCards from "./components/AdminSisterCard.jsx";
+import AdminHomeSlides from "./components/admin/AdminHomeSlides.jsx";
 
 function App() {
   return (
@@ -67,6 +68,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin-welcome-slides"
+            element={
+              <ProtectedRoute>
+                <AdminHomeSlides />
               </ProtectedRoute>
             }
           />
