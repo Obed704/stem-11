@@ -108,10 +108,11 @@ export default function SlidesAdmin() {
             >
               <div className="relative">
                 <img
-                  src={slide.bg}
-                  alt="slide"
-                  className="h-48 w-full object-cover transition group-hover:scale-105"
-                />
+  src={`${BACKEND_URL}${slide.bg}`}
+  alt="slide"
+  className="h-48 w-full object-cover transition group-hover:scale-105"
+/>
+
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition" />
               </div>
 
