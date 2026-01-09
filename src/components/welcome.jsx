@@ -22,9 +22,7 @@ const HeroSection = () => {
 
         // 🎨 Color logic
         if (data.colorMode === "random") {
-          const shuffled = [...data.colorPalette].sort(
-            () => 0.5 - Math.random()
-          );
+          const shuffled = [...data.colorPalette].sort(() => 0.5 - Math.random());
           wordColors.current = {
             word1: shuffled[0],
             word2: shuffled[1] || shuffled[0],
@@ -39,7 +37,6 @@ const HeroSection = () => {
         console.error("Failed to fetch hero data:", err);
       }
     };
-
     fetchHero();
   }, []);
 
@@ -56,7 +53,6 @@ const HeroSection = () => {
         console.error("Failed to fetch slides:", err);
       }
     };
-
     fetchSlides();
   }, []);
 
@@ -76,19 +72,42 @@ const HeroSection = () => {
   const goToSlide = (index) => {
     setCurrentSlide(index);
     clearInterval(slideIntervalRef.current);
-
     slideIntervalRef.current = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
     }, hero.slideInterval || 7000);
   };
 
-  if (!hero || !slides.length) {
+  // Loading state with logo
+  if (!hero) {
     return (
-      <section className="h-screen flex items-center justify-center bg-black text-white">
-        Loading hero section...
+      <section className="relative h-screen flex flex-col items-center justify-center bg-black text-white overflow-hidden">
+        {/* Optional subtle background or fallback */}
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 to-black" />
+        
+        <div className="relative z-10 text-center space-y-8">
+          <motion.img
+            src={`${BACKEND_URL}/logo/logo.png`} // Adjust fallback path if needed
+            alt="Logo"
+            className="w-32 md:w-40 rounded-md mx-auto"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+          />
+          <motion.p
+            className="text-lg md:text-xl text-white/70"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+          >
+            Loading...
+          </motion.p>
+        </div>
       </section>
     );
   }
+
+  // If hero is loaded but slides are still loading
+  const isLoadingSlides = hero && slides.length === 0;
 
   return (
     <section className="relative h-screen overflow-hidden">
@@ -112,6 +131,11 @@ const HeroSection = () => {
         )}
       </AnimatePresence>
 
+      {/* Fallback background while slides load */}
+      {isLoadingSlides && (
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 to-black" />
+      )}
+
       {/* Overlay */}
       <div className="absolute inset-0 bg-black/70 z-10" />
 
@@ -120,9 +144,7 @@ const HeroSection = () => {
         <div className="space-y-7">
           {/* Logo */}
           <motion.img
-            src={`${BACKEND_URL}/logo/${hero.logoImage.startsWith("/") ? "" : "/"}${
-              hero.logoImage
-            }`}
+            src={`${BACKEND_URL}/logo/${hero.logoImage.startsWith("/") ? "" : "/"}${hero.logoImage}`}
             alt="Logo"
             className="w-28 md:w-32 rounded-md"
             initial={{ opacity: 0, y: -16 }}
@@ -191,25 +213,27 @@ const HeroSection = () => {
         </div>
       </div>
 
-      {/* Dots */}
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex gap-3 z-20">
-        {slides.map((_, index) => (
-          <motion.div
-            key={index}
-            onClick={() => goToSlide(index)}
-            className={`w-3.5 h-3.5 rounded-full cursor-pointer ${
-              index === currentSlide ? "scale-125" : "opacity-50"
-            }`}
-            style={{
-              backgroundColor:
-                index === currentSlide
-                  ? wordColors.current.word1
-                  : "rgba(255,255,255,0.35)",
-            }}
-            whileHover={{ scale: 1.4 }}
-          />
-        ))}
-      </div>
+      {/* Dots - only show when slides are loaded */}
+      {!isLoadingSlides && (
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex gap-3 z-20">
+          {slides.map((_, index) => (
+            <motion.div
+              key={index}
+              onClick={() => goToSlide(index)}
+              className={`w-3.5 h-3.5 rounded-full cursor-pointer ${
+                index === currentSlide ? "scale-125" : "opacity-50"
+              }`}
+              style={{
+                backgroundColor:
+                  index === currentSlide
+                    ? wordColors.current.word1
+                    : "rgba(255,255,255,0.35)",
+              }}
+              whileHover={{ scale: 1.4 }}
+            />
+          ))}
+        </div>
+      )}
     </section>
   );
 };
