@@ -35,9 +35,9 @@ const footerData = {
   ],
   contact: [
     { text: "info@steminspires.tech", href: "mailto:info@steminspires.tech" },
-    { text: "(555) 123-4567", href: "#" },
-    { text: "123 STEM Avenue", href: "#" },
-    { text: "Tech City, TC 10001", href: "#" },
+    // { text: "(555) 123-4567", href: "#" },
+    // { text: "123 STEM Avenue", href: "#" },
+    // { text: "Tech City, TC 10001", href: "#" },
   ],
 };
 
