@@ -27,8 +27,8 @@ export default function AdminLogin() {
 
   const welcomeMessages = [
     "Welcome Back",
-    "Admin Access",
-    "Secure Login",
+    "Admin",
+    "Secure Access",
     "STEM Inspire"
   ];
 
@@ -104,12 +104,12 @@ export default function AdminLogin() {
             variants={itemVariants}
             className="mt-8 space-y-4 text-gray-400"
           >
-            <div className="flex items-center gap-3">
+            /* {/* <div className="flex items-center gap-3">
               <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <span>Secure authentication system</span>
-            </div>
+            </div> */} */
             <div className="flex items-center gap-3">
               <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
