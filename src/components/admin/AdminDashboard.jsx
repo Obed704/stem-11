@@ -3,12 +3,6 @@ import { NavLink } from "react-router-dom";
 import NavigationButtons from "./Button";
 
 const AdminDashboard = () => {
-  const colors = [
-    "rgb(247, 244, 46)",   // yellow
-    "rgb(23, 207, 220)",   // cyan
-    "rgb(242, 30, 167)"    // pink
-  ];
-
   const pages = [
     { name: "Change Password", path: "/change-password" },
     { name: "Emails", path: "/admin-emails" },
@@ -33,7 +27,7 @@ const AdminDashboard = () => {
     { name: "Get involved ", path: "/admin-getInvolved" },
     { name: "support component ", path: "/admin-support" },
     { name: "FTC ", path: "/admin-ftc-settings" },
-    { name: " Sisters In Stem", path: "/admin-sisters" },
+    { name: "Sisters In Stem", path: "/admin-sisters" },
     { name: "Home Slides ", path: "/admin-welcome-slides" },
   ];
 
@@ -43,59 +37,98 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black p-8">
-      <NavigationButtons/>
-      <div className="max-w-6xl mx-auto bg-gray-900/70 backdrop-blur-md rounded-2xl shadow-2xl p-6 border border-gray-800">
+    <div className="min-h-screen bg-gray-900 p-8">
+      <NavigationButtons />
+      
+      <div className="max-w-7xl mx-auto bg-gray-800 rounded-xl shadow-xl border border-gray-700 overflow-hidden">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8 border-b border-gray-700 pb-4">
-          <h1 className="text-3xl font-bold text-white">Admin Dashboard</h1>
-          <button
-            onClick={handleLogout}
-            className="bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded-lg transition-all duration-300"
-          >
-            Logout
-          </button>
+        <div className="bg-gray-800 border-b border-gray-700 px-6 py-4">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-2xl font-bold text-white">STEM Inspire Admin Panel</h1>
+              <p className="text-gray-400 text-sm mt-1">Manage website content and settings</p>
+            </div>
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors duration-200 flex items-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+              Logout
+            </button>
+          </div>
         </div>
 
-        {/* Grid of Cards */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {pages.map((p, i) => (
-            <NavLink
-              key={p.path}
-              to={p.path}
-              className={({ isActive }) =>
-                `relative p-6 rounded-xl shadow-lg overflow-hidden text-white transform transition-all duration-700 hover:scale-105 
-                ${isActive ? "ring-4 ring-pink-400" : ""}`
-              }
-              style={{
-                background: `linear-gradient(45deg, ${colors[i % 3]}, ${colors[(i + 1) % 3]})`,
-                animation: "gradientMove 12s ease infinite",
-                backgroundSize: "300% 300%",
-                filter: "brightness(0.9)",
-              }}
-            >
-              <h2 className="text-xl font-semibold drop-shadow-md">{p.name}</h2>
-              <p className="text-sm mt-2 opacity-80">
-                Manage {p.name.toLowerCase()} content
-              </p>
+        {/* Stats Bar */}
+        <div className="bg-gray-800 border-b border-gray-700 px-6 py-3">
+          <div className="flex gap-6">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-green-500"></div>
+              <span className="text-sm text-gray-300">Connected</span>
+            </div>
+            <div className="text-sm text-gray-400">
+              {pages.length} management sections available
+            </div>
+          </div>
+        </div>
 
-              {/* Subtle pink overlay */}
-              <div className="absolute inset-0 bg-pink-500/10 opacity-0 hover:opacity-30 transition-opacity duration-700 rounded-xl"></div>
-            </NavLink>
-          ))}
+        {/* Main Content */}
+        <div className="p-6">
+          <h2 className="text-lg font-semibold text-white mb-4">Content Management</h2>
+          
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {pages.map((page, index) => (
+              <NavLink
+                key={page.path}
+                to={page.path}
+                className={({ isActive }) =>
+                  `group block bg-gray-700 hover:bg-gray-600 border ${
+                    isActive ? "border-blue-500" : "border-gray-600"
+                  } rounded-lg p-4 transition-all duration-200 hover:shadow-lg`
+                }
+              >
+                <div className="flex items-start gap-3">
+                  <div className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center ${
+                    index % 4 === 0 ? "bg-blue-900/30 text-blue-400" :
+                    index % 4 === 1 ? "bg-purple-900/30 text-purple-400" :
+                    index % 4 === 2 ? "bg-green-900/30 text-green-400" :
+                    "bg-orange-900/30 text-orange-400"
+                  }`}>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-medium text-white group-hover:text-blue-400 transition-colors">
+                      {page.name}
+                    </h3>
+                    <p className="text-xs text-gray-400 mt-1">
+                      Configure {page.name.toLowerCase()} settings
+                    </p>
+                  </div>
+                  <svg className="w-5 h-5 text-gray-500 group-hover:text-blue-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </NavLink>
+            ))}
+          </div>
+
+          {/* Footer */}
+          <div className="mt-8 pt-6 border-t border-gray-700">
+            <div className="flex justify-between items-center">
+              <div className="text-sm text-gray-500">
+                Last login: {new Date().toLocaleDateString()}
+              </div>
+              <div className="text-xs text-gray-500">
+                v1.0.0 • Admin Panel
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-
-      {/* Gradient Animation */}
-      <style>
-        {`
-          @keyframes gradientMove {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-          }
-        `}
-      </style>
     </div>
   );
 };
