@@ -92,13 +92,13 @@ const Header = ({ settings }) => {
 
           {/* ACTION BUTTON & HAMBURGER */}
           <div className="flex items-center gap-4">
-            <Link
+            {/* <Link
               to="/donate"
               className="hidden md:block px-6 py-2.5 rounded-full font-black text-[10px] uppercase tracking-widest transition-all hover:scale-105 active:scale-95 text-white"
               style={{ backgroundColor: colors.pink }}
             >
-              Support
-            </Link>
+              Donate
+            </Link> */}
 
             {/* ANIMATED HAMBURGER */}
             <button

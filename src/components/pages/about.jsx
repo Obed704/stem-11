@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion"; // Added for the new animation
 import Navbar from "../Header";
 import SistersCard from "../sisters";
 import TeamSection from "../team";
@@ -7,7 +8,6 @@ import Footer from "../Footer";
 import ChatBolt from "../ChatBolt";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-
 
 const About = () => {
   const [navbar, setNavbar] = useState(null);
@@ -21,19 +21,19 @@ const About = () => {
 
     const fetchAll = async () => {
       try {
-        // Fetch all endpoints at once
-        const [navbarRes, teamRes, sistersRes, sponsorsRes] = await Promise.all([
-          fetch(`${BACKEND_URL}/api/navbar`),
-          fetch(`${BACKEND_URL}/api/team`),
-          fetch(`${BACKEND_URL}/api/sections/sisters_card`),
-          fetch(`${BACKEND_URL}/api/sponsors`),
-        ]);
+        const [navbarRes, teamRes, sistersRes, sponsorsRes] = await Promise.all(
+          [
+            fetch(`${BACKEND_URL}/api/navbar`),
+            fetch(`${BACKEND_URL}/api/team`),
+            fetch(`${BACKEND_URL}/api/sections/sisters_card`),
+            fetch(`${BACKEND_URL}/api/sponsors`),
+          ],
+        );
 
         if (!navbarRes.ok || !teamRes.ok || !sistersRes.ok || !sponsorsRes.ok) {
           throw new Error("One or more requests failed");
         }
 
-        // Parse JSON
         const navbarData = await navbarRes.json();
         const teamData = await teamRes.json();
         const sistersData = await sistersRes.json();
@@ -42,19 +42,16 @@ const About = () => {
         if (!mounted) return;
 
         setNavbar(navbarData);
-
         setTeam(
           Array.isArray(teamData)
             ? teamData.map((m) => ({
                 ...m,
                 image: m.image ? `${BACKEND_URL}${m.image}` : "",
               }))
-            : []
+            : [],
         );
-
         setSistersSection(sistersData);
         setSponsors(Array.isArray(sponsorsData) ? sponsorsData : []);
-
         setLoading(false);
       } catch (err) {
         console.error(err);
@@ -63,25 +60,40 @@ const About = () => {
     };
 
     fetchAll();
-
     return () => (mounted = false);
   }, []);
 
-if (loading) {
+  // ================= NEW ANIMATED LOADER =================
+  if (loading) {
     return (
-      <div className="fixed inset-0 bg-black flex items-center justify-center z-50">
-        <div className="text-center">
-          <img
-            src={`./welcomeSlide/Logo.png`} // or static /public/logo.png
+      <div className="fixed inset-0 bg-white flex flex-col items-center justify-center z-[100]">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-center"
+        >
+          <motion.img
+            src="/logo.png"
             alt="STEM Inspires"
-            className="w-32 mx-auto mb-6 animate-pulse"
+            className="w-28 md:w-36 mx-auto mb-10"
+            onError={(e) => console.log("Current path failed:", e.target.src)}
           />
-          <div className="text-white text-xl">Loading STEM Inspires…</div>
-        </div>
+          <div className="space-y-4">
+            <div className="text-[10px] font-mono font-black uppercase tracking-[0.5em] text-slate-400">
+              Loading .....
+            </div>
+            <div className="w-48 h-[1px] bg-slate-100 mx-auto overflow-hidden relative">
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-cyan-400 via-pink-500 to-yellow-300"
+                animate={{ x: [-200, 200] }}
+                transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
+              />
+            </div>
+          </div>
+        </motion.div>
       </div>
     );
   }
-
 
   return (
     <>

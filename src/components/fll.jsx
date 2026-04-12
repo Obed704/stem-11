@@ -1,153 +1,161 @@
-import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import React, { useState, useEffect, useRef } from "react";
+import { motion, useScroll, useSpring, useTransform } from "framer-motion";
 import axios from "axios";
+import robotImg from "../assets/robot.png";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
+/* ─── Fade Animation Component ──────────────────────────────── */
+const Fade = ({ children, delay = 0, y = 15 }) => {
+  const ref = useRef(null);
+  const [on, setOn] = useState(false);
+
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) setOn(true);
+      },
+      { threshold: 0.12 },
+    );
+    if (ref.current) obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      className="transition-all duration-[750ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
+      style={{
+        opacity: on ? 1 : 0,
+        transform: on ? "translateY(0)" : `translateY(${y}px)`,
+        transitionDelay: `${delay}s`,
+      }}
+    >
+      {children}
+    </div>
+  );
+};
 
 const MainContent = () => {
   const [fllData, setFllData] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Animation variants
-  const fadeUp = {
-    hidden: { opacity: 0, y: 50 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
-  };
-
-  // Fetch FLL data from API
-  const fetchFllData = async () => {
-    try {
-      setLoading(true);
-      const res = await axios.get(`${BACKEND_URL}/api/fll`);
-      setFllData(res.data);
-    } catch (err) {
-      console.error("Failed to fetch FLL data:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
+  const titleY = useTransform(scrollYProgress, [0, 1], ["0%", "10%"]);
 
   useEffect(() => {
-    fetchFllData();
+    axios
+      .get(`${BACKEND_URL}/api/fll`)
+      .then((r) => setFllData(r.data))
+      .catch(console.error)
+      .finally(() => setLoading(false));
   }, []);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-red-600"></div>
-        <p className="mt-4" style={{ color: "rgb(23, 207, 220)" }}>Loading FIRST LEGO League info...</p>
-      </div>
-    );
-  }
+  if (loading) return <div className="h-screen bg-[#fcfcfc]" />;
 
   return (
-    <main className="pt-36 px-4 pb-20 space-y-16 max-w-7xl md:mx-auto">
+    <main className="bg-[#fcfcfc] text-[#050505] font-sans overflow-x-hidden">
+      {/* Progress bar */}
+      <motion.div
+        className="fixed top-0 left-0 right-0 h-[3px] bg-[#f21ea7] origin-left z-[9999]"
+        style={{ scaleX }}
+      />
+
       {fllData.map((fll) => (
-        <motion.div
-          key={fll._id}
-          className="bg-white shadow-2xl rounded-3xl overflow-hidden w-full p-10 space-y-10"
-          variants={fadeUp}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.3 }}
-        >
-          {/* Heading + Logo */}
-          <div className="flex items-center justify-center gap-4 flex-wrap text-center md:text-left">
-            <motion.img
-              src={`${BACKEND_URL}${fll.logo}`}
-              alt={`${fll.title} Logo`}
-              className="w-20 md:w-24 h-auto object-contain"
-              onError={(e) => (e.target.src = "/fallback-logo.png")}
-              variants={fadeUp}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.3 }}
-            />
-            <motion.h1
-              className="text-4xl md:text-5xl font-extrabold tracking-tight uppercase leading-tight"
-              variants={fadeUp}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.3 }}
+        <div key={fll._id}>
+          {/* ───────── HERO SECTION ───────── */}
+          {/* Added mt-12 for mobile margin-top spacing */}
+          <section className="relative min-h-[92vh] flex flex-col justify-center px-6 py-12 mt-12 md:mt-0 md:px-20 lg:px-24">
+            {/* Watermark */}
+            <motion.div
+              style={{ y: titleY }}
+              className="absolute top-[12%] left-0 text-[18vw] font-black opacity-[0.04] pointer-events-none tracking-tighter leading-none"
             >
-              {fll.title.split(" ").map((word, idx) => (
-                <span
-                  key={idx}
-                  className={idx === 1 ? "text-red-600" : "text-black"}
-                >
-                  {word}{" "}
+              FLL_2026
+            </motion.div>
+
+            {/* Intro Tag */}
+            <Fade>
+              <div className="flex items-center gap-[10px] mb-3">
+                <span className="w-7 h-[2px] bg-[#f21ea7]" />
+                <span className="text-[10px] tracking-[0.2em] font-bold text-[#f21ea7] uppercase">
+                  Featured Program
                 </span>
-              ))}
-            </motion.h1>
-          </div>
+              </div>
+            </Fade>
 
-          {/* Body Text */}
-          <motion.div
-            className="text-center space-y-6 px-4 md:px-10"
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.3 }}
-          >
-            <p className="text-lg leading-relaxed text-black">
-              {fll.description}
-            </p>
-            <p className="text-xl font-semibold">
-              We are bringing this to central Africa!
-            </p>
-            <p className="text-lg font-medium" style={{ color: "rgb(23, 207, 220)" }}>
-              Check out the schools we are connecting:
-            </p>
-          </motion.div>
+            {/* Title */}
+            <Fade delay={0.05}>
+              <h1 className="text-5xl md:text-7xl lg:text-9xl font-black leading-[0.9] uppercase mb-6">
+                {fll.title.split(" ").map((w, i) => (
+                  <span
+                    key={i}
+                    className={`block ${i === 1 ? "text-[#f21ea7]" : "text-[#050505]"}`}
+                  >
+                    {w}
+                  </span>
+                ))}
+              </h1>
+            </Fade>
 
-          {/* Map Section */}
-          {/* Map Section */}
-{fll.mapUrl && (
-  <motion.section
-    className="bg-white py-16 px-0 md:px-20 rounded-none md:rounded-3xl shadow-md"
-    variants={fadeUp}
-    initial="hidden"
-    whileInView="visible"
-    viewport={{ once: true, amount: 0.3 }}
-  >
-    <div className="text-center space-y-8 w-full md:rounded-3xl md:overflow-hidden">
-      <motion.h2
-        className="text-3xl md:text-4xl font-bold"
-        style={{ color: "rgb(242, 30, 167)" }}
-        variants={fadeUp}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.3 }}
-      >
-        Schools We're Connecting
-      </motion.h2>
-      <motion.p
-        className="text-lg text-gray-600 max-w-2xl mx-auto px-4 md:px-0"
-        variants={fadeUp}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.3 }}
-      >
-        Here's where we're bringing the FIRST LEGO League program across Central Africa. Explore the locations of participating schools.
-      </motion.p>
+            {/* Hero Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+              {/* Left Text */}
+              <Fade delay={0.1}>
+                <div>
+                  <p className="text-base leading-relaxed text-gray-700 max-w-[520px]">
+                    {fll.description}
+                  </p>
 
-      <motion.iframe
-        src={fll.mapUrl}
-        width="100%"
-        height="480"
-        loading="lazy"
-        title={`${fll.title} Participating Schools Map`}
-        className="rounded-none md:rounded-xl shadow-lg"
-        variants={fadeUp}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.3 }}
-      ></motion.iframe>
-    </div>
-  </motion.section>
-)}
+                  <div className="border-l-2 border-[#f21ea7] pl-4 mt-[18px]">
+                    <p className="font-bold text-lg m-0">
+                      We are bringing this to Central Africa!
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1.5">
+                      Check out the schools we are connecting.
+                    </p>
+                  </div>
+                </div>
+              </Fade>
 
-        </motion.div>
+              {/* Right Image */}
+              <Fade delay={0.15}>
+                <div className="flex justify-center items-center">
+                  <img
+                    src={robotImg}
+                    alt="robot"
+                    className="w-full max-w-[320px] md:max-w-[420px] object-contain"
+                  />
+                </div>
+              </Fade>
+            </div>
+          </section>
+
+          {/* ───────── MAP SECTION ───────── */}
+          {fll.mapUrl && (
+            <section className="px-4 py-8 md:px-20 md:pb-20">
+              <Fade>
+                <div className="bg-white rounded-2xl border border-black/5 overflow-hidden shadow-xl shadow-black/5">
+                  {/* Map Header */}
+                  <div className="px-3.5 py-2.5 flex justify-between items-center border-b border-black/5">
+                    <span className="text-[10px] font-bold tracking-widest text-gray-500">
+                      NETWORK_MAP
+                    </span>
+                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                  </div>
+
+                  {/* Iframe */}
+                  <iframe
+                    src={fll.mapUrl}
+                    title="map"
+                    className="w-full h-[260px] md:h-[420px] border-none"
+                  />
+                </div>
+              </Fade>
+            </section>
+          )}
+        </div>
       ))}
     </main>
   );

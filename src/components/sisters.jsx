@@ -11,7 +11,7 @@ const SistersCard = ({ team = [], section }) => {
     .filter(
       (m) =>
         m.role === "Founder" &&
-        (m.name === "Amelia Wyler" || m.name === "Vienna Wyler")
+        (m.name === "Amelia Wyler" || m.name === "Vienna Wyler"),
     )
     .sort((a, b) => (a.name === "Amelia Wyler" ? -1 : 1));
 
@@ -21,9 +21,17 @@ const SistersCard = ({ team = [], section }) => {
     const ctx = gsap.context(() => {
       gsap.fromTo(
         sectionRef.current,
-        { opacity: 0, y: 80 },
-        { opacity: 1, y: 0, duration: 1.2, ease: "power3.out",
-          scrollTrigger: { trigger: sectionRef.current, start: "top 85%" } }
+        { opacity: 0, y: 60 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 1.2,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top 85%",
+          },
+        },
       );
     }, sectionRef);
 
@@ -33,38 +41,45 @@ const SistersCard = ({ team = [], section }) => {
   return (
     <section
       ref={sectionRef}
-      className="max-w-5xl mx-auto my-32 p-10 bg-white rounded-2xl shadow-lg"
+      className="max-w-5xl mx-auto my-32 p-10 bg-white rounded-[2rem] shadow-xl border border-gray-100 relative overflow-hidden"
     >
-      <div className="flex flex-col items-center gap-4">
-        <div className="flex gap-4">
+      {/* Decorative accent top-bar */}
+      <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-pink-500 to-cyan-400" />
+
+      <div className="flex flex-col items-center gap-6">
+        <div className="flex -space-x-4">
           {founders.map((f) => (
             <img
               key={f._id}
               src={f.image}
               alt={f.name}
-              className="w-24 h-24 rounded-full object-cover shadow-md"
+              className="w-28 h-28 rounded-full object-cover border-4 border-white shadow-lg ring-1 ring-gray-100"
             />
           ))}
         </div>
 
-        <h2
-          className="text-3xl md:text-4xl font-bold text-center"
-          style={{ color: "rgb(242, 30, 167)" }}
-        >
-          {section?.title}
-        </h2>
+        <div className="text-center">
+          <h2 className="text-3xl md:text-5xl font-black text-gray-900 tracking-tight">
+            {section?.title}
+          </h2>
+          <div className="h-1.5 w-20 bg-pink-500 mx-auto mt-3 rounded-full" />
+        </div>
       </div>
 
-      <p className="text-gray-700 text-lg text-justify mt-8">
-        {section?.description?.map((p, i) => (
-          <span
-            key={i}
-            style={p.highlight ? { color: "rgb(23,207,220)" } : undefined}
-          >
-            {p.text + " "}
-          </span>
-        ))}
-      </p>
+      <div className="mt-10 max-w-3xl mx-auto">
+        <p className="text-gray-600 text-lg md:text-xl leading-relaxed text-center italic font-light">
+          {section?.description?.map((p, i) => (
+            <span
+              key={i}
+              className={
+                p.highlight ? "text-cyan-600 font-semibold not-italic" : ""
+              }
+            >
+              {p.text + " "}
+            </span>
+          ))}
+        </p>
+      </div>
     </section>
   );
 };

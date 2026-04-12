@@ -1,3 +1,4 @@
+import React, { useEffect } from "react"; // Added useEffect import
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./components/pages/home.jsx";
 import OurProjects from "./components/pages/ourProject.jsx";
@@ -40,6 +41,16 @@ import FTCLandingAdmin from "./components/admin/adminFTCsection.jsx";
 import AdminSistersCards from "./components/AdminSisterCard.jsx";
 import AdminHomeSlides from "./components/admin/AdminHomeSlides.jsx";
 
+// Component to handle external redirection
+const ExternalRedirect = () => {
+  useEffect(() => {
+    // replace ensures the user doesn't get stuck in a back-button loop
+    window.location.replace("https://www.steminspires.tech/donate");
+  }, []);
+
+  return null;
+};
+
 function App() {
   return (
     <AuthProvider>
@@ -48,7 +59,10 @@ function App() {
           {/* Public pages */}
           <Route path="/" element={<Home bg={"bg-black/80"} />} />
           <Route path="/ourProjects" element={<OurProjects />} />
-          <Route path="/donate" element={<FundTheirFuture />} />
+
+          {/* FIXED: Removed the nested <Routes> tag here */}
+          <Route path="/donate" element={<ExternalRedirect />} />
+
           <Route path="/champions" element={<WomenInStem />} />
           <Route path="/resources" element={<DownloadsSection />} />
           <Route path="/about" element={<About />} />
@@ -57,10 +71,6 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/payment-cancel" element={<PaymentCancel />} />
-
-  
-
-
 
           {/* Admin protected pages */}
           <Route
@@ -99,7 +109,7 @@ function App() {
             path="/admin-support"
             element={
               <ProtectedRoute>
-                <AdminSupport/>
+                <AdminSupport />
               </ProtectedRoute>
             }
           />

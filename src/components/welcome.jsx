@@ -156,7 +156,7 @@ const HeroSection = ({ hero, slides }) => {
               className={`text-[10px] font-mono font-bold transition-opacity ${currentSlide === idx ? "opacity-100" : "opacity-0 group-hover:opacity-40"}`}
               style={{ color: orgColors.blue }}
             >
-              PROJECT_0{idx + 1}
+              SLIDE {idx + 1}
             </span>
             <div
               className={`w-12 h-[2px] transition-all duration-500 ${currentSlide === idx ? "w-20" : "w-8 opacity-30"}`}

@@ -2,17 +2,22 @@ import React, { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { gsap } from "gsap";
-import Header from "../Header.jsx";           // ← changed from Navbar
+import Header from "../Header.jsx";
 import Footer from "../Footer.jsx";
 import ChatBolt from "../ChatBolt.jsx";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "";
 
-// STEM Colors
-const STEM_COLORS = ['rgb(247, 244, 46)', 'rgb(23, 207, 220)', 'rgb(242, 30, 167)'];
+// New professional color palette
+const COLORS = {
+  yellow: "rgb(247, 244, 46)", // accent / alerts
+  cyan: "rgb(23, 207, 220)", // technical, focus, labels
+  pink: "rgb(242, 30, 167)", // primary actions
+  white: "rgb(255, 255, 255)",
+};
 
 /* -----------------------------
-   FloatingInput Component
+   FloatingInput – Light Theme + Morphism
    ------------------------------*/
 export const FloatingInput = ({
   id,
@@ -31,20 +36,32 @@ export const FloatingInput = ({
     gsap.to(labelRef.current, {
       y: hasValue ? -22 : 0,
       scale: hasValue ? 0.85 : 1,
-      color: hasValue ? STEM_COLORS[1] : "#cbd5e1",
+      color: hasValue ? COLORS.cyan : "#6b7280",
       duration: 0.18,
       ease: "power1.out",
     });
   }, [value]);
 
   const handleFocus = () => {
-    gsap.to(labelRef.current, { y: -22, scale: 0.85, color: STEM_COLORS[1], duration: 0.18 });
+    gsap.to(labelRef.current, {
+      y: -22,
+      scale: 0.85,
+      color: COLORS.cyan,
+      duration: 0.18,
+    });
   };
 
   const handleBlur = () => {
-    const hasValue = Boolean(inputRef.current.value && inputRef.current.value.trim().length);
+    const hasValue = Boolean(
+      inputRef.current.value && inputRef.current.value.trim().length,
+    );
     if (!hasValue) {
-      gsap.to(labelRef.current, { y: 0, scale: 1, color: "#cbd5e1", duration: 0.18 });
+      gsap.to(labelRef.current, {
+        y: 0,
+        scale: 1,
+        color: "#6b7280",
+        duration: 0.18,
+      });
     }
   };
 
@@ -61,12 +78,12 @@ export const FloatingInput = ({
         placeholder=" "
         required={required}
         autoComplete={autoComplete}
-        className="w-full px-4 py-4 bg-black/30 text-white border-2 border-gray-600 rounded-lg focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/30 outline-none transition"
+        className="w-full px-4 py-4 bg-white text-gray-800 border-2 border-gray-200 rounded-xl focus:border-cyan-400 focus:ring-2 focus:ring-cyan-200 outline-none transition shadow-sm"
       />
       <label
         ref={labelRef}
         htmlFor={id}
-        className="absolute left-4 top-4 text-gray-300 pointer-events-none origin-left select-none"
+        className="absolute left-4 top-4 text-gray-500 pointer-events-none origin-left select-none font-medium"
       >
         {label} {required ? "*" : ""}
       </label>
@@ -75,7 +92,7 @@ export const FloatingInput = ({
 };
 
 /* -----------------------------
-   FloatingTextarea Component
+   FloatingTextarea – Light Theme
    ------------------------------*/
 export const FloatingTextarea = ({ id, label, value, onChange, rows = 6 }) => {
   const taRef = useRef(null);
@@ -86,15 +103,29 @@ export const FloatingTextarea = ({ id, label, value, onChange, rows = 6 }) => {
     gsap.to(labelRef.current, {
       y: hasValue ? -22 : 0,
       scale: hasValue ? 0.85 : 1,
-      color: hasValue ? STEM_COLORS[1] : "#cbd5e1",
+      color: hasValue ? COLORS.cyan : "#6b7280",
       duration: 0.18,
     });
   }, [value]);
 
-  const handleFocus = () => gsap.to(labelRef.current, { y: -22, scale: 0.85, color: STEM_COLORS[1], duration: 0.18 });
+  const handleFocus = () =>
+    gsap.to(labelRef.current, {
+      y: -22,
+      scale: 0.85,
+      color: COLORS.cyan,
+      duration: 0.18,
+    });
   const handleBlur = () => {
-    const hasValue = Boolean(taRef.current.value && taRef.current.value.trim().length);
-    if (!hasValue) gsap.to(labelRef.current, { y: 0, scale: 1, color: "#cbd5e1", duration: 0.18 });
+    const hasValue = Boolean(
+      taRef.current.value && taRef.current.value.trim().length,
+    );
+    if (!hasValue)
+      gsap.to(labelRef.current, {
+        y: 0,
+        scale: 1,
+        color: "#6b7280",
+        duration: 0.18,
+      });
   };
 
   return (
@@ -108,9 +139,13 @@ export const FloatingTextarea = ({ id, label, value, onChange, rows = 6 }) => {
         onFocus={handleFocus}
         onBlur={handleBlur}
         placeholder=" "
-        className="w-full px-4 py-4 bg-black/30 text-white border-2 border-gray-600 rounded-lg focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/30 outline-none transition resize-none h-40"
+        className="w-full px-4 py-4 bg-white text-gray-800 border-2 border-gray-200 rounded-xl focus:border-cyan-400 focus:ring-2 focus:ring-cyan-200 outline-none transition resize-none h-40 shadow-sm"
       />
-      <label ref={labelRef} htmlFor={id} className="absolute left-4 top-4 text-gray-300 pointer-events-none select-none">
+      <label
+        ref={labelRef}
+        htmlFor={id}
+        className="absolute left-4 top-4 text-gray-500 pointer-events-none select-none font-medium"
+      >
         {label}
       </label>
     </div>
@@ -118,14 +153,25 @@ export const FloatingTextarea = ({ id, label, value, onChange, rows = 6 }) => {
 };
 
 /* -----------------------------
-   FloatingSelect Component
+   FloatingSelect – Light Theme
    ------------------------------*/
-export const FloatingSelect = ({ id, label, value, onChange, options = [] }) => {
+export const FloatingSelect = ({
+  id,
+  label,
+  value,
+  onChange,
+  options = [],
+}) => {
   const labelRef = useRef(null);
 
   useEffect(() => {
     const hasValue = Boolean(value && value.toString().trim().length);
-    gsap.to(labelRef.current, { y: hasValue ? -22 : 0, scale: hasValue ? 0.85 : 1, color: hasValue ? STEM_COLORS[1] : "#cbd5e1", duration: 0.18 });
+    gsap.to(labelRef.current, {
+      y: hasValue ? -22 : 0,
+      scale: hasValue ? 0.85 : 1,
+      color: hasValue ? COLORS.cyan : "#6b7280",
+      duration: 0.18,
+    });
   }, [value]);
 
   return (
@@ -134,21 +180,38 @@ export const FloatingSelect = ({ id, label, value, onChange, options = [] }) => 
         id={id}
         value={value}
         onChange={onChange}
-        className="w-full px-4 py-3 bg-black/30 text-gray-200 border-2 border-gray-600 rounded-lg focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/30 outline-none transition appearance-none"
+        className="w-full px-4 py-3 bg-white text-gray-800 border-2 border-gray-200 rounded-xl focus:border-cyan-400 focus:ring-2 focus:ring-cyan-200 outline-none transition appearance-none shadow-sm"
       >
-        <option value="" className="bg-gray-800 text-gray-500">Choose a subject</option>
+        <option value="" className="text-gray-400">
+          Choose a subject
+        </option>
         {options.map((opt) => (
-          <option key={opt} value={opt} className="bg-gray-800 text-gray-200">
+          <option key={opt} value={opt} className="text-gray-800">
             {opt}
           </option>
         ))}
       </select>
-      <label ref={labelRef} htmlFor={id} className="absolute left-4 top-4 text-gray-300 pointer-events-none select-none">
+      <label
+        ref={labelRef}
+        htmlFor={id}
+        className="absolute left-4 top-4 text-gray-500 pointer-events-none select-none font-medium"
+      >
         {label}
       </label>
-      <div className="absolute right-3 top-4 pointer-events-none text-white">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-          <path strokeLinecap="round" strokeLinejoin="round" d="m9 12.75 3 3m0 0 3-3m-3 3v-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+      <div className="absolute right-3 top-4 pointer-events-none text-gray-400">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={1.5}
+          stroke="currentColor"
+          className="size-6"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="m9 12.75 3 3m0 0 3-3m-3 3v-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+          />
         </svg>
       </div>
     </div>
@@ -156,7 +219,7 @@ export const FloatingSelect = ({ id, label, value, onChange, options = [] }) => 
 };
 
 /* -----------------------------
-   ContactForm Component
+   ContactForm Component (updated styles)
    ------------------------------*/
 const SUBJECT_OPTIONS = [
   "Donating Money",
@@ -206,12 +269,20 @@ export const ContactForm = ({ backendUrl = BACKEND_URL }) => {
 
   const validate = () => {
     const e = {};
-    if ((formData.name || "").trim().length < 3) e.name = "Name must be at least 3 characters.";
+    if ((formData.name || "").trim().length < 3)
+      e.name = "Name must be at least 3 characters.";
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailPattern.test((formData.email || "").trim())) e.email = "Please enter a valid email.";
-    const finalSubject = (formData.customSubject || formData.subject || "").trim();
-    if (!finalSubject || finalSubject.length < 2) e.subject = "Please provide a subject.";
-    if ((formData.message || "").trim().length < 10) e.message = "Message must be at least 10 characters.";
+    if (!emailPattern.test((formData.email || "").trim()))
+      e.email = "Please enter a valid email.";
+    const finalSubject = (
+      formData.customSubject ||
+      formData.subject ||
+      ""
+    ).trim();
+    if (!finalSubject || finalSubject.length < 2)
+      e.subject = "Please provide a subject.";
+    if ((formData.message || "").trim().length < 10)
+      e.message = "Message must be at least 10 characters.";
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -240,9 +311,19 @@ export const ContactForm = ({ backendUrl = BACKEND_URL }) => {
         body: JSON.stringify({ ...formData, subject: finalSubject }),
       });
       if (!res.ok) throw new Error("Server error");
-      await gsap.fromTo(formRef.current, { scale: 1 }, { scale: 0.98, duration: 0.08, yoyo: true, repeat: 1 });
+      await gsap.fromTo(
+        formRef.current,
+        { scale: 1 },
+        { scale: 0.98, duration: 0.08, yoyo: true, repeat: 1 },
+      );
       alert("Thank you — message sent. We'll reply within 24 hours.");
-      setFormData({ name: "", email: "", subject: "", customSubject: "", message: "" });
+      setFormData({
+        name: "",
+        email: "",
+        subject: "",
+        customSubject: "",
+        message: "",
+      });
       setErrors({});
       setPresetSubject("");
     } catch (err) {
@@ -254,13 +335,36 @@ export const ContactForm = ({ backendUrl = BACKEND_URL }) => {
   };
 
   return (
-    <form ref={formRef} onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <form
+      ref={formRef}
+      onSubmit={handleSubmit}
+      className="grid grid-cols-1 md:grid-cols-2 gap-8"
+    >
       <div className="space-y-6">
-        <FloatingInput id="name" label="Full name" value={formData.name} onChange={handleChange} required autoComplete="name" />
-        {errors.name && <p className="text-red-400 text-sm">{errors.name}</p>}
+        <FloatingInput
+          id="name"
+          label="Full name"
+          value={formData.name}
+          onChange={handleChange}
+          required
+          autoComplete="name"
+        />
+        {errors.name && (
+          <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+        )}
 
-        <FloatingInput id="email" label="Email address" type="email" value={formData.email} onChange={handleChange} required autoComplete="email" />
-        {errors.email && <p className="text-red-400 text-sm">{errors.email}</p>}
+        <FloatingInput
+          id="email"
+          label="Email address"
+          type="email"
+          value={formData.email}
+          onChange={handleChange}
+          required
+          autoComplete="email"
+        />
+        {errors.email && (
+          <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+        )}
 
         {!presetSubject ? (
           <>
@@ -271,28 +375,43 @@ export const ContactForm = ({ backendUrl = BACKEND_URL }) => {
               onChange={handleChange}
             />
 
-            <FloatingSelect id="subject" value={formData.subject} onChange={handleChange} options={SUBJECT_OPTIONS} />
+            <FloatingSelect
+              id="subject"
+              value={formData.subject}
+              onChange={handleChange}
+              options={SUBJECT_OPTIONS}
+            />
           </>
         ) : (
-          <div className="text-white px-4 py-3 bg-black/30 border border-gray-600 rounded-lg">Preset: {presetSubject}</div>
+          <div className="px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-700 shadow-sm">
+            <span className="font-medium">Preset:</span> {presetSubject}
+          </div>
         )}
 
-        {errors.subject && <p className="text-red-400 text-sm">{errors.subject}</p>}
+        {errors.subject && (
+          <p className="text-red-500 text-sm mt-1">{errors.subject}</p>
+        )}
       </div>
 
       <div className="flex flex-col justify-between">
-        <FloatingTextarea id="message" label="Your message" value={formData.message} onChange={handleChange} rows={8} />
-        {errors.message && <p className="text-red-400 text-sm">{errors.message}</p>}
+        <FloatingTextarea
+          id="message"
+          label="Your message"
+          value={formData.message}
+          onChange={handleChange}
+          rows={8}
+        />
+        {errors.message && (
+          <p className="text-red-500 text-sm mt-1">{errors.message}</p>
+        )}
 
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           type="submit"
           disabled={submitting}
-          className="mt-4 w-full bg-gradient-to-r from-cyan-500 via-cyan-600 to-cyan-700 text-black font-bold py-4 rounded-lg shadow-lg disabled:opacity-60 hover:shadow-cyan-500/30 hover:shadow-xl transition-shadow"
-          style={{
-            backgroundColor: ` ${STEM_COLORS[1]}`,
-          }}
+          className="mt-6 w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-4 rounded-xl shadow-md hover:shadow-lg transition-all disabled:opacity-60"
+          style={{ backgroundColor: COLORS.pink }}
         >
           {submitting ? "Sending..." : "Send Message"}
         </motion.button>
@@ -302,36 +421,27 @@ export const ContactForm = ({ backendUrl = BACKEND_URL }) => {
 };
 
 /* -----------------------------
-   ContactPage - full page
+   ContactPage – White bg, Morphism, Professional
    ------------------------------*/
 const ContactPage = () => {
   const [navbarSettings, setNavbarSettings] = useState(null);
   const [loading, setLoading] = useState(true);
-  // const [error, setError] = useState(null);   // optional – can be added later
 
   useEffect(() => {
     let mounted = true;
-
     const fetchNavbar = async () => {
       try {
         const res = await fetch(`${BACKEND_URL}/api/navbar`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
         const data = await res.json();
-
-        if (mounted) {
-          setNavbarSettings(data);
-          setLoading(false);
-        }
+        if (mounted) setNavbarSettings(data);
       } catch (err) {
         console.error("Failed to load navbar settings:", err);
-        // setError(err.message);   // optional
-        setLoading(false);
+      } finally {
+        if (mounted) setLoading(false);
       }
     };
-
     fetchNavbar();
-
     return () => {
       mounted = false;
     };
@@ -339,17 +449,13 @@ const ContactPage = () => {
 
   return (
     <>
-      {/* Render Header with fetched settings – fallback to empty object if still loading */}
       <Header fixed={true} settings={navbarSettings || {}} />
 
       <motion.section
-        style={{
-          background: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(${BACKEND_URL}/contact/contact-bg.jpg) center/cover no-repeat`,
-        }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.45 }}
-        className="min-h-screen flex items-center justify-center p-6 pt-32 relative bg-black"
+        className="min-h-screen flex items-center justify-center p-6 pt-32 relative bg-gradient-to-br from-gray-50 to-white"
       >
         <motion.div
           initial={{ y: 30, opacity: 0 }}
@@ -357,29 +463,31 @@ const ContactPage = () => {
           transition={{ type: "spring", stiffness: 60 }}
           className="w-full max-w-4xl"
         >
-          <div className="bg-black/50 shadow-2xl rounded-2xl overflow-hidden border border-gray-800 p-8 md:p-12">
-            <div className="text-center mb-8">
+          {/* Morphism card */}
+          <div className="bg-white/80 backdrop-blur-sm shadow-2xl rounded-3xl overflow-hidden border border-gray-100 p-8 md:p-12">
+            <div className="text-center mb-10">
               <motion.h1
-                className="text-5xl font-bold mb-4"
-                style={{ color: "rgb(23, 207, 220)" }}
+                className="text-5xl font-bold mb-4 bg-gradient-to-r from-cyan-600 to-pink-600 bg-clip-text text-transparent"
+                style={{ color: COLORS.cyan }} // fallback
               >
                 Contact Us
               </motion.h1>
-              <p className="text-gray-300 mt-2 text-lg">
-                We'd love to hear from you — questions, partnerships, or volunteering.
+              <p className="text-gray-600 mt-2 text-lg">
+                We'd love to hear from you — questions, partnerships, or
+                volunteering.
               </p>
             </div>
 
             <ContactForm />
-
           </div>
 
-          <div className="bg-black/70 text-center px-6 py-4 border-t border-gray-800 mt-4 rounded-b-2xl">
-            <p className="text-gray-400 text-sm">
+          {/* Footer note */}
+          <div className="mt-6 text-center px-6 py-4 bg-white/60 backdrop-blur-sm rounded-2xl border border-gray-100 shadow-sm">
+            <p className="text-gray-500 text-sm">
               We reply within 24 hours. For urgent matters email:
               <a
                 className="ml-1 font-medium hover:underline transition"
-                style={{ color: STEM_COLORS[1] }}
+                style={{ color: COLORS.cyan }}
                 href="mailto:amelia@steminspires.tech"
               >
                 amelia@steminspires.tech

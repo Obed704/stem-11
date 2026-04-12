@@ -6,11 +6,11 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 // ================= ANIMATIONS =================
 const fadeUp = {
-  hidden: { opacity: 0, y: 60 },
+  hidden: { opacity: 0, y: 40 },
   visible: (i = 0) => ({
     opacity: 1,
     y: 0,
-    transition: { duration: 0.7, delay: i * 0.15, ease: "easeOut" },
+    transition: { duration: 0.6, delay: i * 0.1, ease: "easeOut" },
   }),
 };
 
@@ -18,7 +18,7 @@ const staggerContainer = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: { staggerChildren: 0.2 },
+    transition: { staggerChildren: 0.15 },
   },
 };
 
@@ -31,13 +31,13 @@ export default function FTCLanding() {
   useEffect(() => {
     Promise.all([
       axios.get(`${BACKEND_URL}/api/ftc-landing`),
-      axios.get(`${BACKEND_URL}/api/schools`)
+      axios.get(`${BACKEND_URL}/api/schools`),
     ])
       .then(([contentRes, schoolsRes]) => {
         setContent(contentRes.data);
         setSchools(schoolsRes.data);
       })
-      .catch(err => console.error("FTC load error:", err))
+      .catch((err) => console.error("FTC load error:", err))
       .finally(() => setLoading(false));
   }, []);
 
@@ -46,7 +46,7 @@ export default function FTCLanding() {
       <div className="fixed inset-0 bg-black flex items-center justify-center z-50">
         <div className="text-center">
           <img
-            src={`./welcomeSlide/Logo.png`} // or static /public/logo.png
+            src={`./welcomeSlide/Logo.png`}
             alt="STEM Inspires"
             className="w-32 mx-auto mb-6 animate-pulse"
           />
@@ -56,44 +56,40 @@ export default function FTCLanding() {
     );
   }
 
-  // ================= RENDER =================
   return (
     <>
-      {/* ================= HERO ================= */}
+      {/* ================= HERO (UPDATED UI & COLORED BG) ================= */}
       <motion.section
-        className="relative min-h-screen flex items-center justify-center text-white overflow-hidden"
-        style={{
-          backgroundImage: `url(${BACKEND_URL}${content.hero.backgroundImage})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundAttachment: "fixed",
-        }}
+        className="relative min-h-[80vh] flex items-center justify-center text-white overflow-hidden bg-cyan-600"
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, amount: 0.3 }}
+        viewport={{ once: true }}
       >
-        <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/70 to-black/90" />
+        {/* Subtle pattern overlay for the colored background */}
+        <div
+          className="absolute inset-0 opacity-10"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          }}
+        />
 
         <motion.div
           className="relative z-10 max-w-4xl px-6 text-center"
           variants={staggerContainer}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
         >
           <motion.h1
-            className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-4 leading-tight"
+            className="text-5xl md:text-7xl font-black mb-6 tracking-tight"
             custom={0}
             variants={fadeUp}
           >
             {content.hero.titlePrefix}{" "}
-            <span className="text-cyan-400 drop-shadow-lg">
+            <span className="text-yellow-300">
               {content.hero.titleHighlight}
             </span>
           </motion.h1>
 
           <motion.p
-            className="text-base sm:text-lg md:text-xl mb-8 text-gray-100 max-w-2xl mx-auto"
+            className="text-lg md:text-2xl mb-10 text-cyan-50 font-medium max-w-2xl mx-auto"
             custom={1}
             variants={fadeUp}
           >
@@ -104,7 +100,7 @@ export default function FTCLanding() {
             custom={2}
             variants={fadeUp}
             onClick={() => (window.location.href = content.hero.ctaLink)}
-            className="bg-cyan-500 hover:bg-cyan-600 text-white font-semibold px-8 py-4 text-lg rounded-full shadow-xl transition-all duration-300"
+            className="bg-white text-cyan-600 hover:bg-yellow-300 hover:text-cyan-900 font-bold px-10 py-4 text-lg rounded-full shadow-2xl transition-all duration-300"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -113,7 +109,7 @@ export default function FTCLanding() {
         </motion.div>
       </motion.section>
 
-      {/* ================= ABOUT ================= */}
+      {/* ================= ABOUT (LEFT AS IS) ================= */}
       <motion.section
         className="py-16 sm:py-20 bg-gradient-to-b from-gray-100 to-gray-200"
         initial="hidden"
@@ -123,8 +119,7 @@ export default function FTCLanding() {
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center px-6">
           <motion.div variants={staggerContainer}>
             <motion.h2
-              className="text-3xl sm:text-4xl font-bold mb-5"
-              style={{ color: "rgb(242, 30, 167)" }}
+              className="text-3xl sm:text-4xl font-bold mb-5 text-gray-900"
               custom={0}
               variants={fadeUp}
             >
@@ -143,7 +138,7 @@ export default function FTCLanding() {
               href={content.about.linkUrl}
               custom={2}
               variants={fadeUp}
-              className="inline-block bg-cyan-500 hover:bg-cyan-600 text-white font-medium px-6 py-3 rounded-xl shadow-md"
+              className="inline-block bg-pink-600 hover:bg-pink-700 text-white font-medium px-6 py-3 rounded-xl shadow-md transition-colors"
               whileHover={{ x: 5 }}
             >
               {content.about.linkText}
@@ -161,20 +156,35 @@ export default function FTCLanding() {
         </div>
       </motion.section>
 
-      {/* ================= SCHOOLS ================= */}
-      <motion.section className="py-16 sm:py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <motion.h2
-            className="text-3xl sm:text-4xl font-bold mb-12"
-            style={{ color: "rgb(23, 207, 220)" }}
-            variants={fadeUp}
-          >
-            {content.schoolsSection.title}
-          </motion.h2>
+      {/* ================= TEAMS/SCHOOLS (CHANGED UI) ================= */}
+      <motion.section className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+            <motion.div className="text-left" variants={fadeUp}>
+              <h2 className="text-4xl md:text-5xl font-black text-gray-900 uppercase tracking-tighter">
+                {content.schoolsSection.title}
+              </h2>
+              <div className="h-2 w-24 bg-cyan-500 mt-2 rounded-full"></div>
+            </motion.div>
+
+            <motion.button
+              onClick={() =>
+                (window.location.href = content.schoolsSection.ctaLink)
+              }
+              className="bg-gray-900 hover:bg-cyan-600 text-white font-bold px-8 py-3 rounded-lg transition-all"
+              variants={fadeUp}
+              whileHover={{ y: -2 }}
+            >
+              {content.schoolsSection.ctaText}
+            </motion.button>
+          </div>
 
           <motion.div
-            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-12"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
             variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
           >
             {schools.map((school, index) => (
               <motion.a
@@ -182,38 +192,30 @@ export default function FTCLanding() {
                 href={school.website}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group bg-gray-50 rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all"
+                className="group relative bg-white border border-gray-200 rounded-3xl p-4 transition-all hover:border-cyan-400 hover:shadow-2xl"
                 custom={index}
                 variants={fadeUp}
               >
-                <div className="h-40 bg-gray-200 overflow-hidden">
+                <div className="relative h-64 w-full mb-6 overflow-hidden rounded-2xl">
                   <img
                     src={`${BACKEND_URL}${school.img}`}
                     alt={school.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500 group-hover:scale-105"
                   />
+                  <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-gray-900">
+                    {school.location}
+                  </div>
                 </div>
-                <div className="p-4">
-                  <h3 className="font-semibold text-lg text-gray-800">
+
+                <div className="px-2 pb-2">
+                  <h3 className="text-2xl font-bold text-gray-900 group-hover:text-cyan-600 transition-colors">
                     {school.name}
                   </h3>
-                  <p className="text-sm text-gray-600">{school.location}</p>
+                  <p className="text-gray-500 mt-1">Partner School</p>
                 </div>
               </motion.a>
             ))}
           </motion.div>
-
-          <motion.button
-            onClick={() =>
-              (window.location.href = content.schoolsSection.ctaLink)
-            }
-            className="bg-cyan-500 hover:bg-cyan-600 text-white font-semibold px-8 py-4 text-lg rounded-full shadow-xl"
-            variants={fadeUp}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            {content.schoolsSection.ctaText}
-          </motion.button>
         </div>
       </motion.section>
     </>
