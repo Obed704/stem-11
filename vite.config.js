@@ -3,7 +3,7 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
-  base: "/", // must be absolute
+  base: "/ourProjects/", // must be absolute
   build: {
     outDir: "dist", // default Vite output
   },
