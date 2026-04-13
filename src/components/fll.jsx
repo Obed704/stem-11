@@ -123,7 +123,7 @@ const MainContent = () => {
               <Fade delay={0.15}>
                 <div className="flex justify-center items-center">
                   <img
-                    src="/robot.png"
+                    src={robotImg}
                     alt="robot"
                     className="w-full max-w-[320px] md:max-w-[420px] object-contain"
                   />
