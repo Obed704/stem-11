@@ -16,7 +16,11 @@ const ChampionsSection = ({ championsFromParent = [] }) => {
     border: "#f1f5f9",
   };
 
-  const sortedChampions = [...championsFromParent].sort(
+  const actualChampions = Array.isArray(championsFromParent)
+    ? championsFromParent
+    : championsFromParent?.champions || [];
+
+  const sortedChampions = [...actualChampions].sort(
     (a, b) => (b.year || 0) - (a.year || 0),
   );
 
@@ -92,7 +96,7 @@ const ChampionsSection = ({ championsFromParent = [] }) => {
                 >
                   <div className="aspect-square bg-slate-100 mb-8 overflow-hidden grayscale group-hover:grayscale-0 transition-all duration-700">
                     <img
-                      src={`${BACKEND_URL}${c.image}`}
+                      src={c.image?.startsWith("http") ? c.image : `${BACKEND_URL}${c.image}`}
                       alt={c.name}
                       className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
                     />
@@ -135,7 +139,7 @@ const ChampionsSection = ({ championsFromParent = [] }) => {
                   className="border border-slate-100 p-6 rounded-none"
                 >
                   <img
-                    src={`${BACKEND_URL}${c.image}`}
+                    src={c.image?.startsWith("http") ? c.image : `${BACKEND_URL}${c.image}`}
                     className="w-full h-64 object-cover mb-6 grayscale"
                   />
                   <div className="flex items-center gap-3 mb-4">

@@ -13,10 +13,13 @@ const ChampionsSection = () => {
     fetch(`${BACKEND_URL}/api/champions`)
       .then((res) => res.json())
       .then((data) => {
+        const champList = Array.isArray(data) ? data : (data.champions || []);
         setChampions(
-          data.map((c) => ({
+          champList.map((c) => ({
             ...c,
-            image: `${BACKEND_URL}${c.image?.startsWith("/") ? "" : "/"}${c.image}`,
+            image: c.image?.startsWith("http")
+              ? c.image
+              : `${BACKEND_URL}${c.image?.startsWith("/") ? "" : "/"}${c.image}`,
           })),
         );
         setLoading(false);

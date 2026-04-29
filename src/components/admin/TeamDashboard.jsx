@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import NavigationButtons from "./Button";
+import AdminLayout from "./AdminLayout";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-const colors = ["#1e3a8a", "#16a34a", "#9333ea"]; // Dark gradient palette
-
 const api = axios.create({ baseURL: `${BACKEND_URL}/api/team` });
 
 const TeamMemberDashboard = () => {
@@ -14,7 +12,6 @@ const TeamMemberDashboard = () => {
   const [preview, setPreview] = useState(null);
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
 
   useEffect(() => {
     fetchMembers();
@@ -26,7 +23,7 @@ const TeamMemberDashboard = () => {
       const res = await api.get("/");
       setMembers(res.data);
     } catch {
-      setMessage("Failed to load team members.");
+      console.error("Load failed");
     } finally {
       setLoading(false);
     }
@@ -42,15 +39,14 @@ const TeamMemberDashboard = () => {
       setLoading(true);
       if (editingId) {
         await api.put(`/${editingId}`, data);
-        setMessage("Member updated successfully!");
       } else {
         await api.post("/", data);
-        setMessage("Member added successfully!");
       }
       resetForm();
       fetchMembers();
+      alert("Sync successful");
     } catch {
-      setMessage("Error saving member.");
+      alert("Sync failed");
     } finally {
       setLoading(false);
     }
@@ -59,18 +55,17 @@ const TeamMemberDashboard = () => {
   const handleEdit = (member) => {
     setFormData({ name: member.name, role: member.role, email: member.email || "" });
     setEditingId(member._id);
-    setPreview(member.image ? `${BACKEND_URL}${member.image}` : null);
+    setPreview(member.image || null);
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure?")) return;
+    if (!window.confirm("Destroy record?")) return;
     try {
       setLoading(true);
       await api.delete(`/${id}`);
-      setMessage("Member deleted successfully!");
       fetchMembers();
     } catch {
-      setMessage("Error deleting member.");
+      alert("Delete failed");
     } finally {
       setLoading(false);
     }
@@ -83,162 +78,150 @@ const TeamMemberDashboard = () => {
     setEditingId(null);
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 p-10 text-gray-100">
-      <NavigationButtons/>
-      <h1 className="text-4xl font-extrabold text-center text-blue-400 mb-10 drop-shadow-lg">
-        Team Member Dashboard
-      </h1>
-
-      {/* MESSAGE */}
-      {message && (
-        <div
-          className={`text-center mb-6 p-3 rounded-md font-medium ${
-            message.includes("Error") ? "bg-red-700 text-red-100" : "bg-green-700 text-green-100"
-          }`}
-        >
-          {message}
-        </div>
-      )}
-
-      {/* FORM SECTION */}
-      <form
-        onSubmit={handleSubmit}
-        className="bg-gray-800/90 backdrop-blur-md p-8 rounded-2xl shadow-2xl max-w-4xl mx-auto mb-12"
-      >
-        <h2 className="text-2xl font-semibold mb-6 text-gray-100 text-center">
-          {editingId ? "Edit Member" : "Add New Member"}
-        </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-gray-300 mb-1">Full Name</label>
-            <input
-              type="text"
-              placeholder="Enter full name"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full border border-gray-600 p-3 rounded-lg bg-gray-900 text-gray-100 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-gray-300 mb-1">Role</label>
-            <input
-              type="text"
-              placeholder="e.g. Frontend Developer"
-              value={formData.role}
-              onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-              className="w-full border border-gray-600 p-3 rounded-lg bg-gray-900 text-gray-100 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-              required
-            />
-          </div>
-
-          <div className="md:col-span-2">
-            <label className="block text-gray-300 mb-1">Email</label>
-            <input
-              type="email"
-              placeholder="Enter email"
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full border border-gray-600 p-3 rounded-lg bg-gray-900 text-gray-100 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-            />
-          </div>
-
-          <div className="md:col-span-2">
-            <label className="block text-gray-300 mb-1">Profile Image</label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => {
-                const file = e.target.files[0];
-                setFile(file);
-                setPreview(file ? URL.createObjectURL(file) : null);
-              }}
-              className="w-full border border-gray-600 p-2 rounded-lg cursor-pointer bg-gray-900 text-gray-100"
-            />
-          </div>
-
-          {preview && (
-            <div className="md:col-span-2 flex justify-center mt-2">
-              <img
-                src={preview}
-                alt="Preview"
-                className="w-28 h-28 object-cover rounded-full shadow-md border border-gray-600"
-              />
-            </div>
-          )}
-        </div>
-
-        <div className="flex justify-center gap-4 mt-6">
-          <button
-            type="submit"
-            disabled={loading}
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 shadow-md hover:shadow-lg transition disabled:opacity-50"
-          >
-            {loading ? "Saving..." : editingId ? "Update Member" : "Add Member"}
-          </button>
-
-          {editingId && (
-            <button
-              type="button"
-              onClick={resetForm}
-              className="bg-gray-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-600 shadow-md hover:shadow-lg transition"
-            >
-              Cancel
-            </button>
-          )}
-        </div>
-      </form>
-
-      {/* MEMBERS LIST */}
-      <div className="max-w-6xl mx-auto flex flex-col gap-4">
-        {members.map((m, idx) => (
-          <div
-            key={m._id}
-            className="flex items-center p-4 rounded-xl shadow-md hover:shadow-lg transition-all transform hover:scale-[1.02]"
-            style={{
-              background: `linear-gradient(135deg, ${colors[idx % colors.length]}, #1f2937)`,
-            }}
-          >
-            {m.image ? (
-              <img
-                src={`${BACKEND_URL}${m.image}`}
-                alt={m.name}
-                className="w-16 h-16 object-cover rounded-full mr-4 flex-shrink-0 shadow-sm border border-gray-600"
-              />
-            ) : (
-              <div className="w-16 h-16 bg-gray-600 rounded-full mr-4 flex-shrink-0" />
-            )}
-
-            <div className="flex-1 min-w-0">
-              <h3 className="text-lg font-semibold text-gray-100 truncate">{m.name}</h3>
-              <p className="text-gray-300 text-sm truncate">{m.role}</p>
-              <p className="text-gray-400 text-xs truncate">{m.email || "-"}</p>
-            </div>
-
-            <div className="flex gap-2 ml-4">
-              <button
-                onClick={() => handleEdit(m)}
-                className="px-3 py-1 rounded-lg bg-gray-700 text-white font-semibold hover:bg-gray-600 transition text-sm"
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => handleDelete(m._id)}
-                className="px-3 py-1 rounded-lg bg-red-600 text-white hover:bg-red-700 transition text-sm"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        ))}
-        {members.length === 0 && (
-          <p className="text-center text-gray-400 py-8">No team members found.</p>
-        )}
+  if (loading && members.length === 0) return (
+    <AdminLayout title="Team Registry" subtitle="Synchronizing_Member_Database...">
+      <div className="animate-pulse space-y-4">
+        {[1, 2, 3].map(i => <div key={i} className="h-24 bg-slate-900 rounded-3xl border border-white/5" />)}
       </div>
-    </div>
+    </AdminLayout>
+  );
+
+  return (
+    <AdminLayout title="Team Registry" subtitle={`${members.length}_Active_Personnel`}>
+      <div className="space-y-12">
+        {/* Form Section */}
+        <section className="bg-slate-900 border border-white/5 rounded-[3rem] p-10 md:p-14 shadow-2xl relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-cyan-500/5 to-transparent pointer-events-none" />
+          
+          <h2 className="text-xl font-black text-white uppercase tracking-widest mb-10 border-b border-white/5 pb-6">
+            {editingId ? "Update_Identity" : "Register_Personnel"}
+          </h2>
+
+          <form onSubmit={handleSubmit} className="grid lg:grid-cols-2 gap-12">
+            <div className="space-y-8">
+              <div className="grid md:grid-cols-2 gap-8">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-mono text-slate-500 uppercase tracking-widest ml-1">Legal_Name</label>
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="w-full bg-slate-950 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-cyan-500 transition-all font-medium"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-mono text-slate-500 uppercase tracking-widest ml-1">Assigned_Role</label>
+                  <input
+                    type="text"
+                    value={formData.role}
+                    onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                    className="w-full bg-slate-950 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-cyan-500 transition-all font-medium"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-mono text-slate-500 uppercase tracking-widest ml-1">Comm_Channel (Email)</label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full bg-slate-950 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-cyan-500 transition-all font-medium"
+                />
+              </div>
+
+              <div className="flex gap-4 pt-4">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="flex-[2] py-5 bg-white text-slate-950 font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-cyan-400 transition-all shadow-xl disabled:opacity-50"
+                >
+                  {loading ? "Processing..." : editingId ? "Commit_Update" : "Initialize_Member"}
+                </button>
+                {editingId && (
+                  <button
+                    type="button"
+                    onClick={resetForm}
+                    className="flex-1 py-5 border border-white/10 text-slate-400 font-bold uppercase tracking-widest text-[10px] rounded-2xl hover:bg-white/5 transition-all"
+                  >
+                    Abort
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Photo Upload Side */}
+            <div className="flex flex-col items-center justify-center">
+              <div className="relative group w-48 h-48 mb-8">
+                <div className="absolute inset-0 bg-gradient-to-br from-cyan-400 to-pink-500 rounded-full animate-pulse blur-xl opacity-20 group-hover:opacity-40 transition-opacity" />
+                <div className="relative w-full h-full rounded-full border-2 border-white/10 overflow-hidden bg-slate-950 flex items-center justify-center group-hover:border-cyan-500/50 transition-all">
+                  {preview ? (
+                    <img src={preview} alt="Preview" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="text-[10px] font-mono text-slate-600 uppercase tracking-widest text-center px-4">Biometric_Visual_Required</div>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const selectedFile = e.target.files[0];
+                      setFile(selectedFile);
+                      setPreview(selectedFile ? URL.createObjectURL(selectedFile) : null);
+                    }}
+                    className="absolute inset-0 opacity-0 cursor-pointer"
+                  />
+                </div>
+              </div>
+              <p className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Click_Image_To_Upload</p>
+            </div>
+          </form>
+        </section>
+
+        {/* Database List */}
+        <div className="grid gap-4">
+          <h3 className="text-[10px] font-mono text-slate-600 uppercase tracking-[0.4em] mb-4 ml-4">Registry_Nodes</h3>
+          {members.map((m) => (
+            <div
+              key={m._id}
+              className="group bg-slate-900 border border-white/5 rounded-3xl p-6 flex items-center gap-8 hover:border-cyan-500/20 transition-all duration-500"
+            >
+              <div className="w-16 h-16 rounded-2xl overflow-hidden border border-white/5 group-hover:border-cyan-500/30 transition-all">
+                {m.image ? (
+                  <img src={m.image} alt={m.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
+                ) : (
+                  <div className="w-full h-full bg-slate-950 flex items-center justify-center text-slate-700 font-black text-xl">?</div>
+                )}
+              </div>
+
+              <div className="flex-1">
+                <h4 className="text-lg font-black text-white uppercase tracking-tight leading-none">{m.name}</h4>
+                <div className="flex items-center gap-4 mt-2">
+                  <span className="text-cyan-400 text-[10px] font-bold uppercase tracking-widest bg-cyan-500/10 px-3 py-1 rounded-full border border-cyan-500/20">{m.role}</span>
+                  <span className="text-slate-500 text-[10px] font-mono">{m.email || "NO_COMM_CHANNEL"}</span>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => handleEdit(m)}
+                  className="w-12 h-12 flex items-center justify-center rounded-2xl border border-white/5 text-slate-500 hover:bg-white/5 hover:text-white transition-all"
+                >
+                  ✎
+                </button>
+                <button
+                  onClick={() => handleDelete(m._id)}
+                  className="w-12 h-12 flex items-center justify-center rounded-2xl bg-red-500/5 border border-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </AdminLayout>
   );
 };
 

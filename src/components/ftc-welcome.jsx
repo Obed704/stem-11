@@ -61,6 +61,11 @@ export default function FTCLanding() {
       {/* ================= HERO (UPDATED UI & COLORED BG) ================= */}
       <motion.section
         className="relative min-h-[80vh] flex items-center justify-center text-white overflow-hidden bg-cyan-600"
+        style={content.hero.backgroundImage ? {
+          backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(${content.hero.backgroundImage.startsWith("http") ? content.hero.backgroundImage : `${BACKEND_URL}${content.hero.backgroundImage}`})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        } : {}}
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
@@ -147,7 +152,7 @@ export default function FTCLanding() {
 
           <motion.div custom={3} variants={fadeUp}>
             <img
-              src={`${BACKEND_URL}${content.about.image}`}
+              src={content.about.image?.startsWith("http") ? content.about.image : `${BACKEND_URL}${content.about.image}`}
               alt="FTC Competition"
               className="rounded-2xl shadow-xl w-full object-cover"
               loading="lazy"
@@ -198,7 +203,7 @@ export default function FTCLanding() {
               >
                 <div className="relative h-64 w-full mb-6 overflow-hidden rounded-2xl">
                   <img
-                    src={`${BACKEND_URL}${school.img}`}
+                    src={school.img?.startsWith("http") ? school.img : `${BACKEND_URL}${school.img}`}
                     alt={school.name}
                     className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500 group-hover:scale-105"
                   />

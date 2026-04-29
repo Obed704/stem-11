@@ -41,7 +41,9 @@ const EyebrowPill = ({ children }) => (
 // ─── Individual card — alternating magazine layout on desktop ─────────────────
 const InvolvementCard = ({ item, idx }) => {
   const isEven = idx % 2 === 0;
-  const imgSrc = `${BACKEND_URL}${item.img?.startsWith("/") ? "" : "/"}${item.img}`;
+  const imgSrc = item.img?.startsWith("http")
+    ? item.img
+    : `${BACKEND_URL}${item.img?.startsWith("/") ? "" : "/"}${item.img || ""}`;
 
   return (
     <motion.article

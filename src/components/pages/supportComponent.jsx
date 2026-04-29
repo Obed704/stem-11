@@ -46,9 +46,11 @@ const Pill = ({ children, color = C.pink, bg = C.pinkSoft }) => (
 
 // ─── Support card ─────────────────────────────────────────────────────────────
 const SupportCard = ({ card, idx }) => {
-  const imgSrc = `${BACKEND_URL}${card.image?.startsWith("/") ? "" : "/"}${
-    card.image || "images/placeholder-support.jpg"
-  }`;
+  const imgSrc = card.image?.startsWith("http")
+    ? card.image
+    : `${BACKEND_URL}${card.image?.startsWith("/") ? "" : "/"}${
+        card.image || "images/placeholder-support.jpg"
+      }`;
 
   return (
     <motion.article

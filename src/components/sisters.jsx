@@ -47,16 +47,39 @@ const SistersCard = ({ team = [], section }) => {
       <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-pink-500 to-cyan-400" />
 
       <div className="flex flex-col items-center gap-6">
-        <div className="flex -space-x-4">
-          {founders.map((f) => (
-            <img
-              key={f._id}
-              src={f.image}
-              alt={f.name}
-              className="w-28 h-28 rounded-full object-cover border-4 border-white shadow-lg ring-1 ring-gray-100"
-            />
-          ))}
-        </div>
+        {section?.image1 || section?.image2 ? (
+          <div className="flex -space-x-8 md:-space-x-12">
+            {section.image1 && (
+              <div className="w-32 h-32 md:w-44 md:h-44 rounded-[2rem] overflow-hidden border-4 border-white shadow-2xl ring-1 ring-gray-100 rotate-[-6deg] hover:rotate-0 transition-transform duration-500 z-10 bg-white">
+                <img
+                  src={section.image1.startsWith("http") ? section.image1 : `${import.meta.env.VITE_BACKEND_URL}${section.image1}`}
+                  alt="Sister 1"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
+            {section.image2 && (
+              <div className="w-32 h-32 md:w-44 md:h-44 rounded-[2rem] overflow-hidden border-4 border-white shadow-2xl ring-1 ring-gray-100 rotate-[6deg] hover:rotate-0 transition-transform duration-500 bg-white">
+                <img
+                  src={section.image2.startsWith("http") ? section.image2 : `${import.meta.env.VITE_BACKEND_URL}${section.image2}`}
+                  alt="Sister 2"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="flex -space-x-4">
+            {founders.map((f) => (
+              <img
+                key={f._id}
+                src={f.image}
+                alt={f.name}
+                className="w-28 h-28 rounded-full object-cover border-4 border-white shadow-lg ring-1 ring-gray-100"
+              />
+            ))}
+          </div>
+        )}
 
         <div className="text-center">
           <h2 className="text-3xl md:text-5xl font-black text-gray-900 tracking-tight">

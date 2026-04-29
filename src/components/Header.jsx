@@ -28,7 +28,7 @@ const Header = ({ settings }) => {
 
   if (!settings) return null;
 
-  const logoSrc = `${BACKEND_URL}/logo/${settings.logoImage || "default-logo.png"}`;
+  const logoSrc = settings.logoImage;
 
   const colors = {
     pink: "rgb(242, 30, 167)",
@@ -41,11 +41,10 @@ const Header = ({ settings }) => {
     <>
       <nav
         className={`fixed top-0 left-0 w-full z-[100] transition-all duration-500 
-        ${
-          scrolled || menuOpen
+        ${scrolled || menuOpen
             ? "py-3 bg-white/90 backdrop-blur-xl border-b border-gray-100 shadow-sm"
             : "py-6 bg-transparent border-transparent"
-        }`}
+          }`}
       >
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
           {/* LOGO */}

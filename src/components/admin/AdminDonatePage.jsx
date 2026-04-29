@@ -3,14 +3,19 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import NavigationButtons from "./Button";
 
-
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL; // use .env
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function AdminDonation() {
   const [images, setImages] = useState([]);
   const [file, setFile] = useState(null);
   const [side, setSide] = useState("left");
   const [loading, setLoading] = useState(false);
+
+  // Helper to handle URLs (works for both Cloudinary and old local paths)
+  const formatImageUrl = (url) => {
+    if (!url) return "";
+    return url.startsWith("http") ? url : `${BACKEND_URL}${url}`;
+  };
 
   const fetchImages = async () => {
     try {
@@ -36,8 +41,11 @@ export default function AdminDonation() {
       await axios.post(`${BACKEND_URL}/api/donation-images`, formData);
       fetchImages();
       setFile(null);
+      // Clear input
+      e.target.reset();
     } catch (err) {
       console.error("Upload failed:", err);
+      alert("Upload failed. Check console for details.");
     } finally {
       setLoading(false);
     }
@@ -58,17 +66,13 @@ export default function AdminDonation() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 p-6 text-gray-100">
-      <NavigationButtons/>
+      <NavigationButtons />
       <div className="max-w-6xl mx-auto bg-gray-900 bg-opacity-80 backdrop-blur-md rounded-2xl shadow-xl p-8">
         <h1 className="text-3xl md:text-4xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-500 to-pink-500 mb-8">
           Donation Images Admin
         </h1>
 
-        {/* Upload Form */}
-        <form
-          onSubmit={handleUpload}
-          className="flex flex-col md:flex-row gap-4 mb-8 items-center"
-        >
+        <form onSubmit={handleUpload} className="flex flex-col md:flex-row gap-4 mb-8 items-center">
           <select
             className="border rounded-lg p-3 w-full md:w-1/4 bg-gray-800 text-gray-100 border-gray-700 focus:ring-2 focus:ring-indigo-500"
             value={side}
@@ -88,15 +92,13 @@ export default function AdminDonation() {
           <button
             type="submit"
             disabled={loading}
-            className={`bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white px-6 py-3 rounded-lg hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600 transition ${
-              loading ? "opacity-50 cursor-not-allowed" : ""
-            }`}
+            className={`bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white px-6 py-3 rounded-lg hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600 transition ${loading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
           >
-            {loading ? "Uploading..." : "Upload"}
+            {loading ? "Uploading..." : "Upload to Cloudinary"}
           </button>
         </form>
 
-        {/* Images Grid */}
         <div className="grid md:grid-cols-4 sm:grid-cols-2 gap-6">
           {images.map((img) => (
             <div
@@ -104,7 +106,7 @@ export default function AdminDonation() {
               className="relative group border border-gray-700 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-transform transform hover:scale-105"
             >
               <img
-                src={`${BACKEND_URL}${img.image}`}
+                src={formatImageUrl(img.image)}
                 alt={`Donation ${img.side}`}
                 className="w-full h-52 object-cover"
               />

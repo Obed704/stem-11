@@ -125,7 +125,7 @@ export default function FTCLandingAdmin() {
 
           <ImageUpload
             label="Hero Background Image"
-            current={`${BACKEND_URL}${content.hero.backgroundImage}`}
+            current={content.hero.backgroundImage?.startsWith("http") ? content.hero.backgroundImage : `${BACKEND_URL}${content.hero.backgroundImage || ""}`}
             onChange={setHeroImage}
           />
         </section>
@@ -182,7 +182,7 @@ export default function FTCLandingAdmin() {
 
           <ImageUpload
             label="About Image"
-            current={`${BACKEND_URL}${content.about.image}`}
+            current={content.about.image?.startsWith("http") ? content.about.image : `${BACKEND_URL}${content.about.image || ""}`}
             onChange={setAboutImage}
           />
         </section>

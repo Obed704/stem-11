@@ -1,278 +1,264 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
-import NavigationButtons from "./Button";
+import AdminLayout from "./AdminLayout";
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+const API = import.meta.env.VITE_BACKEND_URL + "/api/champions";
 
-export default function ChampionDashboard() {
-  const [champions, setChampions] = useState([]);
-  const [formData, setFormData] = useState({
-    title: "",
-    season: "",
-    description: "",
-    roadToVictory: "",
-    alt: "",
-    showHeader: true,
-  });
+// ─── Champion Form Component ──────────────────────────────────────────────────
+function ChampionForm({ initial, onSubmit, submitting, error, onCancel }) {
+  const empty = { title: "", season: "", year: "", description: "", roadToVictory: "", alt: "", showHeader: true, rank: 0 };
+  const [form, setForm] = useState(initial ? { ...empty, ...initial } : empty);
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
-  const [editingId, setEditingId] = useState(null);
+
+  const handleFile = (f) => {
+    if (f.size > 10 * 1024 * 1024) { alert("File too large (max 10 MB)"); return; }
+    setFile(f);
+    setPreview(URL.createObjectURL(f));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const fd = new FormData();
+    Object.entries(form).forEach(([k, v]) => fd.append(k, v));
+    if (file) fd.append("image", file);
+    onSubmit(fd);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {error && (
+        <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-400 text-xs">
+          {error.error || "Sync Error"}
+        </div>
+      )}
+
+      <div className="grid md:grid-cols-2 gap-6">
+        <div className="space-y-2">
+          <label className="text-[10px] font-mono text-slate-500 uppercase tracking-widest ml-1">Champion_Title</label>
+          <input
+            className="w-full bg-slate-950 border border-white/10 rounded-2xl px-5 py-3 text-white focus:outline-none focus:border-cyan-500 transition-all"
+            placeholder="e.g. FTC World Champions"
+            value={form.title}
+            onChange={(e) => setForm({ ...form, title: e.target.value })}
+            required
+          />
+        </div>
+        <div className="space-y-2">
+          <label className="text-[10px] font-mono text-slate-500 uppercase tracking-widest ml-1">Season_Label</label>
+          <input
+            className="w-full bg-slate-950 border border-white/10 rounded-2xl px-5 py-3 text-white focus:outline-none focus:border-cyan-500 transition-all"
+            placeholder="e.g. FTC 2024-2025"
+            value={form.season}
+            onChange={(e) => setForm({ ...form, season: e.target.value })}
+            required
+          />
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <label className="text-[10px] font-mono text-slate-500 uppercase tracking-widest ml-1">Achievement_Bio</label>
+        <textarea
+          className="w-full bg-slate-950 border border-white/10 rounded-2xl px-5 py-3 text-white focus:outline-none focus:border-cyan-500 transition-all resize-none"
+          rows={3}
+          placeholder="Describe the milestone..."
+          value={form.description}
+          onChange={(e) => setForm({ ...form, description: e.target.value })}
+        />
+      </div>
+
+      <div className="grid md:grid-cols-2 gap-6">
+        <div className="space-y-2">
+          <label className="text-[10px] font-mono text-slate-500 uppercase tracking-widest ml-1">Image_Context (Alt)</label>
+          <input
+            className="w-full bg-slate-950 border border-white/10 rounded-2xl px-5 py-3 text-white focus:outline-none focus:border-cyan-500 transition-all"
+            value={form.alt}
+            onChange={(e) => setForm({ ...form, alt: e.target.value })}
+          />
+        </div>
+        <div className="space-y-2">
+          <label className="text-[10px] font-mono text-slate-500 uppercase tracking-widest ml-1">Rank_Order</label>
+          <input
+            type="number"
+            className="w-full bg-slate-950 border border-white/10 rounded-2xl px-5 py-3 text-white focus:outline-none focus:border-cyan-500 transition-all"
+            value={form.rank}
+            onChange={(e) => setForm({ ...form, rank: e.target.value })}
+          />
+        </div>
+      </div>
+
+      <div className="border-2 border-dashed border-white/10 rounded-3xl p-8 text-center hover:border-cyan-500/50 transition-all relative">
+        <input
+          type="file"
+          accept="image/*"
+          className="absolute inset-0 opacity-0 cursor-pointer"
+          onChange={(e) => e.target.files[0] && handleFile(e.target.files[0])}
+        />
+        {preview || initial?.image ? (
+          <img src={preview || initial?.image} className="h-32 mx-auto rounded-xl object-cover" alt="Preview" />
+        ) : (
+          <div className="text-slate-500 uppercase font-mono text-[10px] tracking-widest">Select_Visual_Asset</div>
+        )}
+      </div>
+
+      <div className="flex gap-4">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="flex-1 py-4 border border-white/10 rounded-2xl text-slate-400 font-bold uppercase text-[10px] tracking-widest hover:bg-white/5 transition-all"
+        >
+          Discard
+        </button>
+        <button
+          type="submit"
+          disabled={submitting}
+          className="flex-[2] py-4 bg-cyan-500 text-slate-950 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-cyan-400 transition-all disabled:opacity-50"
+        >
+          {submitting ? "Processing..." : initial ? "Update_Record" : "Create_Entry"}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+// ─── Main Dashboard ───────────────────────────────────────────────────────────
+export default function ChampionDashboard() {
+  const [data, setData] = useState({ champions: [], total: 0 });
+  const [years, setYears] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [editing, setEditing] = useState(null);
+  const [showForm, setShowForm] = useState(false);
 
-  useEffect(() => {
-    fetchChampions();
-  }, []);
-
-  const fetchChampions = async () => {
+  const fetchAll = useCallback(async () => {
     try {
-      const res = await axios.get(`${BACKEND_URL}/api/champions`);
-      setChampions(res.data);
+      const [champRes, yearsRes] = await Promise.all([
+        axios.get(API),
+        axios.get(`${API}/years`),
+      ]);
+      setData(champRes.data);
+      setYears(yearsRes.data);
     } catch (err) {
-      console.error(err);
+      console.error("Load failed");
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const data = new FormData();
+  useEffect(() => { fetchAll(); }, [fetchAll]);
 
-    Object.entries(formData).forEach(([k, v]) => data.append(k, v));
-    if (file) data.append("image", file);
-
+  const handleCreate = async (fd) => {
+    setSubmitting(true);
     try {
-      if (editingId) {
-        await axios.put(`${BACKEND_URL}/api/champions/${editingId}`, data);
-      } else {
-        await axios.post(`${BACKEND_URL}/api/champions`, data);
-      }
-      resetForm();
-      fetchChampions();
+      await axios.post(API, fd);
+      fetchAll();
+      setShowForm(false);
     } catch (err) {
-      console.error(err);
+      alert("Creation sync failed.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  const handleEdit = (c) => {
-    setFormData({
-      title: c.title || "",
-      season: c.season || "",
-      description: c.description || "",
-      roadToVictory: c.roadToVictory || "",
-      alt: c.alt || "",
-      showHeader: c.showHeader ?? true,
-    });
-    setEditingId(c._id);
-    setPreview(c.image ? `${BACKEND_URL}${c.image}` : null);
+  const handleUpdate = async (fd) => {
+    setSubmitting(true);
+    try {
+      await axios.put(`${API}/${editing._id}`, fd);
+      fetchAll();
+      setEditing(null);
+    } catch (err) {
+      alert("Update sync failed.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleDelete = async (id) => {
-    await axios.delete(`${BACKEND_URL}/api/champions/${id}`);
-    fetchChampions();
+    if (!confirm("Destroy record?")) return;
+    try {
+      await axios.delete(`${API}/${id}`);
+      fetchAll();
+    } catch (err) {
+      alert("Delete failed.");
+    }
   };
 
-  const resetForm = () => {
-    setFormData({
-      title: "",
-      season: "",
-      description: "",
-      roadToVictory: "",
-      alt: "",
-      showHeader: true,
-    });
-    setFile(null);
-    setPreview(null);
-    setEditingId(null);
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-black text-gray-400">
-        Loading champions…
+  if (loading) return (
+    <AdminLayout title="Champions" subtitle="Syncing_Hall_Of_Fame...">
+      <div className="animate-pulse space-y-8">
+        <div className="h-64 bg-slate-900 rounded-[2.5rem]" />
+        <div className="h-64 bg-slate-900 rounded-[2.5rem]" />
       </div>
-    );
-  }
+    </AdminLayout>
+  );
 
   return (
-    <>
-      <NavigationButtons />
-
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white px-4 py-6 sm:p-10">
-        <h1 className="text-2xl sm:text-4xl font-extrabold text-center mb-6 sm:mb-10 bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 via-cyan-400 to-pink-500">
-          Champion Dashboard
-        </h1>
-
-        {/* FORM */}
-        <form
-          onSubmit={handleSubmit}
-          className="bg-gray-800/80 p-4 sm:p-8 rounded-2xl shadow-2xl max-w-4xl mx-auto mb-12"
-        >
-          <h2 className="text-xl sm:text-2xl font-semibold mb-6">
-            {editingId ? "Edit Champion" : "Add New Champion"}
-          </h2>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-            <input
-              className="input"
-              placeholder="Title"
-              value={formData.title}
-              onChange={(e) =>
-                setFormData({ ...formData, title: e.target.value })
-              }
-              required
-            />
-
-            <input
-              className="input"
-              placeholder="Season"
-              value={formData.season}
-              onChange={(e) =>
-                setFormData({ ...formData, season: e.target.value })
-              }
-              required
-            />
-
-            <textarea
-              className="input sm:col-span-2"
-              placeholder="Description"
-              value={formData.description}
-              onChange={(e) =>
-                setFormData({ ...formData, description: e.target.value })
-              }
-              required
-            />
-
-            <textarea
-              className="input sm:col-span-2"
-              placeholder="Road To Victory"
-              value={formData.roadToVictory}
-              onChange={(e) =>
-                setFormData({ ...formData, roadToVictory: e.target.value })
-              }
-              required
-            />
-
-            <input
-              className="input"
-              placeholder="Alt text"
-              value={formData.alt}
-              onChange={(e) =>
-                setFormData({ ...formData, alt: e.target.value })
-              }
-            />
-
-            <label className="flex flex-col items-center justify-center border-2 border-dashed border-cyan-400 rounded-xl p-6 cursor-pointer hover:bg-gray-700">
-              <span className="text-cyan-400 font-semibold">
-                Upload Image
-              </span>
-              <input
-                type="file"
-                hidden
-                accept="image/*"
-                onChange={(e) => {
-                  const f = e.target.files[0];
-                  setFile(f);
-                  setPreview(f ? URL.createObjectURL(f) : null);
-                }}
-              />
-            </label>
-
-            {preview && (
-              <div className="sm:col-span-2 flex justify-center">
-                <img
-                  src={preview}
-                  alt="Preview"
-                  className="w-full max-w-xs h-40 object-cover rounded-lg"
-                />
-              </div>
-            )}
-          </div>
-
-          <button className="w-full mt-6 bg-gradient-to-r from-pink-500 via-cyan-400 to-yellow-400 text-black font-semibold py-3 rounded-lg">
-            {editingId ? "Update Champion" : "Add Champion"}
+    <AdminLayout title="Hall of Fame" subtitle={`${data.total}_Verified_Champions`}>
+      <div className="space-y-12">
+        {/* Actions */}
+        <div className="flex justify-between items-center">
+          <h2 className="text-2xl font-black text-white uppercase tracking-tighter">Database_View</h2>
+          <button
+            onClick={() => setShowForm(!showForm)}
+            className="px-8 py-3 bg-white text-slate-950 rounded-full font-black text-[10px] uppercase tracking-widest hover:bg-cyan-400 transition-all shadow-xl"
+          >
+            {showForm ? "Cancel" : "Add_Champion"}
           </button>
-        </form>
+        </div>
 
-        {/* MOBILE CARDS */}
-        <div className="grid gap-4 sm:hidden">
-          {champions.map((c) => (
-            <div key={c._id} className="bg-gray-900 p-4 rounded-xl shadow">
-              {c.image && (
+        {/* Modal-like Form for Create/Edit */}
+        {(showForm || editing) && (
+          <div className="bg-slate-900 border border-white/5 rounded-[3rem] p-10 md:p-14 shadow-2xl relative overflow-hidden animate-in fade-in zoom-in-95 duration-500">
+            <h3 className="text-xl font-black text-white uppercase tracking-widest mb-10 border-b border-white/5 pb-6">
+              {editing ? "Update_Record" : "Create_New_Node"}
+            </h3>
+            <ChampionForm
+              initial={editing}
+              onSubmit={editing ? handleUpdate : handleCreate}
+              submitting={submitting}
+              onCancel={() => { setShowForm(false); setEditing(null); }}
+            />
+          </div>
+        )}
+
+        {/* List View */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {data.champions.map((c) => (
+            <div key={c._id} className="group bg-slate-900 border border-white/5 rounded-[2.5rem] overflow-hidden hover:border-cyan-500/30 transition-all duration-500 shadow-xl">
+              <div className="relative h-48 overflow-hidden">
                 <img
-                  src={`${BACKEND_URL}${c.image}`}
-                  alt={c.alt}
-                  className="w-full h-40 object-cover rounded mb-3"
+                  src={c.image}
+                  alt={c.title}
+                  className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110"
                 />
-              )}
-              <h3 className="font-bold">{c.title}</h3>
-              <p className="text-gray-400">{c.season}</p>
-
-              <div className="flex gap-2 mt-3">
-                <button
-                  onClick={() => handleEdit(c)}
-                  className="flex-1 bg-yellow-400 text-black py-1 rounded"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(c._id)}
-                  className="flex-1 bg-red-600 py-1 rounded"
-                >
-                  Delete
-                </button>
+                <div className="absolute top-4 left-4 px-3 py-1 bg-black/50 backdrop-blur-md rounded-full text-[10px] font-mono text-cyan-400 border border-cyan-500/20">
+                  {c.year}
+                </div>
+              </div>
+              
+              <div className="p-8 space-y-4">
+                <h4 className="text-lg font-black text-white uppercase tracking-tight line-clamp-1">{c.title}</h4>
+                <p className="text-xs text-slate-500 font-medium line-clamp-2 leading-relaxed">{c.description}</p>
+                
+                <div className="flex gap-3 pt-4">
+                  <button
+                    onClick={() => setEditing(c)}
+                    className="flex-1 py-2 rounded-xl border border-white/5 text-[10px] font-bold uppercase tracking-widest hover:bg-white/5 transition-all"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(c._id)}
+                    className="flex-1 py-2 rounded-xl bg-red-500/10 text-red-500 text-[10px] font-bold uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             </div>
           ))}
         </div>
-
-        {/* DESKTOP TABLE */}
-        <div className="hidden sm:block max-w-6xl mx-auto bg-gray-900/80 p-6 rounded-2xl shadow-2xl overflow-x-auto">
-          <table className="w-full min-w-[600px]">
-            <thead className="bg-gray-800">
-              <tr>
-                <th className="p-3 text-left">Image</th>
-                <th className="p-3 text-left">Title</th>
-                <th className="p-3 text-left">Season</th>
-                <th className="p-3 text-center">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {champions.map((c) => (
-                <tr key={c._id} className="border-b border-gray-700">
-                  <td className="p-3">
-                    {c.image && (
-                      <img
-                        src={`${BACKEND_URL}${c.image}`}
-                        alt={c.alt}
-                        className="w-20 h-14 object-cover rounded"
-                      />
-                    )}
-                  </td>
-                  <td className="p-3">{c.title}</td>
-                  <td className="p-3">{c.season}</td>
-                  <td className="p-3 text-center">
-                    <div className="flex justify-center gap-2">
-                      <button
-                        onClick={() => handleEdit(c)}
-                        className="px-3 py-1 bg-yellow-400 text-black rounded"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(c._id)}
-                        className="px-3 py-1 bg-red-600 rounded"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
       </div>
-    </>
+    </AdminLayout>
   );
-        }
+}

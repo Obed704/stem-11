@@ -1,176 +1,172 @@
 import React, { useEffect, useState } from "react";
 import NavigationButtons from "./Button";
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL; // use .env
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
+const TAILWIND_COLORS = {
+  "#ef4444": "border-red-500", "#f97316": "border-orange-500",
+  "#f59e0b": "border-amber-500", "#22c55e": "border-green-500",
+  "#3b82f6": "border-blue-500", "#6366f1": "border-indigo-500",
+  "#a855f7": "border-purple-500", "#ec4899": "border-pink-500",
+};
 
 const EducationDashboard = () => {
   const [educationItems, setEducationItems] = useState([]);
   const [editing, setEditing] = useState(null);
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    borderColor: "",
-    alt: "",
-    img: null,
-  });
   const [loading, setLoading] = useState(true);
+  const [preview, setPreview] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState(0); // New state for progress
+  const [isUploading, setIsUploading] = useState(false);  // New state for status
 
-  // Fetch all education elements
+  const [formData, setFormData] = useState({
+    title: "", description: "", borderColor: "border-indigo-500", alt: "", img: null,
+  });
+
   useEffect(() => {
     fetch(`${BACKEND_URL}/api/education`)
       .then((res) => res.json())
-      .then((data) => {
-        setEducationItems(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Error fetching education items:", err);
-        setLoading(false);
-      });
+      .then((data) => { setEducationItems(data); setLoading(false); })
+      .catch(() => setLoading(false));
   }, []);
 
-  // Start editing
   const handleEdit = (item) => {
     setEditing(item._id);
+    setPreview(null);
+    setUploadProgress(0);
     setFormData({
       title: item.title,
       description: item.description,
-      borderColor: item.borderColor,
-      alt: item.alt,
+      borderColor: item.borderColor || "border-indigo-500",
+      alt: item.alt || "",
       img: null,
     });
   };
 
-  // Handle text field changes
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  // Handle image upload
   const handleFileChange = (e) => {
-    setFormData((prev) => ({ ...prev, img: e.target.files[0] }));
-  };
-
-  // Submit updates
-  const handleUpdate = async (id) => {
-    const form = new FormData();
-    Object.keys(formData).forEach((key) => {
-      if (formData[key]) form.append(key, formData[key]);
-    });
-
-    try {
-      const res = await fetch(`${BACKEND_URL}/api/education/${id}`, {
-        method: "PUT",
-        body: form,
-      });
-
-      if (!res.ok) throw new Error("Failed to update");
-
-      const updatedItem = await res.json();
-      setEducationItems((prev) =>
-        prev.map((item) => (item._id === id ? updatedItem : item))
-      );
-
-      setEditing(null);
-      alert("✅ Education element updated successfully!");
-    } catch (err) {
-      console.error(err);
-      alert("❌ Failed to update education element.");
+    const file = e.target.files[0];
+    if (file) {
+      setFormData({ ...formData, img: file });
+      setPreview(URL.createObjectURL(file));
     }
   };
 
-  if (loading)
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 text-gray-300">
-        Loading...
-      </div>
-    );
+  const handleUpdate = (id) => {
+    const form = new FormData();
+    form.append("title", formData.title);
+    form.append("description", formData.description);
+    form.append("borderColor", formData.borderColor);
+    form.append("alt", formData.alt);
+    if (formData.img) form.append("img", formData.img);
+
+    setIsUploading(true);
+
+    const xhr = new XMLHttpRequest();
+
+    // 📊 TRACK PROGRESS
+    xhr.upload.addEventListener("progress", (event) => {
+      if (event.lengthComputable) {
+        const percentComplete = Math.round((event.loaded / event.total) * 100);
+        setUploadProgress(percentComplete);
+      }
+    });
+
+    // ✅ ON SUCCESS
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        const updatedItem = JSON.parse(xhr.responseText);
+        setEducationItems(prev => prev.map(item => item._id === id ? updatedItem : item));
+        setEditing(null);
+        alert("✅ Changes Saved!");
+      } else {
+        alert("❌ Error updating element");
+      }
+      setIsUploading(false);
+      setUploadProgress(0);
+    };
+
+    // ❌ ON ERROR
+    xhr.onerror = () => {
+      alert("❌ Network Error");
+      setIsUploading(false);
+    };
+
+    xhr.open("PUT", `${BACKEND_URL}/api/education/${id}`);
+    xhr.send(form);
+  };
+
+  if (loading) return <div className="text-white p-10 text-center">Loading...</div>;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 p-8 text-gray-100">
-      <NavigationButtons/>
-      <h1 className="text-4xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-500 to-pink-500 mb-10">
-        Education Admin Dashboard
-      </h1>
+    <div className="min-h-screen bg-gray-900 p-8 text-gray-100">
+      <NavigationButtons />
+      <h1 className="text-4xl font-bold text-center mb-10 text-indigo-400">Education Dashboard</h1>
 
-      <div className="grid md:grid-cols-3 sm:grid-cols-2 gap-8">
+      <div className="grid md:grid-cols-3 gap-8">
         {educationItems.map((item) => (
-          <div
-            key={item._id}
-            className={`border-2 ${item.borderColor || "border-indigo-500"} rounded-2xl p-5 bg-gray-900 bg-opacity-70 backdrop-blur-md shadow-lg hover:shadow-2xl hover:scale-105 transition-transform duration-300`}
-          >
+          <div key={item._id} className={`border-2 ${item.borderColor} rounded-2xl p-5 bg-gray-800 shadow-xl transition-all`}>
+
             <img
-              src={`${BACKEND_URL}${item.img}`}
+              src={editing === item._id && preview ? preview : item.img}
               alt={item.alt}
-              className="w-full h-48 object-cover rounded-xl mb-4 border border-gray-700"
+              className="w-full h-48 object-cover rounded-xl mb-4"
             />
 
             {editing === item._id ? (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <input
-                  name="title"
+                  className="w-full bg-gray-700 p-2 rounded"
                   value={formData.title}
-                  onChange={handleChange}
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 text-gray-100 focus:ring-2 focus:ring-indigo-500"
-                  placeholder="Title"
+                  onChange={e => setFormData({ ...formData, title: e.target.value })}
+                  disabled={isUploading}
                 />
                 <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 text-gray-100 focus:ring-2 focus:ring-indigo-500"
-                  placeholder="Description"
+                  className="w-full bg-gray-700 p-2 rounded"
                   rows="3"
-                ></textarea>
-                <input
-                  name="borderColor"
-                  value={formData.borderColor}
-                  onChange={handleChange}
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 text-gray-100 focus:ring-2 focus:ring-purple-500"
-                  placeholder="Border color (e.g., border-blue-400)"
+                  value={formData.description}
+                  onChange={e => setFormData({ ...formData, description: e.target.value })}
+                  disabled={isUploading}
                 />
-                <input
-                  name="alt"
-                  value={formData.alt}
-                  onChange={handleChange}
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 text-gray-100 focus:ring-2 focus:ring-pink-500"
-                  placeholder="Alt text"
-                />
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg p-2 text-gray-300 file:bg-gradient-to-r file:from-indigo-500 file:to-pink-500 file:text-white file:border-none file:rounded-lg file:px-3 file:py-1 hover:file:opacity-90 cursor-pointer"
-                />
-                <div className="flex justify-end gap-2 mt-4">
-                  <button
-                    onClick={() => setEditing(null)}
-                    className="px-5 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-gray-200 transition"
-                  >
-                    Cancel
-                  </button>
+                <input type="file" className="text-xs" onChange={handleFileChange} disabled={isUploading} />
+
+                {/* 🚀 PROGRESS BAR UI */}
+                {isUploading && (
+                  <div className="w-full bg-gray-700 rounded-full h-2.5 mt-2">
+                    <div
+                      className="bg-indigo-500 h-2.5 rounded-full transition-all duration-300"
+                      style={{ width: `${uploadProgress}%` }}
+                    ></div>
+                    <p className="text-[10px] text-center mt-1 text-indigo-300">Uploading: {uploadProgress}%</p>
+                  </div>
+                )}
+
+                <div className="flex gap-2">
                   <button
                     onClick={() => handleUpdate(item._id)}
-                    className="px-5 py-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white rounded-lg hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600 transition"
+                    disabled={isUploading}
+                    className={`${isUploading ? 'bg-gray-600' : 'bg-green-600 hover:bg-green-500'} px-4 py-2 rounded flex-1 transition`}
                   >
-                    Save
+                    {isUploading ? "Saving..." : "Save"}
+                  </button>
+                  <button
+                    onClick={() => setEditing(null)}
+                    disabled={isUploading}
+                    className="bg-gray-600 hover:bg-gray-500 px-4 py-2 rounded transition"
+                  >
+                    Cancel
                   </button>
                 </div>
               </div>
             ) : (
-              <>
-                <h2 className="text-2xl font-semibold text-white">
-                  {item.title}
-                </h2>
-                <p className="text-gray-400 mt-2">{item.description}</p>
+              <div>
+                <h2 className="text-xl font-bold">{item.title}</h2>
+                <p className="text-gray-400 text-sm mt-2">{item.description}</p>
                 <button
                   onClick={() => handleEdit(item)}
-                  className="mt-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white px-4 py-2 rounded-lg hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600 transition"
+                  className="mt-4 w-full border border-indigo-500 py-2 rounded hover:bg-indigo-500 transition"
                 >
-                  Edit
+                  Edit Element
                 </button>
-              </>
+              </div>
             )}
           </div>
         ))}

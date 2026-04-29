@@ -9,7 +9,7 @@ const AdminSupport = () => {
   const [savingIndex, setSavingIndex] = useState(null);
 
   // ---------------- FETCH CARDS ----------------
-    // ----------------  ----------------
+  // ----------------  ----------------
   useEffect(() => {
     const fetchCards = async () => {
       try {
@@ -236,7 +236,7 @@ const AdminSupport = () => {
                     src={
                       card.imageFile
                         ? URL.createObjectURL(card.imageFile)
-                        : `${BACKEND_URL}${card.image}`
+                        : (card.image?.startsWith("http") ? card.image : `${BACKEND_URL}${card.image || ""}`)
                     }
                     alt={card.alt || card.title || "Sponsor logo"}
                     className="mx-auto h-32 object-contain bg-white p-4 rounded-lg"
@@ -269,7 +269,7 @@ const AdminSupport = () => {
           </section>
         ))}
       </div>
-      <Button/>
+      <Button />
     </div>
   );
 };

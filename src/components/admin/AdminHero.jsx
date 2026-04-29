@@ -74,27 +74,30 @@ const AdminHero = () => {
   };
 
   // ---------------- UPLOAD LOGO ----------------
-  const uploadLogo = async () => {
-    if (!logoFile) return;
+  // --- Update this function in your AdminNavbar.jsx ---
+  const uploadLogo = async (file) => {
+    if (!file) return;
 
     setUploading(true);
     const formData = new FormData();
-    formData.append("logo", logoFile);
+    formData.append("logo", file);
 
     try {
-      const res = await fetch(`${BACKEND_URL}/api/hero/upload-logo`, {
+      const uploadRes = await fetch(`${BACKEND_URL}/api/navbar/upload-logo`, {
         method: "POST",
         body: formData,
       });
 
-      if (!res.ok) throw new Error("Upload failed");
-      const data = await res.json();
-      setHero(data);
-      setLogoFile(null);
-      alert("Logo uploaded successfully!");
-    } catch (error) {
-      console.error("Error uploading logo:", error);
-      alert("Error uploading logo");
+      if (!uploadRes.ok) throw new Error("Upload failed");
+      const result = await uploadRes.json();
+
+      // SUCCESS: The backend returns { logo: "https://res.cloudinary..." }
+      setData((prev) => ({ ...prev, logoImage: result.logo }));
+
+      alert("✅ Logo uploaded and saved!");
+    } catch (err) {
+      console.error("Upload error:", err);
+      alert("❌ Upload failed. Check console for details.");
     } finally {
       setUploading(false);
     }
@@ -328,7 +331,7 @@ const AdminHero = () => {
           </button>
         </div>
       </div>
-      <Button/>
+      <Button />
     </div>
   );
 };

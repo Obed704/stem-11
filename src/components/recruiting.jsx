@@ -8,6 +8,9 @@ const ACCENT_CYAN = "rgb(23, 207, 220)";
 const ACCENT_PINK = "rgb(242, 30, 167)";
 
 const RecruitingProcess = ({ steps = [] }) => {
+  const resolveUrl = (src) =>
+    src?.startsWith("http") ? src : `${BACKEND_URL}${src}`;
+
   if (!steps || steps.length === 0) {
     return (
       <section className="bg-white py-12 text-center border-t border-gray-100">
@@ -78,7 +81,7 @@ const RecruitingProcess = ({ steps = [] }) => {
               <div className="relative mb-6 w-full aspect-square overflow-hidden border border-gray-100 group-hover:border-cyan-500/30 transition-colors">
                 {/* 1. The Grayscale Base (Visible on Desktop) */}
                 <img
-                  src={`${BACKEND_URL}${step.img}`}
+                  src={resolveUrl(step.img)}
                   alt={step.title}
                   className="w-full h-full object-cover grayscale md:grayscale group-hover:scale-105 transition-transform duration-700"
                 />
@@ -86,7 +89,7 @@ const RecruitingProcess = ({ steps = [] }) => {
                 {/* 2. The Color Unmask Layer (Sliding in from Left) */}
                 <div className="absolute inset-0 z-10 w-full h-full overflow-hidden transition-transform duration-700 ease-in-out transform -translate-x-full group-hover:translate-x-0 hidden md:block">
                   <img
-                    src={`${BACKEND_URL}${step.img}`}
+                    src={resolveUrl(step.img)}
                     alt={step.title}
                     className="w-full h-full object-cover scale-100 group-hover:scale-105 transition-transform duration-700 transform translate-x-full group-hover:translate-x-0"
                     style={{ maxWidth: "none" }}
@@ -96,7 +99,7 @@ const RecruitingProcess = ({ steps = [] }) => {
                 {/* 3. Mobile Color Overlay (Always colored on mobile) */}
                 <div className="absolute inset-0 z-0 block md:hidden">
                   <img
-                    src={`${BACKEND_URL}${step.img}`}
+                    src={resolveUrl(step.img)}
                     alt={step.title}
                     className="w-full h-full object-cover"
                   />

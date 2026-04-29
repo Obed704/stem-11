@@ -49,7 +49,7 @@ const Gallery = ({ galleryImages = [] }) => {
             >
               {/* Image with zoom effect */}
               <motion.img
-                src={`${BACKEND_URL}${item.image}`}
+                src={item.image?.startsWith("http") ? item.image : `${BACKEND_URL}${item.image}`}
                 alt={item.alt || "STEM Gallery"}
                 className="w-full h-auto object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700 ease-out"
                 loading="lazy"

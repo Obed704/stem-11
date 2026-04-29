@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { motion } from "framer-motion";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Header from "../Header.jsx";
 import HeroSection from "../welcome.jsx";
 import MissionVision from "../visionMission.jsx";
@@ -12,11 +14,15 @@ import SponsorsSection from "../sponsorSection.jsx";
 import Footer from "../Footer.jsx";
 import ChatBolt from "../ChatBolt.jsx";
 
+// Register ScrollTrigger plugin
+gsap.registerPlugin(ScrollTrigger);
+
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const mainRef = useRef(null);
 
   const [data, setData] = useState({
     navbar: null,
@@ -75,10 +81,14 @@ export default function Home() {
           sponsors,
         ] = responses;
 
-        // Safeguard the sort: Ensure championsRaw is an array
-        const sortedChampions = Array.isArray(championsRaw)
-          ? [...championsRaw].sort((a, b) => (b.year || 0) - (a.year || 0))
-          : [];
+        // Safeguard the sort: Ensure championsRaw is an array or contains a champions array
+        const actualChampions = Array.isArray(championsRaw)
+          ? championsRaw
+          : championsRaw?.champions || [];
+
+        const sortedChampions = [...actualChampions].sort(
+          (a, b) => (b.year || 0) - (a.year || 0),
+        );
 
         setData({
           navbar,
@@ -109,6 +119,56 @@ export default function Home() {
       isMounted = false;
     };
   }, []);
+
+  // GSAP ScrollTrigger Animations
+  useLayoutEffect(() => {
+    if (loading) return;
+
+    const ctx = gsap.context(() => {
+      const sections = gsap.utils.toArray(".gsap-reveal");
+
+      sections.forEach((section) => {
+        // Animate the section wrapper itself
+        gsap.fromTo(
+          section,
+          { opacity: 0, y: 60 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 1.2,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: section,
+              start: "top 85%", // Trigger when section is 85% from top
+              toggleActions: "play none none none",
+            },
+          }
+        );
+
+        // Staggered reveal for child elements within the section
+        const revealChildren = section.querySelectorAll(".gsap-stagger");
+        if (revealChildren.length > 0) {
+          gsap.fromTo(
+            revealChildren,
+            { opacity: 0, y: 30 },
+            {
+              opacity: 1,
+              y: 0,
+              duration: 1,
+              stagger: 0.2,
+              ease: "power2.out",
+              scrollTrigger: {
+                trigger: section,
+                start: "top 75%",
+              },
+            }
+          );
+        }
+      });
+    }, mainRef);
+
+    return () => ctx.revert(); // Cleanup on unmount
+  }, [loading]);
 
   // LOADING VIEW
   if (loading) {
@@ -146,16 +206,32 @@ export default function Home() {
   return (
     <div className="bg-white min-h-screen">
       <Header fixed={true} settings={data.navbar} />
-      <main>
-        <HeroSection hero={data.hero} slides={data.slides} />
-        <MissionVision cards={data.missionVision} />
+      <main ref={mainRef}>
+        <div className="gsap-reveal">
+          <HeroSection hero={data.hero} slides={data.slides} />
+        </div>
+        <div className="gsap-reveal">
+          <MissionVision cards={data.missionVision} />
+        </div>
         <ChatBolt />
-        <ChampionsSection championsFromParent={data.champions} />
-        <StatsSection statsSettings={data.stats} />
-        <TestimonialsSlider testimonials={data.testimonials} />
-        <GetInvolved involvementData={data.getInvolved} />
-        <SupportComponent supportCards={data.support} />
-        <SponsorsSection sponsors={data.sponsors} />
+        <div className="gsap-reveal">
+          <ChampionsSection championsFromParent={data.champions} />
+        </div>
+        <div className="gsap-reveal">
+          <StatsSection statsSettings={data.stats} />
+        </div>
+        <div className="gsap-reveal">
+          <TestimonialsSlider testimonials={data.testimonials} />
+        </div>
+        <div className="gsap-reveal">
+          <GetInvolved involvementData={data.getInvolved} />
+        </div>
+        <div className="gsap-reveal">
+          <SupportComponent supportCards={data.support} />
+        </div>
+        <div className="gsap-reveal">
+          <SponsorsSection sponsors={data.sponsors} />
+        </div>
       </main>
       <Footer />
     </div>

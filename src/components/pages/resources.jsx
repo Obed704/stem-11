@@ -11,6 +11,15 @@ const DownloadsPage = () => {
   const [downloads, setDownloads] = useState([]);
   const [videos, setVideos] = useState([]);
 
+  // Helper to handle both Cloudinary and Local URLs
+  const formatUrl = (path) => {
+    if (!path) return null;
+    // If it's already a full URL (Cloudinary starts with http), return it
+    if (path.startsWith("http")) return path;
+    // Fallback for local uploads if any remain
+    return `${BACKEND_URL}/${path}`;
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -25,9 +34,17 @@ const DownloadsPage = () => {
         const vidData = await vidRes.json();
 
         setNavbar(navData);
+
+        // REFINED: Smart mapping for Cloudinary paths
         setDownloads(
-          downData.map((d) => ({ ...d, image: `${BACKEND_URL}/${d.image}` })),
+          downData.map((d) => ({
+            ...d,
+            image: formatUrl(d.image),
+            // Ensure the download link is also formatted correctly
+            fileUrl: formatUrl(d.fileUrl || d.linkHref)
+          }))
         );
+
         setVideos(vidData);
         setLoading(false);
       } catch (err) {
@@ -44,12 +61,11 @@ const DownloadsPage = () => {
     <div className="min-h-screen bg-white selection:bg-[#17cfdc] selection:text-white">
       <Navbar settings={navbar} />
 
-      {/* HERO - Compact for Mobile */}
+      {/* HERO SECTION */}
       <section className="relative pt-32 pb-16 px-6 bg-white border-b border-slate-50 text-center">
         <div className="max-w-7xl mx-auto">
           <h1 className="text-4xl md:text-7xl font-black uppercase tracking-tighter text-slate-900">
-            The{" "}
-            <span className="text-slate-300 italic font-light">Archive</span>
+            The <span className="text-slate-300 italic font-light">Archive</span>
           </h1>
           <div className="mt-4 flex justify-center items-center gap-2">
             <span className="w-8 h-[1px] bg-[#f21ea7]" />
@@ -61,13 +77,11 @@ const DownloadsPage = () => {
         </div>
       </section>
 
-      {/* 01 // FILES - Compact Grid & Visible Buttons */}
+      {/* 01 // FILES SECTION */}
       <section className="py-16 px-4 md:px-6">
         <div className="max-w-7xl mx-auto">
           <div className="mb-10 flex items-center gap-4">
-            <span className="font-mono text-[10px] text-slate-400">
-              01_FILES
-            </span>
+            <span className="font-mono text-[10px] text-slate-400">01_FILES</span>
             <div className="h-[1px] flex-1 bg-slate-100" />
           </div>
 
@@ -80,7 +94,7 @@ const DownloadsPage = () => {
                 viewport={{ once: true }}
                 className="group flex flex-col bg-white border border-slate-100 p-3 md:p-4 rounded-sm hover:shadow-xl hover:shadow-[#17cfdc]/5 transition-all"
               >
-                {/* Image: Compact & Fit */}
+                {/* Thumbnail */}
                 <div className="relative h-32 md:h-40 bg-slate-50 rounded-sm overflow-hidden mb-4">
                   <img
                     src={item.image}
@@ -100,12 +114,15 @@ const DownloadsPage = () => {
                   </p>
                 </div>
 
-                {/* Visible Button */}
+                {/* REFINED: Download Button */}
                 <a
-                  href={item.linkHref}
+                  href={item.fileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  download // Works for Cloudinary if the asset is set to "attachment"
                   className="mt-4 w-full bg-[#f21ea7] text-white py-2 md:py-3 text-[9px] font-mono font-bold tracking-widest text-center uppercase hover:bg-[#17cfdc] transition-colors rounded-sm"
                 >
-                  Download
+                  {item.fileType === "PDF" ? "Open_PDF" : "Download"}
                 </a>
               </motion.div>
             ))}
@@ -113,13 +130,11 @@ const DownloadsPage = () => {
         </div>
       </section>
 
-      {/* 02 // VIDEOS - Tight Gaps & Better Mobile Flow */}
+      {/* 02 // VIDEOS SECTION */}
       <section className="py-16 px-4 md:px-6 bg-[#fafafa]">
         <div className="max-w-7xl mx-auto">
           <div className="mb-10 flex items-center gap-4">
-            <span className="font-mono text-[10px] text-slate-400">
-              02_VIDEOS
-            </span>
+            <span className="font-mono text-[10px] text-slate-400">02_VIDEOS</span>
             <div className="h-[1px] flex-1 bg-slate-200" />
           </div>
 
@@ -131,29 +146,14 @@ const DownloadsPage = () => {
                 whileInView={{ opacity: 1 }}
                 className="bg-white p-2 border border-slate-200 rounded-sm"
               >
-                {/* Responsive Video Container */}
                 <div className="relative aspect-video w-full bg-black rounded-sm overflow-hidden mb-4">
                   <iframe
                     src={video.embedUrl}
                     className="w-full h-full"
                     allowFullScreen
                   />
-                  {/* Small Technical Accent */}
-                  <div className="absolute top-2 left-2 flex gap-1">
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#f7f42e]" />
-                    <div className="w-8 h-[2px] bg-[#17cfdc]/50 mt-[3px]" />
-                  </div>
                 </div>
-
                 <div className="px-2 pb-2">
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-[8px] font-mono text-[#f21ea7] uppercase">
-                      Source: Tutorial_Log
-                    </span>
-                    <span className="text-[8px] font-mono text-slate-300">
-                      #{index + 1}
-                    </span>
-                  </div>
                   <h3 className="text-sm md:text-lg font-black uppercase tracking-tight text-slate-900 line-clamp-1">
                     {video.title}
                   </h3>

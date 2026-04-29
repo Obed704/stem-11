@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import NavigationButtons from "./Button";
 
-
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function AdminFtc() {
@@ -11,40 +10,47 @@ export default function AdminFtc() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [editingId, setEditingId] = useState(null);
+
+  // Unified Loading States
+  const [loading, setLoading] = useState(true);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState("");
 
-  /* ------------------------------------------------------------------ */
-  /*  Data fetching                                                    */
-  /* ------------------------------------------------------------------ */
   useEffect(() => {
     fetchSchools();
   }, []);
 
   const fetchSchools = async () => {
+    setLoading(true);
     try {
       const res = await axios.get(`${BACKEND_URL}/api/schools`);
       setSchools(res.data);
     } catch (err) {
       console.error("Error fetching schools:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
-  /* ------------------------------------------------------------------ */
-  /*  Form handling                                                    */
-  /* ------------------------------------------------------------------ */
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    setSelectedFile(file);
-    setPreview(file ? URL.createObjectURL(file) : null);
+    if (file) {
+      setSelectedFile(file);
+      setPreview(URL.createObjectURL(file));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsProcessing(true);
+    setError("");
+
     const data = new FormData();
     data.append("name", form.name);
     data.append("location", form.location);
     data.append("website", form.website);
-    if (selectedFile) data.append("img", selectedFile);
+    // Cloudinary logic: backend should expect 'image' or 'img'
+    if (selectedFile) data.append("image", selectedFile);
 
     try {
       if (editingId) {
@@ -53,30 +59,35 @@ export default function AdminFtc() {
         await axios.post(`${BACKEND_URL}/api/schools`, data);
       }
       resetForm();
-      fetchSchools();
+      await fetchSchools();
     } catch (err) {
-      console.error("Error:", err);
-      setError("Failed to submit data.");
+      setError(err.response?.data?.message || "Failed to sync with Cloudinary.");
+    } finally {
+      setIsProcessing(false);
     }
   };
 
   const startEdit = (school) => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     setEditingId(school._id);
     setForm({
       name: school.name,
       location: school.location,
       website: school.website || "",
     });
-    setPreview(school.img ? `${BACKEND_URL}${school.img}` : null);
+    setPreview(school.img); // Backend now returns Cloudinary URL
   };
 
   const deleteSchool = async (id) => {
-    if (!window.confirm("Delete this school?")) return;
+    if (!window.confirm("Delete this school permanently?")) return;
+    setIsProcessing(true);
     try {
       await axios.delete(`${BACKEND_URL}/api/schools/${id}`);
-      fetchSchools();
+      await fetchSchools();
     } catch (err) {
       console.error("Delete error:", err);
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -87,238 +98,155 @@ export default function AdminFtc() {
     setForm({ name: "", location: "", website: "" });
   };
 
-  /* ------------------------------------------------------------------ */
-  /*  Render                                                            */
-  /* ------------------------------------------------------------------ */
+  if (loading) return (
+    <div className="min-h-screen bg-[#050505] flex flex-col items-center justify-center">
+      <div className="w-10 h-10 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+      <p className="text-slate-500 font-medium tracking-widest text-xs uppercase">Loading Schools</p>
+    </div>
+  );
+
   return (
-    <>
+    <div className="min-h-screen bg-[#050505] text-slate-200 p-4 md:p-10 pt-24 font-sans">
       <NavigationButtons />
 
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white p-4 sm:p-6 md:p-10 pt-20">
+      <div className="max-w-6xl mx-auto">
+        <header className="mb-12">
+          <h1 className="text-4xl font-black text-white tracking-tight">FTC <span className="text-indigo-500">SCHOOLS</span></h1>
+          <p className="text-slate-500 mt-1 font-medium italic">Manage participant institutions and regional hubs.</p>
+        </header>
 
-        {/* TITLE */}
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-center mb-8 bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 via-cyan-400 to-pink-500 animate-gradient">
-          FTC Schools Dashboard
-        </h1>
+        {/* --- FORM SECTION --- */}
+        <section className="mb-16">
+          <form onSubmit={handleSubmit} className="bg-[#111113] border border-white/5 p-8 rounded-[2.5rem] shadow-2xl relative">
+            <h2 className="text-sm font-black uppercase tracking-[0.3em] text-indigo-400 mb-8 flex items-center gap-2">
+              <span className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></span>
+              {editingId ? "Update Institution" : "Register New School"}
+            </h2>
 
-        {/* FORM */}
-        <form
-          onSubmit={handleSubmit}
-          className="bg-gray-800/80 backdrop-blur-md p-6 sm:p-8 rounded-2xl shadow-2xl max-w-2xl mx-auto mb-12"
-        >
-          <h2 className="text-xl sm:text-2xl font-semibold mb-5">
-            {editingId ? "Edit School" : "Add New School"}
-          </h2>
+            {error && <div className="mb-6 p-4 bg-rose-500/10 border border-rose-500/20 text-rose-500 rounded-xl text-sm font-bold">{error}</div>}
 
-          {error && <p className="text-red-400 mb-3">{error}</p>}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="space-y-6">
+                <div>
+                  <label className="text-[10px] uppercase tracking-widest text-slate-500 font-black mb-3 block ml-1">School Identity</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Kigali International Community School"
+                    value={form.name}
+                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    className="w-full h-14 bg-slate-900 border border-slate-800 rounded-2xl px-5 text-white focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all placeholder:text-slate-700"
+                    required
+                  />
+                </div>
 
-          <div className="space-y-5">
-            <input
-              type="text"
-              placeholder="School Name"
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="w-full p-3 rounded-lg bg-gray-900 text-white border border-gray-600 focus:ring-2 focus:ring-pink-500"
-              required
-            />
+                <div>
+                  <label className="text-[10px] uppercase tracking-widest text-slate-500 font-black mb-3 block ml-1">Geographic Location</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Gasabo, Kigali"
+                    value={form.location}
+                    onChange={(e) => setForm({ ...form, location: e.target.value })}
+                    className="w-full h-14 bg-slate-900 border border-slate-800 rounded-2xl px-5 text-white focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all placeholder:text-slate-700"
+                    required
+                  />
+                </div>
 
-            <input
-              type="text"
-              placeholder="Location"
-              value={form.location}
-              onChange={(e) => setForm({ ...form, location: e.target.value })}
-              className="w-full p-3 rounded-lg bg-gray-900 text-white border border-gray-600 focus:ring-2 focus:ring-cyan-400"
-              required
-            />
-
-            <input
-              type="text"
-              placeholder="Website (optional)"
-              value={form.website}
-              onChange={(e) => setForm({ ...form, website: e.target.value })}
-              className="w-full p-3 rounded-lg bg-gray-900 text-white border border-gray-600 focus:ring-2 focus:ring-yellow-400"
-            />
-
-            {/* Upload */}
-            <label className="flex flex-col items-center justify-center border-2 border-dashed border-cyan-400 rounded-xl cursor-pointer hover:bg-gray-700 transition-all py-8">
-              <p className="text-cyan-400 font-semibold">Upload School Image</p>
-              <p className="text-xs text-gray-400">PNG, JPG up to 5 MB</p>
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleFileChange}
-              />
-            </label>
-
-            {preview && (
-              <div className="flex justify-center">
-                <img
-                  src={preview}
-                  alt="Preview"
-                  className="max-w-full h-40 object-cover rounded-lg shadow-lg border border-gray-600"
-                />
+                <div>
+                  <label className="text-[10px] uppercase tracking-widest text-slate-500 font-black mb-3 block ml-1">Official Website</label>
+                  <input
+                    type="text"
+                    placeholder="https://..."
+                    value={form.website}
+                    onChange={(e) => setForm({ ...form, website: e.target.value })}
+                    className="w-full h-14 bg-slate-900 border border-slate-800 rounded-2xl px-5 text-white focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all placeholder:text-slate-700"
+                  />
+                </div>
               </div>
-            )}
+
+              {/* Upload Dropzone Area */}
+              <div className="flex flex-col h-full">
+                <label className="text-[10px] uppercase tracking-widest text-slate-500 font-black mb-3 block ml-1">Institutional Logo / Photo</label>
+                <div className="flex-1 min-h-[200px] relative">
+                  <label className="flex flex-col items-center justify-center w-full h-full border-2 border-dashed border-white/5 rounded-[2rem] cursor-pointer hover:bg-white/5 transition-all group overflow-hidden">
+                    {!preview ? (
+                      <div className="text-center p-6">
+                        <p className="text-indigo-400 font-bold group-hover:scale-110 transition-transform">SELECT ASSET</p>
+                        <p className="text-[10px] text-slate-600 uppercase mt-2">Cloudinary Optimization Enabled</p>
+                      </div>
+                    ) : (
+                      <img src={preview} alt="Preview" className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                    )}
+                    <input type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-4 mt-10">
+              <button
+                type="submit"
+                disabled={isProcessing}
+                className="flex-[2] h-14 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 text-white font-black rounded-2xl shadow-xl shadow-indigo-500/10 active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+              >
+                {isProcessing ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : (editingId ? "SYNC CHANGES" : "REGISTER SCHOOL")}
+              </button>
+
+              {editingId && (
+                <button
+                  type="button"
+                  onClick={resetForm}
+                  className="flex-1 h-14 bg-slate-800 hover:bg-slate-700 text-white font-black rounded-2xl transition-all active:scale-[0.98]"
+                >
+                  CANCEL
+                </button>
+              )}
+            </div>
+          </form>
+        </section>
+
+        {/* --- LISTING SECTION --- */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between px-4 mb-6">
+            <h2 className="text-xs font-black uppercase tracking-widest text-slate-500">Database Records</h2>
+            <span className="text-[10px] bg-white/5 px-3 py-1 rounded-full text-slate-400">{schools.length} Schools</span>
           </div>
 
-          <button
-            type="submit"
-            className="w-full mt-6 bg-gradient-to-r from-pink-500 via-cyan-400 to-yellow-400 text-black font-semibold py-3 rounded-lg hover:scale-105 transition-all"
-          >
-            {editingId ? "Update School" : "Add School"}
-          </button>
+          <div className="grid grid-cols-1 gap-4">
+            {schools.map((s) => (
+              <div key={s._id} className="bg-[#111113] border border-white/5 p-4 rounded-3xl flex items-center gap-6 group hover:border-indigo-500/30 transition-all">
+                <div className="w-20 h-20 rounded-2xl overflow-hidden bg-slate-900 flex-shrink-0 border border-white/5">
+                  {s.img && <img src={s.img} alt={s.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />}
+                </div>
 
-          {editingId && (
-            <button
-              type="button"
-              onClick={resetForm}
-              className="w-full mt-3 bg-gray-500 text-white py-2 rounded-lg hover:bg-gray-600 transition-all"
-            >
-              Cancel Edit
-            </button>
-          )}
-        </form>
-
-        {/* LIST – MOBILE CARDS / DESKTOP TABLE */}
-        <div className="max-w-6xl mx-auto space-y-6 md:space-y-0">
-
-          {/* ---------- MOBILE CARDS ---------- */}
-          <div className="md:hidden">
-            {schools.length === 0 ? (
-              <p className="text-center text-gray-400 py-8">No schools found.</p>
-            ) : (
-              schools.map((s) => (
-                <div
-                  key={s._id}
-                  className="bg-gray-800/80 backdrop-blur-md rounded-xl p-4 mb-4 shadow-lg"
-                >
-                  {s.img && (
-                    <img
-                      src={`${BACKEND_URL}${s.img}`}
-                      alt={s.name}
-                      className="w-full h-40 object-cover rounded-md mb-3"
-                    />
-                  )}
-                  <h3 className="font-semibold text-lg">{s.name}</h3>
-                  <p className="text-sm text-gray-300">{s.location}</p>
-                  {s.website ? (
-                    <a
-                      href={s.website}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-cyan-400 text-sm underline"
-                    >
-                      {s.website}
-                    </a>
-                  ) : (
-                    <span className="text-gray-500 text-sm">—</span>
-                  )}
-
-                  <div className="flex gap-2 mt-4">
-                    <button
-                      onClick={() => startEdit(s)}
-                      className="flex-1 bg-gradient-to-r from-yellow-400 via-cyan-400 to-pink-500 text-black font-medium py-2 rounded-lg hover:scale-105 transition-all"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => deleteSchool(s._id)}
-                      className="flex-1 bg-red-600 text-white font-medium py-2 rounded-lg hover:scale-105 transition-all"
-                    >
-                      Delete
-                    </button>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-white font-bold text-lg truncate">{s.name}</h3>
+                  <div className="flex items-center gap-4 mt-1">
+                    <span className="text-xs text-slate-500 flex items-center gap-1 font-medium">📍 {s.location}</span>
+                    {s.website && <a href={s.website} target="_blank" rel="noreferrer" className="text-[10px] font-black text-indigo-500 hover:text-indigo-400 uppercase tracking-tighter">View Site</a>}
                   </div>
                 </div>
-              ))
-            )}
-          </div>
 
-          {/* ---------- DESKTOP TABLE ---------- */}
-          <div className="hidden md:block bg-gray-900/80 backdrop-blur-md p-6 rounded-2xl shadow-2xl">
-            <h2 className="text-2xl font-semibold mb-5">Schools List</h2>
-
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse text-white">
-                <thead className="bg-gray-800/60">
-                  <tr>
-                    <th className="p-3 border text-left">Image</th>
-                    <th className="p-3 border text-left">Name</th>
-                    <th className="p-3 border text-left">Location</th>
-                    <th className="p-3 border text-left">Website</th>
-                    <th className="p-3 border text-center">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {schools.map((s) => (
-                    <tr
-                      key={s._id}
-                      className="hover:bg-gray-700 transition-colors border-b border-gray-800"
-                    >
-                      <td className="p-3">
-                        {s.img && (
-                          <img
-                            src={`${BACKEND_URL}${s.img}`}
-                            alt={s.name}
-                            className="w-20 h-14 object-cover rounded-md shadow-lg"
-                          />
-                        )}
-                      </td>
-                      <td className="p-3 font-medium">{s.name}</td>
-                      <td className="p-3">{s.location}</td>
-                      <td className="p-3 text-cyan-400">
-                        {s.website ? (
-                          <a href={s.website} target="_blank" rel="noreferrer">
-                            {s.website}
-                          </a>
-                        ) : (
-                          "—"
-                        )}
-                      </td>
-                      <td className="p-3 text-center flex justify-center gap-2">
-                        <button
-                          onClick={() => startEdit(s)}
-                          className="bg-gradient-to-r from-yellow-400 via-cyan-400 to-pink-500 px-5 py-1 rounded-lg text-black font-semibold hover:scale-105 transition-all"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => deleteSchool(s._id)}
-                          className="bg-red-600 px-5 py-1 rounded-lg text-white font-semibold hover:scale-105 transition-all"
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-
-                  {schools.length === 0 && (
-                    <tr>
-                      <td colSpan="5" className="text-center text-gray-400 py-4">
-                        No schools found.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+                <div className="flex gap-2">
+                  <button onClick={() => startEdit(s)} className="p-3 bg-white/5 hover:bg-indigo-600 text-slate-400 hover:text-white rounded-xl transition-all active:scale-90">
+                    ✎
+                  </button>
+                  <button onClick={() => deleteSchool(s._id)} className="p-3 bg-white/5 hover:bg-rose-600 text-slate-400 hover:text-white rounded-xl transition-all active:scale-90">
+                    🗑
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
-
-        {/* Gradient animation (unchanged) */}
-        <style jsx>{`
-          @keyframes gradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-          }
-          .animate-gradient {
-            background-size: 200% 200%;
-            animation: gradient 8s ease infinite;
-          }
-        `}</style>
       </div>
 
-    </>
+      {/* Global Processing Blur */}
+      {isProcessing && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] flex flex-col items-center justify-center animate-in fade-in duration-300">
+          <div className="w-12 h-12 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mb-6"></div>
+          <p className="text-white font-black tracking-[0.3em] text-xs">SYNCHRONIZING WITH DATABASE</p>
+        </div>
+      )}
+    </div>
   );
 }

@@ -6,7 +6,9 @@ const Banner = ({ bannerData }) => {
 
   if (!bannerData) return null;
 
-  const imageUrl = `${BACKEND_URL}${bannerData.image?.startsWith("/") ? "" : "/"}${bannerData.image}`;
+  const imageUrl = bannerData.image?.startsWith("http")
+    ? bannerData.image
+    : `${BACKEND_URL}${bannerData.image?.startsWith("/") ? "" : "/"}${bannerData.image}`;
   const accentColor = bannerData.primaryColor || "#f21ea7";
 
   return (

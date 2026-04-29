@@ -80,7 +80,7 @@ const EducationElements = ({ elements = [] }) => {
                 <div className="absolute inset-0 rounded-full border border-dashed border-slate-200 group-hover:border-[rgb(242,30,167)]/40 transition" />
 
                 <img
-                  src={`${BACKEND_URL}${img}`}
+                  src={img?.startsWith("http") ? img : `${BACKEND_URL}${img}`}
                   alt={alt || title}
                   onError={(e) => (e.target.src = "/placeholder-education.jpg")}
                   className="w-28 h-28 sm:w-32 sm:h-32 md:w-40 md:h-40 object-cover rounded-full relative z-10 shadow-md group-hover:scale-105 transition-transform duration-500"

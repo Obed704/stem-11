@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import Button from "./Button";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -9,24 +10,25 @@ const AdminNavbar = () => {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
 
-  // Fetch navbar settings
+  // 1. FETCH SETTINGS FROM DATABASE
+  const fetchSettings = async () => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/navbar`);
+      if (!res.ok) throw new Error("Failed to fetch");
+      const result = await res.json();
+      setData(result);
+    } catch (err) {
+      console.error("Fetch error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    fetch(`${BACKEND_URL}/api/navbar`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch");
-        return res.json();
-      })
-      .then((res) => {
-        setData(res);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setLoading(false);
-      });
+    fetchSettings();
   }, []);
 
-  // Save settings
+  // 2. SAVE TEXT & COLOR SETTINGS
   const saveSettings = async () => {
     setSaving(true);
     try {
@@ -37,7 +39,7 @@ const AdminNavbar = () => {
       });
 
       if (!response.ok) throw new Error("Save failed");
-      alert("✅ Navbar settings saved successfully");
+      alert("✅ Settings updated in database");
     } catch (err) {
       console.error(err);
       alert("❌ Failed to save settings");
@@ -46,7 +48,7 @@ const AdminNavbar = () => {
     }
   };
 
-  // Upload logo
+  // 3. UPLOAD LOGO & RE-FETCH (THE TRUTH TEST)
   const uploadLogo = async (file) => {
     if (!file) return;
 
@@ -55,6 +57,7 @@ const AdminNavbar = () => {
     formData.append("logo", file);
 
     try {
+      // Step A: Upload to Cloudinary via Backend
       const uploadRes = await fetch(`${BACKEND_URL}/api/navbar/upload-logo`, {
         method: "POST",
         body: formData,
@@ -62,27 +65,24 @@ const AdminNavbar = () => {
 
       if (!uploadRes.ok) throw new Error("Upload failed");
 
-      const refreshed = await fetch(`${BACKEND_URL}/api/navbar`).then((r) => {
-        if (!r.ok) throw new Error("Refresh failed");
-        return r.json();
-      });
+      // Step B: Pull fresh data directly from DB to verify it saved
+      await fetchSettings();
 
-      setData(refreshed);
+      alert("✅ Logo uploaded and verified from database!");
     } catch (err) {
-      console.error(err);
+      console.error("Upload Error:", err);
       alert("❌ Failed to upload logo");
     } finally {
       setUploading(false);
     }
   };
 
-  // Loading state with skeleton
   if (loading) {
     return (
       <div className="max-w-4xl mx-auto p-8">
         <div className="animate-pulse space-y-8">
           <div className="h-9 bg-gray-700 rounded w-64"></div>
-          {[1, 2, 3, 4].map((i) => (
+          {[1, 2, 3].map((i) => (
             <div key={i} className="h-32 bg-gray-800 rounded-lg"></div>
           ))}
         </div>
@@ -90,193 +90,138 @@ const AdminNavbar = () => {
     );
   }
 
-  // No data
-  if (!data) {
-    return (
-      <div className="max-w-4xl mx-auto p-8 text-center">
-        <p className="text-red-400">No navbar data found</p>
-      </div>
-    );
-  }
+  if (!data) return <div className="text-center p-10 text-red-400">No settings found.</div>;
 
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-100">
+    <div className="min-h-screen bg-gray-900 text-gray-100 pb-20">
       <div className="max-w-4xl mx-auto p-8 space-y-10">
-        <header>
-          <h1 className="text-4xl font-bold text-white">Navbar Settings</h1>
-          <p className="mt-2 text-gray-400">
-            Customize the appearance of your site's navigation bar
-          </p>
+        <header className="border-b border-gray-800 pb-6">
+          <h1 className="text-4xl font-bold text-white tracking-tight">Navbar Settings</h1>
+          <p className="mt-2 text-gray-400 font-medium">Branding and Navigation Configuration</p>
         </header>
 
-        {/* Logo Upload */}
-        <section className="bg-gray-800 border border-gray-700 rounded-xl p-6 shadow-xl">
-          <h2 className="text-xl font-semibold text-white mb-4">Navbar Logo</h2>
+        {/* --- LOGO SECTION --- */}
+        <section className="bg-gray-800 border border-gray-700 rounded-2xl p-8 shadow-2xl">
+          <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
+            <span className="w-1.5 h-6 bg-indigo-500 rounded-full"></span>
+            Identity & Logo
+          </h2>
 
-          <div className="border-2 border-dashed border-gray-600 rounded-lg p-8 text-center hover:border-gray-500 transition-colors">
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => e.target.files?.[0] && uploadLogo(e.target.files[0])}
-              className="hidden"
-              id="logo-upload"
-            />
-            <label htmlFor="logo-upload" className="cursor-pointer block">
-              <div className="text-gray-400">
-                <svg
-                  className="w-12 h-12 mx-auto mb-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                  />
-                </svg>
-                <p className="text-lg">Click to upload or drag and drop</p>
-                <p className="text-sm mt-1">PNG, JPG, SVG (recommended 200×60px)</p>
-              </div>
-            </label>
-          </div>
-
-          {uploading && (
-            <p className="mt-4 text-center text-indigo-400">Uploading...</p>
-          )}
-
-          {data.logoImage && (
-            <div className="mt-6 flex justify-center">
-              <img
-                src={`${BACKEND_URL}/logo/${data.logoImage}`}
-                alt="Current logo"
-                className="h-20 object-contain bg-gray-900 p-3 rounded-lg border border-gray-700"
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
+            {/* Upload Logic */}
+            <div className="space-y-4">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => e.target.files?.[0] && uploadLogo(e.target.files[0])}
+                className="hidden"
+                id="logo-upload"
               />
-            </div>
-          )}
-        </section>
-
-        {/* Logo Mode */}
-        <section className="bg-gray-800 border border-gray-700 rounded-xl p-6 shadow-xl">
-          <h2 className="text-xl font-semibold text-white mb-4">Logo Layout</h2>
-          <select
-            value={data.logoMode || "logo-only"}
-            onChange={(e) => setData({ ...data, logoMode: e.target.value })}
-            className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition"
-          >
-            <option value="logo-only">Logo only</option>
-            <option value="logo-with-text">Logo + “STEM Inspires” text</option>
-          </select>
-        </section>
-
-        {/* Colors */}
-        <section className="bg-gray-800 border border-gray-700 rounded-xl p-6 shadow-xl">
-          <h2 className="text-xl font-semibold text-white mb-6">Colors</h2>
-
-          <div className="space-y-6">
-            {/* Hover Color */}
-            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-              <label className="text-gray-300 font-medium sm:w-40">
-                Hover Color
+              <label
+                htmlFor="logo-upload"
+                className={`flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-12 cursor-pointer transition-all duration-300 ${uploading
+                  ? "border-indigo-500 bg-indigo-500/10 animate-pulse"
+                  : "border-gray-600 hover:border-indigo-400 bg-gray-900/40 hover:bg-gray-900/60"
+                  }`}
+              >
+                {uploading ? (
+                  <div className="flex flex-col items-center">
+                    <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+                    <p className="text-sm font-bold text-indigo-400">Syncing with Cloudinary...</p>
+                  </div>
+                ) : (
+                  <>
+                    <svg className="w-12 h-12 mb-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <p className="text-sm text-gray-300 font-bold">Replace Branding Logo</p>
+                    <p className="text-xs text-gray-500 mt-2">SVG, PNG, JPG (Max 5MB)</p>
+                  </>
+                )}
               </label>
-              <div className="flex items-center gap-4 flex-1">
+            </div>
+
+            {/* LIVE PREVIEW FROM DB */}
+            <div className="flex flex-col items-center justify-center bg-black/40 rounded-xl p-8 border border-gray-700/50 min-h-[240px] relative overflow-hidden">
+              <div className="absolute top-4 left-4 flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">Live Database Pull</span>
+              </div>
+
+              {data.logoImage ? (
+                <div className="flex flex-col items-center gap-6">
+                  <img
+                    src={data.logoImage}
+                    alt="Current Logo"
+                    className="max-h-28 w-auto object-contain drop-shadow-2xl"
+                  />
+                  <div className="text-center space-y-1">
+                    <p className="text-[10px] font-mono text-gray-500 truncate max-w-[200px]">
+                      {data.logoImage.split('/').pop()}
+                    </p>
+                    <span className="inline-block px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 text-[9px] font-bold border border-indigo-500/20">
+                      CLOUDINARY SECURE
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-gray-600 text-sm italic">No image in database</div>
+              )}
+            </div>
+          </div>
+        </section>
+
+        {/* --- DISPLAY MODE --- */}
+        <section className="bg-gray-800 border border-gray-700 rounded-2xl p-8 shadow-xl">
+          <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
+            <span className="w-1.5 h-6 bg-indigo-500 rounded-full"></span>
+            Navigation Layout
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-xs font-black uppercase tracking-widest text-gray-500">Logo Mode</label>
+              <select
+                value={data.logoMode || "logo-only"}
+                onChange={(e) => setData({ ...data, logoMode: e.target.value })}
+                className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-4 text-white font-bold focus:ring-2 focus:ring-indigo-500 transition-all outline-none appearance-none"
+              >
+                <option value="logo-only">Logo Only</option>
+                <option value="logo-with-text">Logo + Site Title</option>
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-black uppercase tracking-widest text-gray-500">Hover Highlight</label>
+              <div className="flex items-center gap-4 bg-gray-900 border border-gray-700 rounded-xl px-4 py-3">
                 <input
                   type="color"
-                  value={data.hoverColor || "#000000"}
-                  onChange={(e) =>
-                    setData({ ...data, hoverColor: e.target.value })
-                  }
-                  className="w-20 h-12 rounded cursor-pointer bg-gray-900 border border-gray-700"
+                  value={data.hoverColor || "#6366f1"}
+                  onChange={(e) => setData({ ...data, hoverColor: e.target.value })}
+                  className="w-12 h-10 rounded-lg cursor-pointer bg-transparent border-none"
                 />
-                <span className="font-mono text-sm text-gray-400 bg-gray-900 px-3 py-2 rounded border border-gray-700">
-                  {data.hoverColor || "#000000"}
-                </span>
+                <span className="font-mono text-sm text-gray-300">{data.hoverColor || "#6366f1"}</span>
               </div>
             </div>
-
-            {/* Text Color */}
-            {/* <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-              <label className="text-gray-300 font-medium sm:w-40">
-                Text Color
-              </label>
-              <input
-                type="text"
-                value={data.textColor || ""}
-                onChange={(e) =>
-                  setData({ ...data, textColor: e.target.value })
-                }
-                className="flex-1 bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition font-mono"
-                placeholder="e.g., text-white, text-gray-200"
-              />
-            </div> */}
           </div>
         </section>
 
-        {/* Links Preview */}
-        <section className="bg-gray-800 border border-gray-700 rounded-xl p-6 shadow-xl">
-          <h2 className="text-xl font-semibold text-white mb-4">
-            Navbar Links (Preview)
-          </h2>
-          <div className="bg-gray-900 rounded-lg p-5 border border-gray-700">
-            {data.links && data.links.length > 0 ? (
-              <ul className="space-y-3">
-                {data.links.map((link, index) => (
-                  <li
-                    key={`${link.name}-${index}`} // safe unique key
-                    className="flex justify-between text-sm"
-                  >
-                    <span className="text-gray-300">{link.name}</span>
-                    <span className="text-gray-500 font-mono text-xs">
-                      {link.link}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-gray-500 text-sm">No links configured</p>
-            )}
-          </div>
-        </section>
-
-        {/* Save Button */}
-        <div className="flex justify-end pt-6">
+        {/* --- SAVE BUTTON --- */}
+        <div className="sticky bottom-10 flex justify-end">
           <button
             onClick={saveSettings}
-            disabled={saving}
-            className="bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-800 text-white font-semibold px-8 py-4 rounded-lg shadow-lg transition transform hover:scale-105 disabled:scale-100 disabled:cursor-not-allowed flex items-center gap-3"
+            disabled={saving || uploading}
+            className="group bg-white hover:bg-indigo-50 disabled:bg-gray-700 text-gray-900 font-black px-12 py-5 rounded-full shadow-[0_20px_50px_rgba(0,0,0,0.3)] transition-all transform hover:scale-105 active:scale-95 flex items-center gap-3"
           >
-            {saving ? (
-              <>
-                <svg
-                  className="animate-spin h-5 w-5"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                    fill="none"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                  />
-                </svg>
-                Saving...
-              </>
-            ) : (
-              "Save Navbar Settings"
+            {saving ? "Writing to Database..." : "Publish Navbar Updates"}
+            {!saving && (
+              <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
             )}
           </button>
         </div>
       </div>
-      <Button/>
+      <Button />
     </div>
   );
 };
