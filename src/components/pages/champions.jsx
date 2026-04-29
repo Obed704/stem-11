@@ -71,7 +71,7 @@ const WomenInStem = () => {
           className="text-center"
         >
           <motion.img
-            src="/logo.png" // Ensure this matches your logo path
+            src="https://res.cloudinary.com/dashhjuuq/image/upload/v1776870899/navbar_branding/logo-1776870896262.png" // Ensure this matches your logo path
             alt="STEM Inspires"
             className="w-28 md:w-36 mx-auto mb-10"
             animate={{ scale: [0.95, 1, 0.95] }}

@@ -45,9 +45,9 @@ const About = () => {
         setTeam(
           Array.isArray(teamData)
             ? teamData.map((m) => ({
-                ...m,
-                image: m.image ? `${BACKEND_URL}${m.image}` : "",
-              }))
+              ...m,
+              image: m.image ? `${m.image}` : "",
+            }))
             : [],
         );
         setSistersSection(sistersData);
@@ -73,7 +73,7 @@ const About = () => {
           className="text-center"
         >
           <motion.img
-            src="/logo.png"
+            src="https://res.cloudinary.com/dashhjuuq/image/upload/v1776870899/navbar_branding/logo-1776870896262.png"
             alt="STEM Inspires"
             className="w-28 md:w-36 mx-auto mb-10"
             onError={(e) => console.log("Current path failed:", e.target.src)}

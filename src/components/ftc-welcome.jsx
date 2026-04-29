@@ -46,7 +46,7 @@ export default function FTCLanding() {
       <div className="fixed inset-0 bg-black flex items-center justify-center z-50">
         <div className="text-center">
           <img
-            src={`./welcomeSlide/Logo.png`}
+            src={`https://res.cloudinary.com/dashhjuuq/image/upload/v1776870899/navbar_branding/logo-1776870896262.png`}
             alt="STEM Inspires"
             className="w-32 mx-auto mb-6 animate-pulse"
           />

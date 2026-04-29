@@ -446,7 +446,44 @@ const ContactPage = () => {
       mounted = false;
     };
   }, []);
+  // ADD THIS RIGHT BEFORE YOUR MAIN RETURN
+  if (loading) {
+    return (
+      <div className="fixed inset-0 bg-white flex flex-col items-center justify-center z-[100]">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-center"
+        >
+          <motion.img
+            src="https://res.cloudinary.com/dashhjuuq/image/upload/v1776870899/navbar_branding/logo-1776870896262.png"
+            alt="STEM Inspires"
+            className="w-28 md:w-36 mx-auto mb-10"
+            animate={{ scale: [0.95, 1, 0.95] }}
+            transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+          />
 
+          <div className="space-y-4">
+            <div className="text-[10px] font-mono font-black uppercase tracking-[0.5em] text-slate-400">
+              Initializing_System
+            </div>
+
+            <div className="w-48 h-[1px] bg-slate-100 mx-auto overflow-hidden relative">
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-cyan-400 via-pink-500 to-yellow-300"
+                animate={{ x: [-200, 200] }}
+                transition={{
+                  repeat: Infinity,
+                  duration: 1.5,
+                  ease: "linear",
+                }}
+              />
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
   return (
     <>
       <Header fixed={true} settings={navbarSettings || {}} />

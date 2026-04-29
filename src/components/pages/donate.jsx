@@ -150,7 +150,7 @@ export default function FundTheirFuturePage() {
       <div className="fixed inset-0 bg-black flex items-center justify-center z-50">
         <div className="text-center">
           <img
-            src="./welcomeSlide/Logo.png" // adjust path if needed
+            src="https://res.cloudinary.com/dashhjuuq/image/upload/v1776870899/navbar_branding/logo-1776870896262.png" // adjust path if needed
             alt="STEM Inspires"
             className="w-32 mx-auto mb-6 animate-pulse"
           />
@@ -183,7 +183,7 @@ export default function FundTheirFuturePage() {
       <style>{styles}</style>
 
       <div className="bg-blue-500 w-full h-16">
-        <Navbar bg="bg-black" settings={settings}/>
+        <Navbar bg="bg-black" settings={settings} />
       </div>
 
       <ChatBolt />
@@ -298,7 +298,7 @@ function DonationForm({
 }) {
   return (
     <div className="w-full max-w-md bg-white p-6 sm:p-8 rounded-xl shadow-2xl">
-      <h2 className="text-2xl font-bold mb-6 text-center"style={{ color: "rgb(242, 30, 167)" }}>Donate</h2>
+      <h2 className="text-2xl font-bold mb-6 text-center" style={{ color: "rgb(242, 30, 167)" }}>Donate</h2>
 
       <label className="sr-only">Your Name</label>
       <input
@@ -322,18 +322,16 @@ function DonationForm({
         <button
           type="button"
           onClick={() => setPaymentType("one-time")}
-          className={`px-4 py-2 rounded transition ${
-            paymentType === "one-time" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700"
-          }`}
+          className={`px-4 py-2 rounded transition ${paymentType === "one-time" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700"
+            }`}
         >
           One-Time
         </button>
         <button
           type="button"
           onClick={() => setPaymentType("monthly")}
-          className={`px-4 py-2 rounded transition ${
-            paymentType === "monthly" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700"
-          }`}
+          className={`px-4 py-2 rounded transition ${paymentType === "monthly" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700"
+            }`}
         >
           Monthly
         </button>
@@ -344,11 +342,10 @@ function DonationForm({
         return (
           <label
             key={opt.value}
-            className={`flex items-center border border-blue-300 rounded-lg px-4 py-3 mb-3 cursor-pointer transition ${
-              isSelected
-                ? "bg-gradient-to-r from-yellow-200 via-cyan-200 to-pink-300 text-black shadow-lg"
-                : "bg-white hover:bg-gray-50"
-            }`}
+            className={`flex items-center border border-blue-300 rounded-lg px-4 py-3 mb-3 cursor-pointer transition ${isSelected
+              ? "bg-gradient-to-r from-yellow-200 via-cyan-200 to-pink-300 text-black shadow-lg"
+              : "bg-white hover:bg-gray-50"
+              }`}
             onClick={() => setSelectedAmount(opt.value)}
           >
             <input
@@ -374,9 +371,8 @@ function DonationForm({
             placeholder="Enter custom amount (e.g. 25.00)"
             value={customAmount}
             onChange={(e) => setCustomAmount(e.target.value)}
-            className={`w-full border rounded-lg px-4 py-3 focus:ring-blue-300 mb-1 ${
-              !customAmount ? "border-red-400" : "border-gray-300"
-            }`}
+            className={`w-full border rounded-lg px-4 py-3 focus:ring-blue-300 mb-1 ${!customAmount ? "border-red-400" : "border-gray-300"
+              }`}
           />
           {!customAmount && (
             <p className="text-red-500 text-sm mt-1">Please enter a valid amount.</p>
@@ -400,10 +396,9 @@ function DonationForm({
         <button
           onClick={() => handlePayment("stripe")}
           disabled={processing}
-          className={`w-full font-bold py-3 rounded-lg transition ${
-            processing ? "opacity-70 cursor-not-allowed" : ""
-          }  hover:bg-purple-700 text-white`}
-          style={{ backgroundColor: "rgb(23, 207, 220)" ,color: "rgba(219, 249, 154, 1)"}}
+          className={`w-full font-bold py-3 rounded-lg transition ${processing ? "opacity-70 cursor-not-allowed" : ""
+            }  hover:bg-purple-700 text-white`}
+          style={{ backgroundColor: "rgb(23, 207, 220)", color: "rgba(219, 249, 154, 1)" }}
           aria-disabled={processing}
         >
           {processing ? "Processing..." : "Pay with Credit Card (Stripe)"}
@@ -412,11 +407,10 @@ function DonationForm({
         <button
           onClick={() => handlePayment("paypal")}
           disabled={processing}
-          className={`w-full font-bold py-3 rounded-lg transition ${
-            processing ? "opacity-70 cursor-not-allowed" : ""
-          } hover:bg-yellow-600`}
-        
-          style={{ backgroundColor: "rgb(247, 244, 46)" ,color: "rgba(23, 205, 219, 1)" }}
+          className={`w-full font-bold py-3 rounded-lg transition ${processing ? "opacity-70 cursor-not-allowed" : ""
+            } hover:bg-yellow-600`}
+
+          style={{ backgroundColor: "rgb(247, 244, 46)", color: "rgba(23, 205, 219, 1)" }}
           aria-disabled={processing}
         >
           {processing ? "Processing..." : "Pay with PayPal"}
