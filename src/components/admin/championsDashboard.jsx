@@ -2,7 +2,15 @@ import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import AdminLayout from "./AdminLayout";
 
-const API = import.meta.env.VITE_BACKEND_URL + "/api/champions";
+
+const API = (() => {
+  const backend = import.meta.env.VITE_BACKEND_URL;
+  if (backend) return `${backend.replace(/\/$/, '')}/api/champions`;
+  // Fallback to same origin when env var not set (Vercel deployment)
+  if (typeof window !== "undefined") return `${window.location.origin}/api/champions`;
+  // Default placeholder for server-side rendering environments
+  return "/api/champions";
+})();
 
 // ─── Champion Form Component ──────────────────────────────────────────────────
 function ChampionForm({ initial, onSubmit, submitting, error, onCancel }) {
@@ -235,11 +243,11 @@ export default function ChampionDashboard() {
                   {c.year}
                 </div>
               </div>
-              
+
               <div className="p-8 space-y-4">
                 <h4 className="text-lg font-black text-white uppercase tracking-tight line-clamp-1">{c.title}</h4>
                 <p className="text-xs text-slate-500 font-medium line-clamp-2 leading-relaxed">{c.description}</p>
-                
+
                 <div className="flex gap-3 pt-4">
                   <button
                     onClick={() => setEditing(c)}
@@ -261,4 +269,4 @@ export default function ChampionDashboard() {
       </div>
     </AdminLayout>
   );
-}
+}

@@ -1,34 +1,14 @@
 import React, { useState, useEffect } from "react";
 import NavigationButtons from "./Button";
 
-
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-const colors = ["rgb(247, 244, 46)", "rgb(23, 207, 220)", "rgb(242, 30, 167)"]; // palette
 
 const AdminInbox = () => {
   const [emails, setEmails] = useState([]);
-  const [expandedId, setExpandedId] = useState(null);
+  const [selectedEmail, setSelectedEmail] = useState(null); // The "Active" email in the reading pane
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("All");
   const [statusFilter, setStatusFilter] = useState("All");
   const [loading, setLoading] = useState(true);
-  const [selectedEmails, setSelectedEmails] = useState(new Set());
-  const [sortBy, setSortBy] = useState("newest");
-
-  const handleDeleteEmail = async (emailId) => {
-  if (!window.confirm("Are you sure you want to delete this email?")) return;
-
-  try {
-    const res = await fetch(`${BACKEND_URL}/api/emails/${emailId}`, {
-      method: "DELETE",
-    });
-    if (!res.ok) throw new Error("Delete failed");
-    fetchEmails(); // refresh list
-  } catch (err) {
-    console.error("Failed to delete email:", err);
-    alert("Failed to delete email.");
-  }
-};
 
   const fetchEmails = async () => {
     try {
@@ -47,286 +27,172 @@ const AdminInbox = () => {
     fetchEmails();
   }, []);
 
-  const toggleSelectEmail = (id) => {
-    const newSelected = new Set(selectedEmails);
-    newSelected.has(id) ? newSelected.delete(id) : newSelected.add(id);
-    setSelectedEmails(newSelected);
-  };
-
-  const selectAllEmails = () => {
-    if (selectedEmails.size === filteredEmails.length) setSelectedEmails(new Set());
-    else setSelectedEmails(new Set(filteredEmails.map((email) => email._id)));
-  };
-
-  // Sort and filter
-  const sortedEmails = [...emails].sort((a, b) => {
-    const dateA = new Date(a.createdAt || a._id);
-    const dateB = new Date(b.createdAt || b._id);
-    return sortBy === "newest" ? dateB - dateA : dateA - dateB;
-  });
-
-  const filteredEmails = sortedEmails.filter((e) => {
-    const subject = (e.customSubject || e.subject || "").toLowerCase();
-    const name = e.name?.toLowerCase() || "";
-    const email = e.email?.toLowerCase() || "";
-
-    const matchesSearch =
-      name.includes(search.toLowerCase()) ||
-      email.includes(search.toLowerCase()) ||
-      subject.includes(search.toLowerCase());
-
-    const matchesCategory =
-      category === "All" || subject.includes(category.toLowerCase());
-
-    const matchesStatus =
-      statusFilter === "All" || e.status === statusFilter.toLowerCase();
-
-    return matchesSearch && matchesCategory && matchesStatus;
-  });
-
-  const categories = [
-    "All",
-    ...new Set(
-      emails.map((e) => e.customSubject || e.subject || "Uncategorized").filter(Boolean)
-    ),
-  ];
-
-  const getStatusColor = (status) => {
-    if (status === "read") return colors[1];
-    if (status === "unread") return colors[0];
-    return colors[2];
-  };
-
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat("en-US", {
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(date);
+  const handleDeleteEmail = async (emailId) => {
+    if (!window.confirm("Delete this conversation?")) return;
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/emails/${emailId}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Delete failed");
+      if (selectedEmail?._id === emailId) setSelectedEmail(null);
+      fetchEmails();
+    } catch (err) {
+      alert("Failed to delete.");
+    }
   };
 
   const handleReply = (email) => {
-    const subject = encodeURIComponent(email.customSubject || email.subject || "");
-    const body = encodeURIComponent(`Hi ${email.name},\n\n`);
-    const mailtoLink = `https://mail.google.com/mail/?view=cm&fs=1&to=${email.email}&su=${subject}&body=${body}`;
+    const subject = encodeURIComponent(`Re: ${email.customSubject || email.subject || ""}`);
+    const mailtoLink = `https://mail.google.com/mail/?view=cm&fs=1&to=${email.email}&su=${subject}`;
     window.open(mailtoLink, "_blank");
   };
 
+  // Logic for filtering
+  const filteredEmails = emails
+    .filter((e) => {
+      const content = `${e.name} ${e.email} ${e.subject} ${e.customSubject}`.toLowerCase();
+      const matchesSearch = content.includes(search.toLowerCase());
+      const matchesStatus = statusFilter === "All" || e.status === statusFilter.toLowerCase();
+      return matchesSearch && matchesStatus;
+    })
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
   if (loading) {
     return (
-      <>
-        <section className="min-h-screen flex items-center justify-center bg-black text-white">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-pink-500 mx-auto"></div>
-            <p className="mt-4 text-gray-400">Loading emails...</p>
-          </div>
-        </section>
-      </>
+      <div className="h-screen flex items-center justify-center bg-[#0f111a] text-white">
+        <div className="animate-pulse text-pink-500 font-medium">Loading Inbox...</div>
+      </div>
     );
   }
 
   return (
-    <>
+    <div className="h-screen flex flex-col bg-[#0f111a] text-gray-200 font-sans overflow-hidden">
+      <NavigationButtons />
 
-        <NavigationButtons/>
+      {/* Top Action Bar */}
+      <div className="mt-20 px-6 py-4 flex items-center justify-between border-b border-gray-800 bg-[#161925]">
+        <div className="flex items-center gap-4 flex-1 max-w-2xl">
+          <h1 className="text-xl font-bold mr-4 bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">
+            Inbox
+          </h1>
+          <input
+            type="text"
+            placeholder="Search messages..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded-md focus:outline-none focus:ring-1 focus:ring-pink-500 text-sm"
+          />
+        </div>
 
-      <section className="min-h-screen pt-28 px-6 bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white">
-        <div className="max-w-7xl mx-auto">
-          {/* Header */}
-          <div className="mb-10 text-center">
-            <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 via-cyan-400 to-pink-500 animate-gradient">
-              Admin Inbox
-            </h1>
-            <p className="text-gray-400 mt-2">Manage and respond to user messages</p>
-          </div>
+        <div className="flex items-center gap-3 ml-4">
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="bg-gray-800 border border-gray-700 rounded px-3 py-1.5 text-xs focus:outline-none"
+          >
+            <option value="All">All Mail</option>
+            <option value="unread">Unread</option>
+            <option value="read">Read</option>
+          </select>
+          <button onClick={fetchEmails} className="p-2 hover:bg-gray-700 rounded-full transition-colors">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+          </button>
+        </div>
+      </div>
 
-          {/* Filters */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <input
-              type="text"
-              placeholder="Search by name, email, or subject..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="md:col-span-2 w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-pink-500"
-            />
+      {/* Main Content Area */}
+      <div className="flex flex-1 overflow-hidden">
 
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-gray-100 focus:ring-2 focus:ring-pink-500"
-            >
-              {categories.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-            </select>
-
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-gray-100 focus:ring-2 focus:ring-pink-500"
-            >
-              <option value="All">All Status</option>
-              <option value="read">Read</option>
-              <option value="unread">Unread</option>
-            </select>
-          </div>
-
-          {/* Emails List */}
-          <div className="bg-gray-900/70 rounded-2xl shadow-xl border border-gray-800 overflow-hidden">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-700">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={
-                    selectedEmails.size === filteredEmails.length &&
-                    filteredEmails.length > 0
-                  }
-                  onChange={selectAllEmails}
-                  className="h-4 w-4 text-pink-500 rounded"
-                />
-                <span className="text-sm text-gray-300">Select All</span>
-              </label>
-
-              <span className="text-sm text-gray-400">
-                {filteredEmails.length} messages
-              </span>
-            </div>
-
-            {filteredEmails.map((email) => {
-              const isExpanded = expandedId === email._id;
-              const isSelected = selectedEmails.has(email._id);
-
-              return (
-                <div
-                  key={email._id}
-                  className={`border-b border-gray-800 transition-all duration-300 hover:bg-gray-800/60 ${
-                    isSelected ? "ring-2 ring-pink-400" : ""
+        {/* Left Sidebar: Email List */}
+        <div className="w-full md:w-[400px] border-r border-gray-800 overflow-y-auto bg-[#0f111a]">
+          {filteredEmails.length === 0 ? (
+            <div className="p-10 text-center text-gray-500 text-sm">No messages found.</div>
+          ) : (
+            filteredEmails.map((email) => (
+              <div
+                key={email._id}
+                onClick={() => setSelectedEmail(email)}
+                className={`p-4 border-b border-gray-800 cursor-pointer transition-all relative ${selectedEmail?._id === email._id ? "bg-gray-800/50 border-l-4 border-l-pink-500" : "hover:bg-gray-800/30"
                   }`}
-                >
-                  {/* Email Preview */}
-                  <div
-                    className="flex justify-between items-center px-6 py-4 cursor-pointer"
-                    onClick={() => setExpandedId(isExpanded ? null : email._id)}
-                  >
-                    
-                    <div className="flex items-center gap-4">
-                      <div
-                        className="w-10 h-10 rounded-full flex items-center justify-center text-black font-bold"
-                        style={{
-                          backgroundColor: getStatusColor(email.status),
-                        }}
-                      >
-                        {email.name[0]?.toUpperCase()}
-                      </div>
+              >
+                <div className="flex justify-between items-start mb-1">
+                  <span className={`text-sm font-semibold ${email.status === 'unread' ? 'text-white' : 'text-gray-400'}`}>
+                    {email.name}
+                  </span>
+                  <span className="text-[10px] text-gray-500">
+                    {new Date(email.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
+                <div className={`text-xs truncate ${email.status === 'unread' ? 'text-pink-400 font-medium' : 'text-gray-400'}`}>
+                  {email.customSubject || email.subject || "No Subject"}
+                </div>
+                <div className="text-xs text-gray-500 truncate mt-1">
+                  {email.message}
+                </div>
+                {email.status === 'unread' && (
+                  <div className="absolute right-4 bottom-4 w-2 h-2 bg-pink-500 rounded-full shadow-[0_0_8px_rgba(236,72,153,0.6)]"></div>
+                )}
+              </div>
+            ))
+          )}
+        </div>
 
-                      <div>
-                        <p className="font-semibold text-gray-100">{email.name}</p>
-                        <p className="text-sm text-gray-400 truncate max-w-[300px]">
-                          {email.customSubject || email.subject || "No Subject"}
-                        </p>
-                      </div>
+        {/* Right Pane: Reading Area */}
+        <div className="hidden md:flex flex-1 bg-[#161925] flex-col overflow-y-auto">
+          {selectedEmail ? (
+            <div className="p-8 max-w-4xl">
+              {/* Email Header */}
+              <div className="flex justify-between items-start mb-8">
+                <div>
+                  <h2 className="text-2xl font-bold text-white mb-2">
+                    {selectedEmail.customSubject || selectedEmail.subject || "No Subject"}
+                  </h2>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-pink-500 to-yellow-500 flex items-center justify-center text-black font-bold">
+                      {selectedEmail.name[0].toUpperCase()}
                     </div>
-
-                    <div className="flex items-center gap-4">
-                      <span
-                        className="text-xs font-semibold px-2 py-1 rounded-full"
-                        style={{
-                          backgroundColor: `${getStatusColor(email.status)}30`,
-                          color: getStatusColor(email.status),
-                        }}
-                      >
-                        {email.status?.toUpperCase() || "NEW"}
-                      </span>
-
-                      <p className="text-xs text-gray-500">
-                        {formatDate(email.createdAt || email._id)}
-                      </p>
-
-                      <svg
-                        className={`w-5 h-5 text-gray-400 transform transition-transform duration-300 ${
-                          isExpanded ? "rotate-180" : ""
-                        }`}
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 9l-7 7-7-7"
-                        />
-                      </svg>
-                      <div className="mt-4 flex gap-3">
-  <button
-    onClick={() => handleReply(email)}
-    className="px-4 py-2 rounded-lg bg-pink-600 hover:bg-pink-700 text-white transition-all"
-  >
-    Reply
-  </button>
-
-  <button
-    onClick={() => handleDeleteEmail(email._id)}
-    className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white transition-all"
-  >
-    Delete
-  </button>
-</div>
-
+                    <div>
+                      <div className="text-sm font-medium text-gray-200">{selectedEmail.name}</div>
+                      <div className="text-xs text-gray-500">{`<${selectedEmail.email}>`}</div>
                     </div>
                   </div>
-
-                  {/* Expanded View */}
-                  {isExpanded && (
-                    <div className="bg-gray-800/60 px-8 pb-6 animate-fadeIn">
-                      <div className="text-gray-300 mt-2 border-t border-gray-700 pt-4 leading-relaxed whitespace-pre-wrap break-words max-h-96 overflow-y-auto">
-                        {email.message}
-                      </div>
-
-                      <div className="mt-4 flex gap-3">
-                        <button
-                          onClick={() => handleReply(email)}
-                          className="px-4 py-2 rounded-lg bg-pink-600 hover:bg-pink-700 text-white transition-all"
-                        >
-                          Reply
-                        </button>
-                      </div>
-                    </div>
-                  )}
                 </div>
-              );
-            })}
-          </div>
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleReply(selectedEmail)}
+                    className="px-4 py-2 bg-pink-600 hover:bg-pink-700 text-white text-xs rounded-md transition-colors flex items-center gap-2"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M7.707 3.293a1 1 0 010 1.414L5.414 7H11a7 7 0 017 7v2a1 1 0 11-2 0v-2a5 5 0 00-5-5H5.414l2.293 2.293a1 1 0 11-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" /></svg>
+                    Reply
+                  </button>
+                  <button
+                    onClick={() => handleDeleteEmail(selectedEmail._id)}
+                    className="px-4 py-2 bg-gray-800 hover:bg-red-900/40 text-gray-400 hover:text-red-400 border border-gray-700 rounded-md text-xs transition-all"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+
+              {/* Email Body */}
+              <div className="bg-gray-900/50 rounded-xl p-6 border border-gray-800 min-h-[300px] text-gray-300 leading-relaxed whitespace-pre-wrap">
+                {selectedEmail.message}
+              </div>
+
+              <div className="mt-6 text-[11px] text-gray-600 italic">
+                Received on: {new Date(selectedEmail.createdAt).toLocaleString()}
+              </div>
+            </div>
+          ) : (
+            <div className="flex-1 flex flex-col items-center justify-center text-gray-600">
+              <svg className="w-16 h-16 mb-4 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+              </svg>
+              <p>Select a message to read</p>
+            </div>
+          )}
         </div>
-      </section>
-
-
-
-      <style>
-        {`
-          @keyframes gradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-          }
-          .animate-gradient {
-            background-size: 200% 200%;
-            animation: gradient 8s ease infinite;
-          }
-          @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-          }
-          .animate-fadeIn {
-            animation: fadeIn 0.5s ease-out;
-          }
-        `}
-      </style>
-    </>
+      </div>
+    </div>
   );
 };
 
