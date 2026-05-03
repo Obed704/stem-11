@@ -79,12 +79,12 @@ const AdminGetInvolved = () => {
   }
 
   return (
-    <AdminLayout title="Get Involved" subtitle="Card_System_Management">
+    <AdminLayout title="Get Involved" subtitle="Card_Management">
       <div className="space-y-12">
         {items.map((item, idx) => (
           <section key={item._id} className="bg-slate-900 border border-white/5 rounded-[3rem] p-10 md:p-14 shadow-2xl relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-cyan-500/5 to-transparent pointer-events-none" />
-            
+
             <div className="relative z-10 flex flex-col lg:flex-row gap-16">
               {/* Form Side */}
               <div className="flex-1 space-y-10">
@@ -92,7 +92,7 @@ const AdminGetInvolved = () => {
                   <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 flex items-center justify-center text-cyan-400 font-black">
                     0{idx + 1}
                   </div>
-                  <h2 className="text-2xl font-black text-white uppercase tracking-tighter">Module_Config</h2>
+                  <h2 className="text-2xl font-black text-white uppercase tracking-tighter">Card</h2>
                 </div>
 
                 <div className="grid gap-8">
@@ -127,7 +127,7 @@ const AdminGetInvolved = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-mono text-slate-500 uppercase tracking-widest mb-3">Accent_Hex</label>
+                      <label className="block text-[10px] font-mono text-slate-500 uppercase tracking-widest mb-3">Color</label>
                       <div className="flex items-center gap-3 bg-slate-950 border border-white/10 rounded-2xl px-4 py-2">
                         <input
                           type="color"

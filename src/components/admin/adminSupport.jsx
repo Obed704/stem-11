@@ -103,9 +103,9 @@ const AdminSupport = () => {
     <div className="min-h-screen bg-gray-900 text-gray-100">
       <div className="max-w-5xl mx-auto p-8 space-y-12">
         <header>
-          <h1 className="text-4xl font-bold text-white">Support & Sponsors Section</h1>
+          <h1 className="text-4xl font-bold text-white">Support Section</h1>
           <p className="mt-3 text-gray-400">
-            Manage the sponsor/support cards displayed on your homepage or dedicated page.
+            Manage the support cards displayed on your homepage or dedicated page.
           </p>
         </header>
 

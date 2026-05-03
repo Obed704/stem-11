@@ -15,7 +15,6 @@ const AdminDashboard = () => {
     { name: "Testimonials", path: "/admin-testimonials", icon: "💬", desc: "Manage community feedback and comments" },
     { name: "Get Involved", path: "/admin-getInvolved", icon: "✨", desc: "Manage involvement opportunity cards" },
     { name: "Support Components", path: "/admin-support", icon: "❤️", desc: "Configure donation and support blocks" },
-    { name: "Payments", path: "/admin-payments", icon: "💳", desc: "Review donation records and payments" },
     { name: "Navbar settings", path: "/header-settings", icon: "⚙️", desc: "Configure header navigation and colors" },
     { name: "Home settings", path: "/welcome-settings", icon: "🏠", desc: "Update home page text and slides" },
     { name: "Emails", path: "/admin-emails", icon: "📧", desc: "Manage contact form submissions" },
@@ -32,16 +31,16 @@ const AdminDashboard = () => {
           >
             {/* Background Accent */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-cyan-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            
+
             <div className="relative z-10">
               <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center text-3xl mb-6 group-hover:scale-110 group-hover:bg-cyan-500/20 transition-all duration-500">
                 {page.icon}
               </div>
-              
+
               <h3 className="text-xl font-bold text-white mb-2 group-hover:text-cyan-400 transition-colors">
                 {page.name}
               </h3>
-              
+
               <p className="text-sm text-slate-500 leading-relaxed font-medium">
                 {page.desc}
               </p>
@@ -66,7 +65,7 @@ const AdminDashboard = () => {
             <p className="text-white font-bold text-lg mt-0.5">Sync Successful</p>
           </div>
         </div>
-        
+
         <div className="bg-slate-900/50 border border-white/5 rounded-3xl p-8 flex items-center gap-6">
           <div className="w-12 h-12 rounded-full bg-cyan-500/10 flex items-center justify-center text-cyan-500">
             📊

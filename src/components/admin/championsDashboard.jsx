@@ -201,7 +201,7 @@ export default function ChampionDashboard() {
   );
 
   return (
-    <AdminLayout title="Hall of Fame" subtitle={`${data.total}_Verified_Champions`}>
+    <AdminLayout title="CHAMPIONS" subtitle={`${data.total}_Verified_Champions`}>
       <div className="space-y-12">
         {/* Actions */}
         <div className="flex justify-between items-center">

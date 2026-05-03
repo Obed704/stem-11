@@ -87,21 +87,21 @@ const TeamMemberDashboard = () => {
   );
 
   return (
-    <AdminLayout title="Team Registry" subtitle={`${members.length}_Active_Personnel`}>
+    <AdminLayout title="Team Registry" subtitle={`${members.length}_members`}>
       <div className="space-y-12">
         {/* Form Section */}
         <section className="bg-slate-900 border border-white/5 rounded-[3rem] p-10 md:p-14 shadow-2xl relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-cyan-500/5 to-transparent pointer-events-none" />
-          
+
           <h2 className="text-xl font-black text-white uppercase tracking-widest mb-10 border-b border-white/5 pb-6">
-            {editingId ? "Update_Identity" : "Register_Personnel"}
+            {editingId ? "Update_Identity" : "Register_New_Member"}
           </h2>
 
           <form onSubmit={handleSubmit} className="grid lg:grid-cols-2 gap-12">
             <div className="space-y-8">
               <div className="grid md:grid-cols-2 gap-8">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-mono text-slate-500 uppercase tracking-widest ml-1">Legal_Name</label>
+                  <label className="text-[10px] font-mono text-slate-500 uppercase tracking-widest ml-1">Full_Name</label>
                   <input
                     type="text"
                     value={formData.name}
@@ -123,7 +123,7 @@ const TeamMemberDashboard = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-mono text-slate-500 uppercase tracking-widest ml-1">Comm_Channel (Email)</label>
+                <label className="text-[10px] font-mono text-slate-500 uppercase tracking-widest ml-1">Email</label>
                 <input
                   type="email"
                   value={formData.email}
@@ -138,7 +138,7 @@ const TeamMemberDashboard = () => {
                   disabled={loading}
                   className="flex-[2] py-5 bg-white text-slate-950 font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-cyan-400 transition-all shadow-xl disabled:opacity-50"
                 >
-                  {loading ? "Processing..." : editingId ? "Commit_Update" : "Initialize_Member"}
+                  {loading ? "Processing..." : editingId ? "Update" : "loading"}
                 </button>
                 {editingId && (
                   <button
@@ -160,7 +160,7 @@ const TeamMemberDashboard = () => {
                   {preview ? (
                     <img src={preview} alt="Preview" className="w-full h-full object-cover" />
                   ) : (
-                    <div className="text-[10px] font-mono text-slate-600 uppercase tracking-widest text-center px-4">Biometric_Visual_Required</div>
+                    <div className="text-[10px] font-mono text-slate-600 uppercase tracking-widest text-center px-4">select image</div>
                   )}
                   <input
                     type="file"
@@ -181,7 +181,7 @@ const TeamMemberDashboard = () => {
 
         {/* Database List */}
         <div className="grid gap-4">
-          <h3 className="text-[10px] font-mono text-slate-600 uppercase tracking-[0.4em] mb-4 ml-4">Registry_Nodes</h3>
+          <h3 className="text-[10px] font-mono text-slate-600 uppercase tracking-[0.4em] mb-4 ml-4">Team Members</h3>
           {members.map((m) => (
             <div
               key={m._id}

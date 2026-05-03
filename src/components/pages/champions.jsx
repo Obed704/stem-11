@@ -79,7 +79,7 @@ const WomenInStem = () => {
           />
           <div className="space-y-4">
             <div className="text-[10px] font-mono font-black uppercase tracking-[0.5em] text-slate-400">
-              Initializing_System
+              LOADING stem inspires
             </div>
             <div className="w-48 h-[1px] bg-slate-100 mx-auto overflow-hidden relative">
               <motion.div

@@ -47,8 +47,8 @@ export default function SlidesAdmin() {
   /* Submit (add / update) */
   const submit = async () => {
     if (!file) {
-        alert("Please select an image first.");
-        return;
+      alert("Please select an image first.");
+      return;
     }
 
     const formData = new FormData();
@@ -111,24 +111,24 @@ export default function SlidesAdmin() {
       <div className="max-w-6xl mx-auto px-6 pt-24">
         {/* Header */}
         <header className="mb-16">
-          <motion.h1 
+          <motion.h1
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             className="text-5xl font-black text-white tracking-tight"
           >
             HERO <span className="text-indigo-500">CAROUSEL</span>
           </motion.h1>
-          <p className="text-slate-500 mt-2 font-medium">Curate the visual first impression of your platform.</p>
+          <p className="text-slate-500 mt-2 font-medium">Configure slide images.</p>
         </header>
 
         {/* Upload Form */}
-        <motion.section 
+        <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="bg-[#111113] border border-white/5 p-8 rounded-[2.5rem] shadow-2xl mb-20 relative overflow-hidden"
         >
           <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
-          
+
           <h2 className="text-sm font-black uppercase tracking-[0.3em] text-indigo-400 mb-8 flex items-center gap-2">
             <span className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></span>
             {editId ? "Update Asset" : "New Slide Registration"}
@@ -151,14 +151,14 @@ export default function SlidesAdmin() {
                 />
               ) : (
                 <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
-                   <svg className="w-12 h-12 mb-4 text-slate-700 group-hover:text-indigo-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" strokeWidth="1.5" /></svg>
+                  <svg className="w-12 h-12 mb-4 text-slate-700 group-hover:text-indigo-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" strokeWidth="1.5" /></svg>
                   <p className="text-slate-400 font-bold tracking-tight">DROP NEW ASSET</p>
-                  <p className="text-[10px] text-slate-600 uppercase mt-2 font-black tracking-widest leading-relaxed">Cloudinary CDN Optimized<br/>High Resolution Recommended</p>
+
                 </div>
               )}
               {preview && (
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <span className="bg-white text-black text-[10px] font-black px-6 py-2 rounded-full">CHANGE IMAGE</span>
+                  <span className="bg-white text-black text-[10px] font-black px-6 py-2 rounded-full">CHANGE IMAGE</span>
                 </div>
               )}
             </label>
@@ -219,19 +219,19 @@ export default function SlidesAdmin() {
                       className="h-full w-full object-cover transition-all duration-700 group-hover:scale-110"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent opacity-60" />
-                    
+
                     <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
                       <button
                         onClick={() => editSlide(slide)}
                         className="p-3 bg-white/10 backdrop-blur-md text-white hover:bg-white hover:text-black rounded-xl transition-all"
                       >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
                       </button>
                       <button
                         onClick={() => deleteSlide(slide._id)}
                         className="p-3 bg-rose-500/20 backdrop-blur-md text-rose-500 hover:bg-rose-500 hover:text-white rounded-xl transition-all"
                       >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
                       </button>
                     </div>
                   </div>
@@ -242,7 +242,7 @@ export default function SlidesAdmin() {
                       <p className="text-[10px] font-mono text-slate-400">#{slide._id.slice(-8).toUpperCase()}</p>
                     </div>
                     <div className="px-3 py-1 bg-green-500/10 border border-green-500/20 rounded-full">
-                       <p className="text-[9px] font-black text-green-500 uppercase tracking-widest">ACTIVE</p>
+                      <p className="text-[9px] font-black text-green-500 uppercase tracking-widest">ACTIVE</p>
                     </div>
                   </div>
                 </motion.div>

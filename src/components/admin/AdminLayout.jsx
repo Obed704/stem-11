@@ -23,7 +23,7 @@ const AdminLayout = ({ children, title, subtitle }) => {
     { name: "Support", path: "/admin-support", icon: "❤️" },
     { name: "Sponsors", path: "/admin-sponsors", icon: "🏢" },
     { name: "Emails", path: "/admin-emails", icon: "📧" },
-    { name: "Payments", path: "/admin-payments", icon: "💳" },
+    // { name: "Payments", path: "/admin-payments", icon: "💳" },
     { name: "Settings", path: "/header-settings", icon: "⚙️" },
   ];
 
@@ -71,10 +71,9 @@ const AdminLayout = ({ children, title, subtitle }) => {
               key={page.path}
               to={page.path}
               className={({ isActive }) =>
-                `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 group ${
-                  isActive
-                    ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20"
-                    : "text-slate-400 hover:bg-white/5 hover:text-white border border-transparent"
+                `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 group ${isActive
+                  ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20"
+                  : "text-slate-400 hover:bg-white/5 hover:text-white border border-transparent"
                 }`
               }
             >
@@ -124,10 +123,10 @@ const AdminLayout = ({ children, title, subtitle }) => {
 
           <div className="flex items-center gap-6">
             <div className="flex flex-col items-end">
-              <span className="text-xs font-bold text-white">Administrator</span>
+              <span className="text-xs font-bold text-white">Dashboard</span>
               <div className="flex items-center gap-1.5 mt-0.5">
                 <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                <span className="text-[10px] text-slate-500 uppercase tracking-widest font-mono">System_Online</span>
+                <span className="text-[10px] text-slate-500 uppercase tracking-widest font-mono">_Online</span>
               </div>
             </div>
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-400 to-pink-500 p-[1px]">

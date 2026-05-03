@@ -58,7 +58,7 @@ const ChampionsSection = ({ championsFromParent = [] }) => {
                 style={{ backgroundColor: orgColors.pink }}
               />
               <span className="text-[10px] font-black uppercase tracking-[0.5em] text-slate-400">
-                Hall of Fame
+                CHAMPIONS
               </span>
             </div>
             <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tighter text-slate-900 leading-none">

@@ -154,7 +154,7 @@ const ProcessDashboard = () => {
                         <p className="text-slate-400 line-clamp-3 leading-relaxed">{step.description}</p>
                       </div>
                       <div className="mt-6 flex items-center justify-between border-t border-slate-800 pt-5">
-                        <span className="text-[10px] font-mono text-slate-600 uppercase">UID: {step._id}</span>
+
                         <button
                           onClick={() => handleEdit(step)}
                           className="bg-white/5 hover:bg-white/10 text-white px-6 py-2 rounded-xl border border-white/10 transition"

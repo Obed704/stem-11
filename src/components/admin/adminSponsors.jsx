@@ -90,7 +90,7 @@ const SponsorDashboard = () => {
   };
 
   if (loading && sponsors.length === 0) return (
-    <AdminLayout title="Sponsor Hub" subtitle="Retrieving_Partner_Nodes...">
+    <AdminLayout title="Sponsors" subtitle="Retrieving_Partner_Nodes...">
       <div className="animate-pulse grid grid-cols-1 md:grid-cols-2 gap-8">
         {[1, 2, 3, 4].map(i => <div key={i} className="h-48 bg-slate-900 rounded-[2.5rem] border border-white/5" />)}
       </div>
@@ -98,7 +98,7 @@ const SponsorDashboard = () => {
   );
 
   return (
-    <AdminLayout title="Sponsor Hub" subtitle={`${sponsors.length}_Corporate_Nodes_Linked`}>
+    <AdminLayout title="Sponsors" subtitle={`${sponsors.length}_sponsors linked`}>
       <div className="grid lg:grid-cols-3 gap-12">
         {/* Form Column */}
         <div className="lg:col-span-1">
@@ -162,7 +162,7 @@ const SponsorDashboard = () => {
                 type="submit"
                 className="w-full py-5 bg-white text-slate-950 font-black uppercase tracking-[0.2em] text-[10px] rounded-2xl hover:bg-cyan-400 transition-all shadow-xl disabled:opacity-50"
               >
-                {isSubmitting ? "Processing..." : editingId ? "Commit_Update" : "Initialize_Sponsor"}
+                {isSubmitting ? "Processing..." : editingId ? "update" : "Upload"}
               </button>
 
               {editingId && (
@@ -180,7 +180,7 @@ const SponsorDashboard = () => {
 
         {/* List Column */}
         <div className="lg:col-span-2 space-y-6">
-          <h3 className="text-[10px] font-mono text-slate-600 uppercase tracking-[0.4em] mb-4 ml-4">Network_Nodes</h3>
+          <h3 className="text-[10px] font-mono text-slate-600 uppercase tracking-[0.4em] mb-4 ml-4">ALL SPONSORS</h3>
           <div className="grid md:grid-cols-2 gap-6">
             {sponsors.map((s) => (
               <div
@@ -188,7 +188,7 @@ const SponsorDashboard = () => {
                 className="group relative bg-slate-900 border border-white/5 p-8 rounded-[2.5rem] hover:border-white/10 transition-all duration-500 shadow-xl overflow-hidden"
               >
                 <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${s.gradient} opacity-5 group-hover:opacity-10 transition-opacity`} />
-                
+
                 <div className="relative z-10 space-y-6">
                   <div className="flex items-center justify-between">
                     <img src={s.img} alt={s.name} className="w-16 h-16 rounded-2xl object-cover border border-white/5 group-hover:scale-110 transition-transform duration-700" />

@@ -170,7 +170,7 @@ export default function AdminFtc() {
                   <label className="flex flex-col items-center justify-center w-full h-full border-2 border-dashed border-white/5 rounded-[2rem] cursor-pointer hover:bg-white/5 transition-all group overflow-hidden">
                     {!preview ? (
                       <div className="text-center p-6">
-                        <p className="text-indigo-400 font-bold group-hover:scale-110 transition-transform">SELECT ASSET</p>
+                        <p className="text-indigo-400 font-bold group-hover:scale-110 transition-transform">SelectImage</p>
                         <p className="text-[10px] text-slate-600 uppercase mt-2">Cloudinary Optimization Enabled</p>
                       </div>
                     ) : (

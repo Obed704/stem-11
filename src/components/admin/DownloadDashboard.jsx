@@ -173,7 +173,7 @@ export default function AdminDashboard() {
     <div className="p-6 bg-gray-900 min-h-screen text-gray-100 font-sans">
       <NavigationButtons />
       <header className="mb-10 text-center">
-        <h1 className="text-4xl font-black tracking-tighter uppercase text-blue-500">System_Admin</h1>
+        <h1 className="text-4xl font-black tracking-tighter uppercase text-blue-500">Resources_</h1>
         <p className="text-gray-500 text-xs font-mono mt-2 uppercase tracking-widest">Database Management Dashboard</p>
       </header>
 
@@ -184,8 +184,8 @@ export default function AdminDashboard() {
             key={tab}
             onClick={() => { setActiveTab(tab); setError(""); }}
             className={`px-8 py-3 rounded-xl font-bold uppercase text-[10px] tracking-[0.2em] transition-all border ${activeTab === tab
-                ? "bg-blue-600 border-blue-500 text-white shadow-[0_0_20px_rgba(37,99,235,0.3)]"
-                : "bg-gray-800 border-gray-700 text-gray-400 hover:bg-gray-700"
+              ? "bg-blue-600 border-blue-500 text-white shadow-[0_0_20px_rgba(37,99,235,0.3)]"
+              : "bg-gray-800 border-gray-700 text-gray-400 hover:bg-gray-700"
               }`}
           >
             {tab}
@@ -206,7 +206,7 @@ export default function AdminDashboard() {
               className="bg-gray-800/50 border border-white/5 p-8 rounded-3xl backdrop-blur-md sticky top-6"
             >
               <h2 className="text-sm font-black uppercase tracking-widest mb-6 text-blue-400">
-                {editing[activeTab] ? `// Edit_${activeTab.slice(0, -1)}` : `// New_${activeTab.slice(0, -1)}`}
+                {editing[activeTab] ? `// Edit_${activeTab.slice(0, -1)}` : `Files`}
               </h2>
 
               {error && <p className="bg-red-500/10 border border-red-500/50 text-red-500 p-3 rounded-lg text-xs mb-6 font-mono">{error}</p>}
@@ -227,7 +227,7 @@ export default function AdminDashboard() {
                     onChange={(e) => setDownloadForm({ ...downloadForm, description: e.target.value })}
                   />
                   <div>
-                    <label className="text-[10px] font-black uppercase text-gray-500 ml-2">Main File (.pdf, .zip)</label>
+                    <label className="text-[10px] font-black uppercase text-gray-500 ml-2">Main File (.pdf, .zip). no .avif files</label>
                     <input type="file" onChange={(e) => setDownloadForm({ ...downloadForm, file: e.target.files[0] })} className="w-full mt-1 text-xs text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:bg-blue-600 file:text-white" />
                   </div>
                   <div>

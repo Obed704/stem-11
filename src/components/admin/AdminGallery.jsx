@@ -117,7 +117,7 @@ const GalleryAdmin = () => {
         <header className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <h1 className="text-4xl font-black text-white tracking-tight">CHAMPIONS <span className="text-indigo-500">GALLERY</span></h1>
-            <p className="text-slate-500 mt-1 font-medium">Cloudinary-powered asset management system.</p>
+
           </div>
           <div className="bg-white/5 border border-white/10 px-4 py-2 rounded-2xl flex items-center gap-3">
             <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
@@ -198,7 +198,7 @@ const GalleryAdmin = () => {
 
                 {/* Floating ID Tag */}
                 <div className="absolute top-4 right-4 bg-black/40 backdrop-blur-md px-3 py-1 rounded-full border border-white/10">
-                  <span className="text-[9px] font-mono text-slate-400">UID: {it._id.slice(-6)}</span>
+
                 </div>
               </div>
 
