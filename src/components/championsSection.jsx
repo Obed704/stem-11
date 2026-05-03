@@ -30,7 +30,7 @@ const ChampionsSection = () => {
   if (loading)
     return (
       <div className="py-20 text-center font-mono text-[10px] tracking-[0.5em] opacity-50">
-        INITIALIZING_ARCHIVE...
+        Loading
       </div>
     );
 

@@ -41,7 +41,7 @@ const EducationElements = ({ elements = [] }) => {
         <div className="inline-flex items-center gap-2 mb-4">
           <span className="h-2 w-2 rounded-full bg-[rgb(242,30,167)]" />
           <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-[rgb(242,30,167)]">
-            Core Curriculum
+            Education
           </span>
         </div>
 

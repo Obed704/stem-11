@@ -41,12 +41,7 @@ const RecruitingProcess = ({ steps = [] }) => {
               className="h-[1px] w-8"
               style={{ background: ACCENT_CYAN }}
             ></span>
-            <span
-              className="text-[10px] font-black uppercase tracking-[0.4em]"
-              style={{ color: ACCENT_CYAN }}
-            >
-              Onboarding_Phase // 02
-            </span>
+
           </motion.div>
 
           <motion.h2
