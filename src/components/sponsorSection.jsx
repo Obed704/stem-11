@@ -138,9 +138,10 @@ const SponsorCard = ({ sponsor, idx }) => {
 };
 
 const SponsorsSection = ({ sponsors: rawSponsors = [] }) => {
+  // No longer prepending BACKEND_URL — images are full Cloudinary URLs
   const formattedSponsors = rawSponsors.map((sponsor) => ({
     ...sponsor,
-    img: `${BACKEND_URL}${sponsor.img?.startsWith("/") ? "" : "/"}${sponsor.img}`,
+    // img remains unchanged (full URL)
   }));
 
   return (

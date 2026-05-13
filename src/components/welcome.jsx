@@ -98,10 +98,9 @@ const HeroSection = ({ hero, slides }) => {
   const firstSlideReady = loadedSlides[0];
 
   return (
-    <section className="relative h-screen bg-white overflow-hidden">
+    <section className="relative h-screen bg-slate-50 overflow-hidden">
 
-      {/* ── HIDDEN PRELOAD LAYER (all slides, display:none) ──────────────────
-          Tells the browser to fetch these as high-priority resources.      */}
+      {/* ── HIDDEN PRELOAD LAYER ───────────────────────────────────────────── */}
       <div aria-hidden="true" style={{ display: "none" }}>
         {slides?.map((slide, i) => (
           <img
@@ -115,26 +114,41 @@ const HeroSection = ({ hero, slides }) => {
         ))}
       </div>
 
-      {/* 1. ENGINEERING GRID OVERLAY */}
-      <div className="absolute inset-0 z-10 pointer-events-none opacity-[0.03]">
+      {/* ENGINEERING GRID */}
+      <div className="absolute inset-0 z-10 pointer-events-none opacity-[0.02]">
         <div
           className="absolute inset-0"
           style={{
-            backgroundImage: `linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)`,
+            backgroundImage: `
+            linear-gradient(#000 1px, transparent 1px),
+            linear-gradient(90deg, #000 1px, transparent 1px)
+          `,
             backgroundSize: "50px 50px",
           }}
         />
       </div>
 
-      {/* 2. BACKGROUND IMAGE SLIDER */}
+      {/* BACKGROUND SLIDER */}
       <div className="absolute inset-0 z-0">
 
-        {/* Shimmer shown until first image is ready */}
+        {/* CINEMATIC WHITE OVERLAY */}
+        <div
+          className="absolute inset-0 z-[2]"
+          style={{
+            background:
+              "linear-gradient(to right, rgba(248,250,252,0.84) 0%, rgba(248,250,252,0.50) 34%, rgba(248,250,252,0.10) 68%, transparent 100%)",
+          }}
+        />
+
+        {/* LIGHT ATMOSPHERIC DEPTH */}
+        <div className="absolute inset-0 bg-white/[0.04] backdrop-blur-[0.5px] z-[1]" />
+
+        {/* SHIMMER */}
         <AnimatePresence>
           {!firstSlideReady && (
             <motion.div
               key="shimmer"
-              className="absolute inset-0 z-10"
+              className="absolute inset-0 z-20"
               initial={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.5 }}
@@ -144,7 +158,7 @@ const HeroSection = ({ hero, slides }) => {
           )}
         </AnimatePresence>
 
-        {/* Slide images — rendered as soon as their image is loaded */}
+        {/* SLIDES */}
         <AnimatePresence mode="wait">
           {slides?.map(
             (slide, index) =>
@@ -155,28 +169,29 @@ const HeroSection = ({ hero, slides }) => {
                   initial={{ opacity: 0, scale: 1.04 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0 }}
-                  // Faster reveal on first slide; cinematic on subsequent
-                  transition={{ duration: index === 0 ? 0.6 : 1.2 }}
+                  transition={{
+                    duration: index === 0 ? 0.6 : 1.2,
+                    ease: "easeOut",
+                  }}
                   className="absolute inset-0"
                   style={{
                     willChange: "opacity, transform",
                     backgroundImage: `url(${resolveUrl(slide.bg)})`,
                     backgroundSize: "cover",
                     backgroundPosition: "center",
-                    // Use already-cached browser image — no network hit
+                    filter: "saturate(0.96) contrast(0.94) brightness(0.92)",
                   }}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-white via-white/80 to-transparent" />
-                </motion.div>
+                />
               ),
           )}
         </AnimatePresence>
       </div>
 
-      {/* 3. CONTENT LAYER */}
+      {/* CONTENT */}
       <div className="relative z-20 h-full max-w-7xl mx-auto px-6 flex flex-col justify-center">
         <div className="max-w-2xl space-y-8">
-          {/* MAIN HEADING */}
+
+          {/* HEADING */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
@@ -186,8 +201,13 @@ const HeroSection = ({ hero, slides }) => {
               <span style={{ color: orgColors.pink }}>
                 {hero.title?.word1 || "STEM"}
               </span>
+
               <br />
-              <span className="italic font-light" style={{ color: orgColors.blue }}>
+
+              <span
+                className="italic font-light"
+                style={{ color: orgColors.blue }}
+              >
                 {hero.title?.word2 || "Inspires"}
               </span>
             </h1>
@@ -205,7 +225,7 @@ const HeroSection = ({ hero, slides }) => {
               "Building the next generation of African innovators through robotics and engineering."}
           </motion.p>
 
-          {/* CTAs */}
+          {/* BUTTONS */}
           <motion.div
             className="flex flex-wrap gap-4"
             initial={{ opacity: 0, y: 20 }}
@@ -216,16 +236,24 @@ const HeroSection = ({ hero, slides }) => {
               <a
                 key={i}
                 href={btn.link}
-                className="px-8 py-4 text-[11px] font-black uppercase tracking-[0.2em] transition-all hover:scale-105"
+                className="px-8 py-4 text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-300 hover:scale-105 hover:shadow-xl"
                 style={{
                   backgroundColor:
-                    btn.type === "primary" ? orgColors.pink : "transparent",
+                    btn.type === "primary"
+                      ? orgColors.pink
+                      : "rgba(255,255,255,0.30)",
+
                   color:
-                    btn.type === "primary" ? orgColors.white : orgColors.dark,
+                    btn.type === "primary"
+                      ? orgColors.white
+                      : orgColors.dark,
+
                   border:
                     btn.type === "primary"
                       ? "none"
-                      : `2px solid ${orgColors.blue}`,
+                      : `1.5px solid ${orgColors.blue}`,
+
+                  backdropFilter: "blur(10px)",
                 }}
               >
                 {btn.label}
@@ -235,7 +263,7 @@ const HeroSection = ({ hero, slides }) => {
         </div>
       </div>
 
-      {/* 4. SLIDE INDICATORS */}
+      {/* SLIDE INDICATORS */}
       <div className="absolute bottom-12 right-12 flex flex-col gap-4 z-30">
         {slides?.map((_, idx) => (
           <button
@@ -245,30 +273,45 @@ const HeroSection = ({ hero, slides }) => {
             aria-label={`Go to slide ${idx + 1}`}
           >
             <span
-              className={`text-[10px] font-mono font-bold transition-opacity ${currentSlide === idx ? "opacity-100" : "opacity-0 group-hover:opacity-40"
+              className={`text-[10px] font-mono font-bold transition-opacity ${currentSlide === idx
+                  ? "opacity-100"
+                  : "opacity-0 group-hover:opacity-40"
                 }`}
               style={{ color: orgColors.blue }}
             >
-              {/* Show a tiny spinner while the slide image is still loading */}
               {!loadedSlides[idx] ? "…" : `SLIDE ${idx + 1}`}
             </span>
+
             <div
-              className={`h-[2px] transition-all duration-500 ${currentSlide === idx ? "w-20" : "w-8 opacity-30"
+              className={`h-[2px] transition-all duration-500 ${currentSlide === idx
+                  ? "w-20"
+                  : "w-8 opacity-30"
                 }`}
               style={{
                 backgroundColor:
-                  currentSlide === idx ? orgColors.pink : orgColors.dark,
+                  currentSlide === idx
+                    ? orgColors.pink
+                    : orgColors.dark,
               }}
             />
           </button>
         ))}
       </div>
 
-      {/* FOOTER BAR ACCENT */}
-      <div className="absolute bottom-0 left-0 w-full h-1 flex">
-        <div className="flex-1" style={{ backgroundColor: orgColors.pink }} />
-        <div className="flex-1" style={{ backgroundColor: orgColors.blue }} />
-        <div className="flex-1" style={{ backgroundColor: orgColors.yellow }} />
+      {/* FOOTER BAR */}
+      <div className="absolute bottom-0 left-0 w-full h-1 flex z-40">
+        <div
+          className="flex-1"
+          style={{ backgroundColor: orgColors.pink }}
+        />
+        <div
+          className="flex-1"
+          style={{ backgroundColor: orgColors.blue }}
+        />
+        <div
+          className="flex-1"
+          style={{ backgroundColor: orgColors.yellow }}
+        />
       </div>
     </section>
   );
